@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:auto_updater/auto_updater.dart';
+// import 'package:auto_updater/auto_updater.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('auto_updater');
@@ -17,7 +17,7 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await AutoUpdater.platformVersion, '42');
-  });
+  // test('getPlatformVersion', () async {
+  //   expect(await AutoUpdater.platformVersion, '42');
+  // });
 }

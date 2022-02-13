@@ -1,0 +1,29 @@
+PODS:
+  - auto_updater (0.0.1):
+    - FlutterMacOS
+    - Sparkle
+  - FlutterMacOS (1.0.0)
+  - Sparkle (2.0.0)
+
+DEPENDENCIES:
+  - auto_updater (from `Flutter/ephemeral/.symlinks/plugins/auto_updater/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+SPEC REPOS:
+  trunk:
+    - Sparkle
+
+EXTERNAL SOURCES:
+  auto_updater:
+    :path: Flutter/ephemeral/.symlinks/plugins/auto_updater/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  auto_updater: d3c03e9e5f2a00ec78572d9f7473cb8c9a6c0273
+  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  Sparkle: 128c668ddd0780beb08576ce18460d2a37f64f9f
+
+PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+
+COCOAPODS: 1.11.2

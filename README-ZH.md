@@ -8,11 +8,11 @@
 [discord-image]: https://img.shields.io/discord/884679008049037342.svg
 [discord-url]: https://discord.gg/zPa6EZ2jqb
 
-This plugin allows Flutter **desktop** apps to automatically update themselves.
+这个插件允许 Flutter **桌面** 应用自动更新自己。
 
 ---
 
-English | [简体中文](./README-ZH.md)
+[English](./README.md) | 简体中文
 
 ---
 
@@ -20,40 +20,40 @@ English | [简体中文](./README-ZH.md)
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [auto_updater](#auto_updater)
-  - [Platform Support](#platform-support)
-  - [Quick Start](#quick-start)
-    - [Installation](#installation)
-    - [Usage](#usage)
-  - [Who's using it?](#whos-using-it)
+  - [平台支持](#平台支持)
+  - [快速开始](#快速开始)
+    - [安装](#安装)
+    - [用法](#用法)
+  - [谁在用使用它？](#谁在用使用它)
   - [API](#api)
     - [AutoUpdater](#autoupdater)
       - [Methods](#methods)
         - [setFeedURL](#setfeedurl)
         - [getFeedURL](#getfeedurl)
         - [checkForUpdates](#checkforupdates)
-  - [Related Links](#related-links)
-  - [License](#license)
+  - [相关链接](#相关链接)
+  - [许可证](#许可证)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Platform Support
+## 平台支持
 
 | Linux | macOS | Windows |
 | :---: | :---: | :-----: |
 |   ➖   |   ✔️   |    ✔️    |
 
-## Quick Start
+## 快速开始
 
-### Installation
+### 安装
 
-Add this to your package's pubspec.yaml file:
+将此添加到你的软件包的 pubspec.yaml 文件：
 
 ```yaml
 dependencies:
   auto_updater: ^0.1.0
 ```
 
-Or
+或
 
 ```yaml
 dependencies:
@@ -63,13 +63,13 @@ dependencies:
       ref: main
 ```
 
-### Usage
+### 用法
 
 ```dart
 import 'package:auto_updater/auto_updater.dart';
 
 void main() async {
-  // Must add this line.
+  // 必须加上这一行。
   WidgetsFlutterBinding.ensureInitialized();
 
   String feedURL = 'http://localhost:5000/appcast.xml';
@@ -80,11 +80,11 @@ void main() async {
 }
 ```
 
-> Please see the example app of this plugin for a full example.
+> 请看这个插件的示例应用，以了解完整的例子。
 
-## Who's using it?
+## 谁在用使用它？
 
-- [Biyi](https://biyidev.com/) - A convenient translation and dictionary app.
+- [比译](https://biyidev.com/) - 一个便捷的翻译和词典应用程序。
 
 ## API
 
@@ -108,11 +108,11 @@ Asks the server whether there is an update. You must call setFeedURL before usin
 
 <!-- README_DOC_GEN -->
 
-## Related Links
+## 相关链接
 
 - https://sparkle-project.org/
 - https://winsparkle.org/
 
-## License
+## 许可证
 
 [MIT](./LICENSE)
