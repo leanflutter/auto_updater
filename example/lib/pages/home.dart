@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _init() async {
-    String feedURL = 'http://localhost:5000/appcast.xml';
+    String feedURL = 'http://localhost:5002/appcast.xml';
     await autoUpdater.setFeedURL(feedURL);
     await autoUpdater.checkForUpdates();
   }

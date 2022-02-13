@@ -13,12 +13,12 @@ Future<void> main(List<String> arguments) async {
   }
 
   String executable = Platform.isMacOS
-      ? ''
+      ? '${Directory.current.path}/macos/Pods/Sparkle/bin/generate_keys'
       : '..\\windows\\WinSparkle-0.7.0\\bin\\generate_keys.bat';
 
   Process process = await Process.start(
     executable,
-    [],
+    arguments,
   );
 
   process.stdout.listen(onProcessStdOutOrErr);

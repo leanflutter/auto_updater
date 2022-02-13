@@ -13,7 +13,7 @@ Future<void> main(List<String> arguments) async {
   }
 
   String executable = Platform.isMacOS
-      ? ''
+      ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
       : '..\\windows\\WinSparkle-0.7.0\\bin\\sign_update.bat';
 
   Process process = await Process.start(
