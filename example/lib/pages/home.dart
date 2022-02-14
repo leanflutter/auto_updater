@@ -10,20 +10,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final String _feedURL = 'http://localhost:5002/appcast.xml';
+
   @override
   void initState() {
     super.initState();
-    _init();
   }
 
-  void _init() async {
-    String feedURL = 'http://localhost:5002/appcast.xml';
-    await autoUpdater.setFeedURL(feedURL);
-    await autoUpdater.checkForUpdates();
+  void _handleClickSetFeedURL() async {
+    await autoUpdater.setFeedURL(_feedURL);
   }
 
   void _handleClickCheckForUpdates() async {
-    AutoUpdater.instance.checkForUpdates();
+    await autoUpdater.checkForUpdates();
   }
 
   Widget _buildBody(BuildContext context) {
@@ -32,6 +31,13 @@ class _HomePageState extends State<HomePage> {
         PreferenceListSection(
           title: const Text('METHODS'),
           children: [
+            PreferenceListItem(
+              title: const Text('setFeedURL'),
+              detailText: Text(_feedURL),
+              onTap: () {
+                _handleClickSetFeedURL();
+              },
+            ),
             PreferenceListItem(
               title: const Text('checkForUpdates'),
               onTap: () {

@@ -14,7 +14,7 @@ class AutoUpdater {
 
   Future<void> _methodCallHandler(MethodCall call) async {
     if (call.method != 'onEvent') throw UnimplementedError();
-    print(call.arguments['eventName']);
+    // print(call.arguments['eventName']);
   }
 
   /// Sets the url and initialize the auto updater.
@@ -23,11 +23,6 @@ class AutoUpdater {
       'feedURL': feedUrl,
     };
     await _channel.invokeMethod('setFeedURL', arguments);
-  }
-
-  /// Returns `String` - The current update feed URL.
-  Future<String> getFeedURL() async {
-    return await _channel.invokeMethod('getFeedURL');
   }
 
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
