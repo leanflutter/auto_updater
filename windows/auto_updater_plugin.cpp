@@ -69,9 +69,6 @@ void AutoUpdaterPlugin::HandleMethodCall(
         std::get<std::string>(args.at(flutter::EncodableValue("feedURL")));
     auto_updater->SetFeedURL(feedURL);
     result->Success(flutter::EncodableValue(true));
-  } else if (method_name.compare("getFeedURL") == 0) {
-    auto_updater->GetFeedURL();
-    result->Success(flutter::EncodableValue(true));
   } else if (method_name.compare("checkForUpdates") == 0) {
     auto_updater->CheckForUpdates();
     result->Success(flutter::EncodableValue(true));

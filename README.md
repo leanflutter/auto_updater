@@ -29,7 +29,6 @@ English | [简体中文](./README-ZH.md)
     - [AutoUpdater](#autoupdater)
       - [Methods](#methods)
         - [setFeedURL](#setfeedurl)
-        - [getFeedURL](#getfeedurl)
         - [checkForUpdates](#checkforupdates)
   - [Related Links](#related-links)
   - [License](#license)
@@ -96,10 +95,6 @@ void main() async {
 ##### setFeedURL
 
 Sets the url and initialize the auto updater.
-
-##### getFeedURL
-
-Returns `String` - The current update feed URL.
 
 ##### checkForUpdates
 

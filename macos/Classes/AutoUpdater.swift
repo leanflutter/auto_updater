@@ -26,10 +26,6 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
         try? _updater?.start()
     }
     
-    public func getFeedURL() -> URL? {
-        return _updater?.feedURL
-    }
-    
     public func checkForUpdates() {
         _updater?.checkForUpdates()
     }

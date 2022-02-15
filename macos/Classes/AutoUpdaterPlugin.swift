@@ -32,9 +32,6 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             autoUpdater.setFeedURL(feedURL)
             result(true)
             break
-        case "getFeedURL":
-            result(autoUpdater.getFeedURL())
-            break
         case "checkForUpdates":
             autoUpdater.checkForUpdates()
             result(true)

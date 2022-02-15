@@ -29,7 +29,6 @@
     - [AutoUpdater](#autoupdater)
       - [Methods](#methods)
         - [setFeedURL](#setfeedurl)
-        - [getFeedURL](#getfeedurl)
         - [checkForUpdates](#checkforupdates)
   - [相关链接](#相关链接)
   - [许可证](#许可证)
@@ -96,10 +95,6 @@ void main() async {
 ##### setFeedURL
 
 Sets the url and initialize the auto updater.
-
-##### getFeedURL
-
-Returns `String` - The current update feed URL.
 
 ##### checkForUpdates
 
