@@ -1,3 +1,8 @@
+## 0.1.3
+
+* [windows] Add missing WinSparkle dll/lib/pdb files #4
+* [windows] fix command path error #5
+
 ## 0.1.2
 
 * [windows] Add missing WinSparkle dll/lib/pdb files
