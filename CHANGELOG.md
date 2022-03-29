@@ -1,3 +1,7 @@
+## 0.1.4
+
+* Downgrade flutter version to 2.0.0 #7
+
 ## 0.1.3
 
 * [windows] Add missing WinSparkle dll/lib/pdb files #4

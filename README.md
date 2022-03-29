@@ -63,7 +63,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  auto_updater: ^0.1.3
+  auto_updater: ^0.1.4
 ```
 
 Or
