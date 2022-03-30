@@ -72,7 +72,10 @@ void AutoUpdaterPlugin::HandleMethodCall(
   } else if (method_name.compare("checkForUpdates") == 0) {
     auto_updater->CheckForUpdates();
     result->Success(flutter::EncodableValue(true));
-  } else {
+  } else if(method_name.compare("checkForUpdatesWithoutUI") == 0){
+    auto_updater->CheckForUpdatesWithoutUI();
+    result->Success(flutter::EncodableValue(true));
+  }else {
     result->NotImplemented();
   }
 }

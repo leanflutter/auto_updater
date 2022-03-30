@@ -29,6 +29,9 @@ class AutoUpdater {
   Future<void> checkForUpdates() async {
     await _channel.invokeMethod('checkForUpdates');
   }
+  Future<void> checkForUpdatesWithoutUI() async {
+    await _channel.invokeMethod('checkForUpdatesWithoutUI');
+  }
 }
 
 final autoUpdater = AutoUpdater.instance;

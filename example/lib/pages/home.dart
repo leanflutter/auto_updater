@@ -25,6 +25,10 @@ class _HomePageState extends State<HomePage> {
     await autoUpdater.checkForUpdates();
   }
 
+  void _handleClickCheckForUpdatesWithoutUI() async {
+    await autoUpdater.checkForUpdatesWithoutUI();
+  }
+
   Widget _buildBody(BuildContext context) {
     return PreferenceList(
       children: <Widget>[
@@ -42,6 +46,12 @@ class _HomePageState extends State<HomePage> {
               title: const Text('checkForUpdates'),
               onTap: () {
                 _handleClickCheckForUpdates();
+              },
+            ),
+            PreferenceListItem(
+              title: const Text('checkForUpdatesWithoutUI'),
+              onTap: () {
+                _handleClickCheckForUpdatesWithoutUI();
               },
             ),
           ],
