@@ -26,11 +26,11 @@ void AutoUpdater::SetFeedURL(std::string feedURL) {
 }
 
 void AutoUpdater::CheckForUpdates() {
-        win_sparkle_check_update_with_ui();
+  win_sparkle_check_update_with_ui();
 }
 
 void AutoUpdater::CheckForUpdatesWithoutUI() {
-        win_sparkle_check_update_without_ui();
+  win_sparkle_check_update_without_ui();
 }
 
 }  // namespace
