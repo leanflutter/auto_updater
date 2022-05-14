@@ -1,3 +1,7 @@
+## 0.1.5
+
+* Add check update in background.
+
 ## 0.1.4
 
 * Downgrade flutter version to 2.0.0 #7

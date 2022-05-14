@@ -7,12 +7,12 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
         let instance = AutoUpdaterPlugin(registrar, channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-    
+
     private var registrar: FlutterPluginRegistrar!;
     private var channel: FlutterMethodChannel!
 
     private var autoUpdater: AutoUpdater = AutoUpdater()
-    
+
     public init(_ registrar: FlutterPluginRegistrar, _ channel: FlutterMethodChannel) {
         super.init()
         self.registrar = registrar
@@ -22,10 +22,10 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             self._emitEvent(eventName)
         }
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let args: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        
+
         switch call.method {
         case "setFeedURL":
             let feedURL = URL(string: args["feedURL"] as! String)
@@ -33,14 +33,19 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             result(true)
             break
         case "checkForUpdates":
-            autoUpdater.checkForUpdates()
+            let checkForUpdatesInBackground = args["checkForUpdatesInBackground"] as! Bool
+            if(checkForUpdatesInBackground) {
+               autoUpdater.checkForUpdatesInBackground()
+            }else {
+               autoUpdater.checkForUpdates()
+            }
             result(true)
             break
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     public func _emitEvent(_ eventName: String) {
         let args: NSDictionary = [
             "eventName": eventName,

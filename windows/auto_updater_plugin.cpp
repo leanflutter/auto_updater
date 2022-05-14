@@ -70,12 +70,17 @@ void AutoUpdaterPlugin::HandleMethodCall(
     auto_updater->SetFeedURL(feedURL);
     result->Success(flutter::EncodableValue(true));
   } else if (method_name.compare("checkForUpdates") == 0) {
-    auto_updater->CheckForUpdates();
+    const flutter::EncodableMap& args =
+            std::get<flutter::EncodableMap>(*method_call.arguments());
+    bool checkForUpdatesInBackground =
+            std::get<bool>(args.at(flutter::EncodableValue("checkForUpdatesInBackground")));
+    if (checkForUpdatesInBackground) {
+      auto_updater->CheckForUpdatesWithoutUI();
+    } else {
+      auto_updater->CheckForUpdates();
+    }
     result->Success(flutter::EncodableValue(true));
-  } else if(method_name.compare("checkForUpdatesWithoutUI") == 0){
-    auto_updater->CheckForUpdatesWithoutUI();
-    result->Success(flutter::EncodableValue(true));
-  }else {
+  } else {
     result->NotImplemented();
   }
 }
