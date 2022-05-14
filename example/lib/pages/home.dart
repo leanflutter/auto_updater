@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleClickCheckForUpdatesWithoutUI() async {
-    await autoUpdater.checkForUpdatesWithoutUI();
+    await autoUpdater.checkForUpdates(inBackground: true);
   }
 
   Widget _buildBody(BuildContext context) {

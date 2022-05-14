@@ -10,7 +10,7 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
     
     private var registrar: FlutterPluginRegistrar!;
     private var channel: FlutterMethodChannel!
-
+    
     private var autoUpdater: AutoUpdater = AutoUpdater()
     
     public init(_ registrar: FlutterPluginRegistrar, _ channel: FlutterMethodChannel) {
@@ -33,7 +33,12 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             result(true)
             break
         case "checkForUpdates":
-            autoUpdater.checkForUpdates()
+            let inBackground = args["inBackground"] as! Bool
+            if(inBackground) {
+                autoUpdater.checkForUpdatesInBackground()
+            }else {
+                autoUpdater.checkForUpdates()
+            }
             result(true)
             break
         default:

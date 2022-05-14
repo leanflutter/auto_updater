@@ -29,7 +29,11 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     public func checkForUpdates() {
         _updater?.checkForUpdates()
     }
-
+    
+    public func checkForUpdatesInBackground() {
+       _updater?.checkForUpdatesInBackground()
+    }
+    
     // SPUUpdaterDelegate
     
     public func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
