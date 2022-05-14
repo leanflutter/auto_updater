@@ -26,9 +26,9 @@ class AutoUpdater {
   }
 
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
-  Future<void> checkForUpdates({bool? checkForUpdatesInBackground}) async {
+  Future<void> checkForUpdates({bool? inBackground}) async {
     final Map<String, dynamic> arguments = {
-      'checkForUpdatesInBackground': checkForUpdatesInBackground ?? false,
+      'inBackground': inBackground ?? false,
     };
     await _channel.invokeMethod('checkForUpdates', arguments);
   }

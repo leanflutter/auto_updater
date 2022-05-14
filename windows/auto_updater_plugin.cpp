@@ -72,9 +72,9 @@ void AutoUpdaterPlugin::HandleMethodCall(
   } else if (method_name.compare("checkForUpdates") == 0) {
     const flutter::EncodableMap& args =
             std::get<flutter::EncodableMap>(*method_call.arguments());
-    bool checkForUpdatesInBackground =
-            std::get<bool>(args.at(flutter::EncodableValue("checkForUpdatesInBackground")));
-    if (checkForUpdatesInBackground) {
+    bool inBackground =
+            std::get<bool>(args.at(flutter::EncodableValue("inBackground")));
+    if (inBackground) {
       auto_updater->CheckForUpdatesWithoutUI();
     } else {
       auto_updater->CheckForUpdates();

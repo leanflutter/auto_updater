@@ -33,8 +33,8 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             result(true)
             break
         case "checkForUpdates":
-            let checkForUpdatesInBackground = args["checkForUpdatesInBackground"] as! Bool
-            if(checkForUpdatesInBackground) {
+            let inBackground = args["inBackground"] as! Bool
+            if(inBackground) {
                 autoUpdater.checkForUpdatesInBackground()
             }else {
                 autoUpdater.checkForUpdates()
