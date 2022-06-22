@@ -261,7 +261,7 @@ MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg
 6hwAwkb2o4IqVE/D56ipIBshIqCH8rk=
 ```
 
-Update the obtained new signature to the value of the `sparkle:edSignature` attribute of the `enclosure` node of the `appcast.xml` file.
+Update the obtained new signature to the value of the `sparkle:dsaSignature` attribute of the `enclosure` node of the `appcast.xml` file.
 
 #### Distributing
 
