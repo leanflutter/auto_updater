@@ -33,6 +33,10 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     public func checkForUpdatesInBackground() {
        _updater?.checkForUpdatesInBackground()
     }
+
+    public func setScheduledCheckInterval(_ interval: Double) {
+        _updater?.updateCheckInterval = interval
+    }
     
     // SPUUpdaterDelegate
     
