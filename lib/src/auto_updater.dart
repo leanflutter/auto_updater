@@ -34,7 +34,7 @@ class AutoUpdater {
   }
 
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
-  Future<void> setScheduledCheckInterval(double interval) async {
+  Future<void> setScheduledCheckInterval(int interval) async {
     final Map<String, dynamic> arguments = {
       'interval': interval,
     };

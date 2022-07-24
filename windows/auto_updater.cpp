@@ -12,7 +12,7 @@ class AutoUpdater {
   void AutoUpdater::SetFeedURL(std::string feedURL);
   void AutoUpdater::CheckForUpdates();
   void AutoUpdater::CheckForUpdatesWithoutUI();
-  void AutoUpdater::setScheduledCheckInterval(double interval);
+  void AutoUpdater::SetScheduledCheckInterval(int interval);
 
  private:
 };
@@ -34,7 +34,7 @@ void AutoUpdater::CheckForUpdatesWithoutUI() {
   win_sparkle_check_update_without_ui();
 }
 
-void AutoUpdater::setScheduledCheckInterval(double interval) {
+void AutoUpdater::SetScheduledCheckInterval(int interval) {
   win_sparkle_set_update_check_interval(interval);
 }
 
