@@ -102,6 +102,7 @@ void main() async {
   String feedURL = 'http://localhost:5000/appcast.xml';
   await autoUpdater.setFeedURL(feedURL);
   await autoUpdater.checkForUpdates();
+  await autoUpdater.setScheduledCheckInterval(3600);
 
   runApp(MyApp());
 }
@@ -326,12 +327,15 @@ serve -l 5002
 
 ##### setFeedURL
 
-Sets the url and initialize the auto updater.
+设置 url 并初始化 auto updater.
 
 ##### checkForUpdates
 
-Asks the server whether there is an update. You must call setFeedURL before using this API.
+检查更新，在此之前必须先调用 setFeedURL.
 
+##### setScheduledCheckInterval
+
+设置检查时间间隔，默认 86400，最少 3600, 0 不更新
 
 <!-- README_DOC_GEN -->
 

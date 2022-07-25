@@ -29,6 +29,10 @@ class _HomePageState extends State<HomePage> {
     await autoUpdater.checkForUpdates(inBackground: true);
   }
 
+  void _handleClickSetScheduledCheckInterval() async {
+    await autoUpdater.setScheduledCheckInterval(3600);
+  }
+
   Widget _buildBody(BuildContext context) {
     return PreferenceList(
       children: <Widget>[
@@ -52,6 +56,12 @@ class _HomePageState extends State<HomePage> {
               title: const Text('checkForUpdatesWithoutUI'),
               onTap: () {
                 _handleClickCheckForUpdatesWithoutUI();
+              },
+            ),
+            PreferenceListItem(
+              title: const Text('setScheduledCheckInterval'),
+              onTap: () {
+                _handleClickSetScheduledCheckInterval();
               },
             ),
           ],
