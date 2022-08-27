@@ -80,6 +80,13 @@ void AutoUpdaterPlugin::HandleMethodCall(
       auto_updater->CheckForUpdates();
     }
     result->Success(flutter::EncodableValue(true));
+  } else if (method_name.compare("setScheduledCheckInterval") == 0) {
+    const flutter::EncodableMap& args =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int interval =
+        std::get<int>(args.at(flutter::EncodableValue("interval")));
+    auto_updater->SetScheduledCheckInterval(interval);
+    result->Success(flutter::EncodableValue(true));
   } else {
     result->NotImplemented();
   }

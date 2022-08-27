@@ -41,6 +41,11 @@ public class AutoUpdaterPlugin: NSObject, FlutterPlugin {
             }
             result(true)
             break
+        case "setScheduledCheckInterval":
+            let interval = args["interval"] as! Int
+            autoUpdater.setScheduledCheckInterval(interval)
+            result(true)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }

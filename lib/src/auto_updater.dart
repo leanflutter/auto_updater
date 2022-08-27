@@ -32,6 +32,14 @@ class AutoUpdater {
     };
     await _channel.invokeMethod('checkForUpdates', arguments);
   }
+
+  /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
+  Future<void> setScheduledCheckInterval(int interval) async {
+    final Map<String, dynamic> arguments = {
+      'interval': interval,
+    };
+    await _channel.invokeMethod('setScheduledCheckInterval', arguments);
+  }
 }
 
 final autoUpdater = AutoUpdater.instance;
