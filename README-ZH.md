@@ -65,7 +65,7 @@
 
 ```yaml
 dependencies:
-  auto_updater: ^0.1.5
+  auto_updater: ^0.1.6
 ```
 
 或

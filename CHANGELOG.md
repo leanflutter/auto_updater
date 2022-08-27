@@ -1,3 +1,7 @@
+## 0.1.6
+
+* Add `setScheduledCheckInterval` method #28
+
 ## 0.1.5
 
 * Add check update in background.
