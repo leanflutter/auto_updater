@@ -21,13 +21,17 @@ namespace {
 class AutoUpdaterPlugin : public flutter::Plugin {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar);
+  void SetChannel(std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> ptr) {
+     _channel = std::move(ptr);
+  }
 
   AutoUpdaterPlugin();
 
   virtual ~AutoUpdaterPlugin();
 
  private:
-  AutoUpdater* auto_updater;
+  AutoUpdater auto_updater = AutoUpdater();
+  std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> _channel;
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
@@ -50,6 +54,8 @@ void AutoUpdaterPlugin::RegisterWithRegistrar(
         plugin_pointer->HandleMethodCall(call, std::move(result));
       });
 
+  plugin->SetChannel(std::move(channel));
+
   registrar->AddPlugin(std::move(plugin));
 }
 
@@ -67,26 +73,30 @@ void AutoUpdaterPlugin::HandleMethodCall(
         std::get<flutter::EncodableMap>(*method_call.arguments());
     std::string feedURL =
         std::get<std::string>(args.at(flutter::EncodableValue("feedURL")));
-    auto_updater->SetFeedURL(feedURL);
+    auto_updater.SetFeedURL(feedURL);
+    auto_updater.RegisterCallbacks(std::move(_channel));
     result->Success(flutter::EncodableValue(true));
+
   } else if (method_name.compare("checkForUpdates") == 0) {
     const flutter::EncodableMap& args =
             std::get<flutter::EncodableMap>(*method_call.arguments());
     bool inBackground =
             std::get<bool>(args.at(flutter::EncodableValue("inBackground")));
     if (inBackground) {
-      auto_updater->CheckForUpdatesWithoutUI();
+      auto_updater.CheckForUpdatesWithoutUI();
     } else {
-      auto_updater->CheckForUpdates();
+      auto_updater.CheckForUpdates();
     }
     result->Success(flutter::EncodableValue(true));
+
   } else if (method_name.compare("setScheduledCheckInterval") == 0) {
     const flutter::EncodableMap& args =
         std::get<flutter::EncodableMap>(*method_call.arguments());
     int interval =
         std::get<int>(args.at(flutter::EncodableValue("interval")));
-    auto_updater->SetScheduledCheckInterval(interval);
+    auto_updater.SetScheduledCheckInterval(interval);
     result->Success(flutter::EncodableValue(true));
+
   } else {
     result->NotImplemented();
   }
