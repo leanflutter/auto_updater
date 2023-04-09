@@ -14,7 +14,7 @@ Future<void> main(List<String> arguments) async {
 
   String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
-      : '${Directory.current.path}\\windows\\flutter\\ephemeral\\.plugin_symlinks\\auto_updater\\windows\\WinSparkle-0.7.0\\bin\\sign_update.bat';
+      : '${Directory.current.path}\\windows\\flutter\\ephemeral\\.plugin_symlinks\\auto_updater\\windows\\WinSparkle-0.8.0\\bin\\sign_update.bat';
 
   if (Platform.isWindows) {
     if (arguments.length == 1) {

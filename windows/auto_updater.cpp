@@ -1,4 +1,4 @@
-#include "WinSparkle-0.7.0/include/winsparkle.h"
+#include "WinSparkle-0.8.0/include/winsparkle.h"
 
 #include <sstream>
 
