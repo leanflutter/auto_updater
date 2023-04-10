@@ -99,7 +99,7 @@ void main() async {
   // Must add this line.
   WidgetsFlutterBinding.ensureInitialized();
 
-  String feedURL = 'http://localhost:5000/appcast.xml';
+  String feedURL = 'http://localhost:5002/appcast.xml';
   await autoUpdater.setFeedURL(feedURL);
   await autoUpdater.checkForUpdates();
   await autoUpdater.setScheduledCheckInterval(3600);
@@ -312,6 +312,20 @@ Start the test update server:
 ```
 cd dist/
 serve -l 5002
+```
+## Troubleshooting
+
+### macOS
+
+- Make sure you have the sparkle pod added as described in [Sparkle Documentation](https://sparkle-project.org/documentation/)
+- Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
+```
+<key>com.apple.security.network.client</key>
+  <true/>
+<key>com.apple.security.network.server</key>
+  <true/>
+<key>com.apple.security.app-sandbox</key>
+  <false/>
 ```
 
 ## Who's using it?
