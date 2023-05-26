@@ -1,3 +1,4 @@
-appId: 1D7A5470-942F-4649-8B69-122888AB0BA5
-appPublisher: LeanFlutter
-appPublisherUrl: https://github.com/leanflutter/auto_updater
+app_id: 1D7A5470-942F-4649-8B69-122888AB0BA5
+display_name: auto_updater_example
+publisher: LeanFlutter
+publisher_url: https://github.com/leanflutter/auto_updater

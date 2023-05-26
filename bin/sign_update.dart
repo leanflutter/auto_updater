@@ -1,32 +1,43 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 
-Future<void> main(List<String> arguments) async {
-  // ignore: prefer_function_declarations_over_variables
-  var onProcessStdOutOrErr = (data) {
-    String message = utf8.decoder.convert(data);
-    stdout.write(message);
-  };
-
+Future<void> main(List<String> args) async {
   if (!(Platform.isMacOS || Platform.isWindows)) {
     throw UnsupportedError('auto_updater:sign_update');
   }
 
   String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
-      : '${Directory.current.path}\\windows\\flutter\\ephemeral\\.plugin_symlinks\\auto_updater\\windows\\WinSparkle-0.8.0\\bin\\sign_update.bat';
-
+      : p.joinAll([
+          Directory.current.path,
+          'windows',
+          'flutter',
+          'ephemeral',
+          '.plugin_symlinks',
+          'auto_updater',
+          'windows',
+          'WinSparkle-0.8.0',
+          'bin',
+          'sign_update.bat'
+        ]);
+  List<String> arguments = List<String>.from(args);
   if (Platform.isWindows) {
     if (arguments.length == 1) {
-      arguments.add('.\\dsa_priv.pem');
+      arguments.add(p.join('dsa_priv.pem'));
     }
   }
 
-  Process process = await Process.start(
+  ProcessResult processResult = Process.runSync(
     executable,
     arguments,
   );
 
-  process.stdout.listen(onProcessStdOutOrErr);
-  process.stderr.listen(onProcessStdOutOrErr);
+  int exitCode = processResult.exitCode;
+  if (exitCode == 0) {
+    String signature =
+        processResult.stdout.toString().replaceFirst('\r\n', '').trim();
+    stdout.write('sparkle:dsaSignature="$signature" length="0"');
+  } else {
+    stderr.write(processResult.stderr);
+  }
 }

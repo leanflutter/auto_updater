@@ -12,7 +12,7 @@ class AutoUpdater {
 
   /// Event stream for sparkle/winsparkle events
   final _eventController = StreamController<String>.broadcast();
-  Stream<String> get sparkleEvents => this._eventController.stream;
+  Stream<String> get sparkleEvents => _eventController.stream;
 
   final MethodChannel _channel = const MethodChannel('auto_updater');
 
@@ -20,7 +20,7 @@ class AutoUpdater {
     if (call.method != 'onEvent') throw UnimplementedError();
     if (!call.arguments.containsKey('eventName')) throw UnimplementedError();
 
-    this._eventController.add(call.arguments['eventName']);
+    _eventController.add(call.arguments['eventName']);
   }
 
   /// Sets the url and initialize the auto updater.
