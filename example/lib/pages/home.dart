@@ -1,4 +1,5 @@
 import 'package:auto_updater/auto_updater.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:preference_list/preference_list.dart';
 
@@ -12,6 +13,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final String _feedURL = 'http://localhost:5002/appcast.xml';
 
+  bool _isFeedURLSetted = false;
+
   @override
   void initState() {
     super.initState();
@@ -19,9 +22,14 @@ class _HomePageState extends State<HomePage> {
 
   void _handleClickSetFeedURL() async {
     await autoUpdater.setFeedURL(_feedURL);
+    _isFeedURLSetted = true;
   }
 
   void _handleClickCheckForUpdates() async {
+    if (!_isFeedURLSetted) {
+      BotToast.showText(text: 'Please call setFeedURL method first.');
+      return;
+    }
     await autoUpdater.checkForUpdates();
   }
 
