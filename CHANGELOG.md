@@ -1,3 +1,10 @@
+## 0.1.7
+
+* Bump flutter to 3.10.2
+* [windows] fix sign_update script on 3.10.x #49 #37
+* [windows] Upgrade to `WinSparkle-0.8.0` (#45)
+* [windows] feat: add support for emitting events from winsparkle (#43)
+
 ## 0.1.6
 
 * Add `setScheduledCheckInterval` method #28

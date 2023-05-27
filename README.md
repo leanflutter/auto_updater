@@ -64,7 +64,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  auto_updater: ^0.1.6
+  auto_updater: ^0.1.7
 ```
 
 Or
