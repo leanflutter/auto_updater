@@ -1,14 +1,11 @@
 # auto_updater
 
-[![pub version][pub-image]][pub-url] [![][discord-image]][discord-url] ![][visits-count-image] 
+[![pub version][pub-image]][pub-url] [![][discord-image]][discord-url]
 
 [pub-image]: https://img.shields.io/pub/v/auto_updater.svg
 [pub-url]: https://pub.dev/packages/auto_updater
-
 [discord-image]: https://img.shields.io/discord/884679008049037342.svg
 [discord-url]: https://discord.gg/zPa6EZ2jqb
-
-[visits-count-image]: https://img.shields.io/badge/dynamic/json?label=Visits%20Count&query=value&url=https://api.countapi.xyz/hit/leanflutter.auto_updater/visits
 
 This plugin allows Flutter **desktop** apps to automatically update themselves (based on [sparkle](https://sparkle-project.org/) and [winsparkle](https://winsparkle.com)).
 
@@ -23,31 +20,33 @@ English | [简体中文](./README-ZH.md)
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [auto_updater](#auto_updater)
-  - [Platform Support](#platform-support)
-  - [Quick Start](#quick-start)
-    - [Installation](#installation)
-      - [⚠️ Windows requirements](#️-windows-requirements)
-    - [Usage](#usage)
-    - [Publish your app](#publish-your-app)
-      - [Generate private key](#generate-private-key)
-        - [macOS](#macos)
-        - [Windows](#windows)
-      - [Packaging](#packaging)
-        - [macOS](#macos-1)
-        - [Windows](#windows-1)
-      - [Get signature](#get-signature)
-        - [macOS](#macos-2)
-        - [Windows](#windows-2)
-      - [Distributing](#distributing)
-  - [Who's using it?](#whos-using-it)
-  - [API](#api)
-    - [AutoUpdater](#autoupdater)
-      - [Methods](#methods)
-        - [setFeedURL](#setfeedurl)
-        - [checkForUpdates](#checkforupdates)
-  - [Related Links](#related-links)
-  - [License](#license)
+- [Platform Support](#platform-support)
+- [Quick Start](#quick-start)
+  - [Installation](#installation)
+    - [⚠️ Windows requirements](#-windows-requirements)
+  - [Usage](#usage)
+  - [Publish your app](#publish-your-app)
+    - [Generate private key](#generate-private-key)
+      - [macOS](#macos)
+      - [Windows](#windows)
+    - [Packaging](#packaging)
+      - [macOS](#macos-1)
+      - [Windows](#windows-1)
+    - [Get signature](#get-signature)
+      - [macOS](#macos-2)
+      - [Windows](#windows-2)
+    - [Distributing](#distributing)
+- [Troubleshooting](#troubleshooting)
+  - [macOS](#macos-3)
+- [Who's using it?](#whos-using-it)
+- [API](#api)
+  - [AutoUpdater](#autoupdater)
+    - [Methods](#methods)
+      - [setFeedURL](#setfeedurl)
+      - [checkForUpdates](#checkforupdates)
+      - [setScheduledCheckInterval](#setscheduledcheckinterval)
+- [Related Links](#related-links)
+- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -55,7 +54,7 @@ English | [简体中文](./README-ZH.md)
 
 | Linux | macOS | Windows |
 | :---: | :---: | :-----: |
-|   ➖   |   ✔️   |    ✔️    |
+|  ➖   |  ✔️   |   ✔️    |
 
 ## Quick Start
 
@@ -117,7 +116,7 @@ void main() async {
 Run the following command:
 
 ```bash
-flutter pub run auto_updater:generate_keys
+dart run auto_updater:generate_keys
 ```
 
 > You need to run this command on `macOS` and `Windows` systems separately.
@@ -235,7 +234,7 @@ flutter_distributor release --name dev --jobs release-windows
 Run the following command:
 
 ```
-flutter pub run auto_updater:sign_update dist/1.1.0+2/auto_updater_example-1.1.0+2-macos.zip
+dart run auto_updater:sign_update dist/1.1.0+2/auto_updater_example-1.1.0+2-macos.zip
 ```
 
 Output:
@@ -251,15 +250,14 @@ Update the obtained new signature to the value of the `sparkle:edSignature` attr
 Run the following command:
 
 ```
-flutter pub run auto_updater:sign_update dist/1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe
+dart run auto_updater:sign_update dist/1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe
 ```
 
 Output:
 
 ```
 
-MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg
-6hwAwkb2o4IqVE/D56ipIBshIqCH8rk=
+sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk=" length="13400992"
 ```
 
 Update the obtained new signature to the value of the `sparkle:dsaSignature` attribute of the `enclosure` node of the `appcast.xml` file.
@@ -296,7 +294,7 @@ Add `appcast.xml` to your project `dist/` directory.
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
             <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows.exe"
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
-                       sparkle:version="1.1.0"
+                       sparkle:version="1.1.0+2"
                        sparkle:os="windows"
                        length="0"
                        type="application/octet-stream" />
@@ -313,12 +311,14 @@ Start the test update server:
 cd dist/
 serve -l 5002
 ```
+
 ## Troubleshooting
 
 ### macOS
 
 - Make sure you have the sparkle pod added as described in [Sparkle Documentation](https://sparkle-project.org/documentation/)
 - Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
+
 ```
 <key>com.apple.security.network.client</key>
   <true/>
@@ -335,6 +335,7 @@ serve -l 5002
 ## API
 
 <!-- README_DOC_GEN -->
+
 ### AutoUpdater
 
 #### Methods
@@ -350,7 +351,6 @@ Asks the server whether there is an update. You must call setFeedURL before usin
 ##### setScheduledCheckInterval
 
 Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
-
 
 <!-- README_DOC_GEN -->
 

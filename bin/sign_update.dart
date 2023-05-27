@@ -34,9 +34,12 @@ Future<void> main(List<String> args) async {
 
   int exitCode = processResult.exitCode;
   if (exitCode == 0) {
-    String signature =
-        processResult.stdout.toString().replaceFirst('\r\n', '').trim();
-    stdout.write('sparkle:dsaSignature="$signature" length="0"');
+    String signature = processResult.stdout.toString();
+    if (Platform.isWindows) {
+      signature = signature.replaceFirst('\r\n', '').trim();
+      signature = 'sparkle:dsaSignature="$signature" length="0"';
+    }
+    stdout.write(signature);
   } else {
     stderr.write(processResult.stderr);
   }
