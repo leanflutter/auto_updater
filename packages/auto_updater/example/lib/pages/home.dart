@@ -1,5 +1,6 @@
 import 'package:auto_updater/auto_updater.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:preference_list/preference_list.dart';
 
@@ -10,14 +11,21 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with UpdaterListener {
   final String _feedURL = 'http://localhost:5002/appcast.xml';
 
   bool _isFeedURLSetted = false;
 
   @override
   void initState() {
+    autoUpdater.addListener(this);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    autoUpdater.removeListener(this);
+    super.dispose();
   }
 
   Future<void> _handleClickSetFeedURL() async {
@@ -86,5 +94,47 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _buildBody(context),
     );
+  }
+
+  @override
+  void onUpdaterError(UpdaterError? error) {
+    if (kDebugMode) {
+      print('onUpdaterError: $error');
+    }
+  }
+
+  @override
+  void onUpdaterCheckingForUpdate(Appcast? appcast) {
+    if (kDebugMode) {
+      print('onUpdaterCheckingForUpdate: ${appcast?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateAvailable(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateAvailable: ${item?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateNotAvailable(UpdaterError? error) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateNotAvailable: $error');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateDownloaded(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateDownloaded: ${item?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterBeforeQuitForUpdate(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterBeforeQuitForUpdate: ${item?.toJson()}');
+    }
   }
 }

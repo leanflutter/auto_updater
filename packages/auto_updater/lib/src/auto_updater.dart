@@ -1,50 +1,101 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
+import 'package:auto_updater/src/appcast.dart';
+import 'package:auto_updater/src/updater_error.dart';
+import 'package:auto_updater/src/updater_listener.dart';
+import 'package:auto_updater_platform_interface/auto_updater_platform_interface.dart';
 
 class AutoUpdater {
   AutoUpdater._() {
-    _channel.setMethodCallHandler(_methodCallHandler);
+    _platform.sparkleEvents.listen(_handleSparkleEvents);
   }
 
   /// The shared instance of [AutoUpdater].
   static final AutoUpdater instance = AutoUpdater._();
 
-  /// Event stream for sparkle/winsparkle events
-  final _eventController = StreamController<String>.broadcast();
-  Stream<String> get sparkleEvents => _eventController.stream;
+  AutoUpdaterPlatform get _platform => AutoUpdaterPlatform.instance;
 
-  final MethodChannel _channel = const MethodChannel('auto_updater');
+  final List<UpdaterListener> _listeners = [];
 
-  Future<void> _methodCallHandler(MethodCall call) async {
-    if (call.method != 'onEvent') throw UnimplementedError();
-    if (!call.arguments.containsKey('eventName')) throw UnimplementedError();
+  void _handleSparkleEvents(event) {
+    UpdaterError? updaterError;
+    Appcast? appcast;
+    AppcastItem? appcastItem;
 
-    _eventController.add(call.arguments['eventName']);
+    String type = event['type'] as String;
+    Map<Object?, Object?>? data;
+    if (event['data'] != null) {
+      data = event['data'] as Map;
+
+      if (data['error'] != null) {
+        updaterError = UpdaterError(
+          data['error'].toString(),
+        );
+      }
+      if (data['appcast'] != null) {
+        appcast = Appcast.fromJson(
+          Map<String, dynamic>.from(
+            (data['appcast'] as Map).cast<String, dynamic>(),
+          ),
+        );
+      }
+      if (data['appcastItem'] != null) {
+        appcastItem = AppcastItem.fromJson(
+          Map<String, dynamic>.from(
+            (data['appcastItem'] as Map).cast<String, dynamic>(),
+          ),
+        );
+      }
+    }
+    for (var listener in _listeners) {
+      switch (type) {
+        case 'error':
+          listener.onUpdaterError(updaterError!);
+          break;
+        case 'checking-for-update':
+          listener.onUpdaterCheckingForUpdate(appcast);
+          break;
+        case 'update-available':
+          listener.onUpdaterUpdateAvailable(appcastItem);
+          break;
+        case 'update-not-available':
+          listener.onUpdaterUpdateNotAvailable(updaterError);
+          break;
+        case 'update-downloaded':
+          listener.onUpdaterUpdateDownloaded(appcastItem);
+          break;
+        case 'before-quit-for-update':
+          listener.onUpdaterBeforeQuitForUpdate(appcastItem);
+          break;
+      }
+    }
+  }
+
+  /// Adds a listener to the auto updater.
+  void addListener(UpdaterListener listener) {
+    _listeners.add(listener);
+  }
+
+  /// Removes a listener from the auto updater.
+  void removeListener(UpdaterListener listener) {
+    _listeners.remove(listener);
   }
 
   /// Sets the url and initialize the auto updater.
-  Future<void> setFeedURL(String feedUrl) async {
-    final Map<String, dynamic> arguments = {
-      'feedURL': feedUrl,
-    };
-    await _channel.invokeMethod('setFeedURL', arguments);
+  Future<void> setFeedURL(String feedUrl) {
+    return _platform.setFeedURL(feedUrl);
   }
 
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
-  Future<void> checkForUpdates({bool? inBackground}) async {
-    final Map<String, dynamic> arguments = {
-      'inBackground': inBackground ?? false,
-    };
-    await _channel.invokeMethod('checkForUpdates', arguments);
+  Future<void> checkForUpdates({bool? inBackground}) {
+    return _platform.checkForUpdates(
+      inBackground: inBackground,
+    );
   }
 
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
-  Future<void> setScheduledCheckInterval(int interval) async {
-    final Map<String, dynamic> arguments = {
-      'interval': interval,
-    };
-    await _channel.invokeMethod('setScheduledCheckInterval', arguments);
+  Future<void> setScheduledCheckInterval(int interval) {
+    return _platform.setScheduledCheckInterval(interval);
   }
 }
 

@@ -7,25 +7,33 @@ platforms:
   macos:
   windows:
 
+topics:
+  - auto_updater
+
 environment:
   sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.3.0"
 
 dependencies:
+  auto_updater_macos: ^0.2.0
+  auto_updater_platform_interface: ^0.2.0
   flutter:
     sdk: flutter
+  json_annotation: ^4.8.0
   path: ^1.8.3
 
 dev_dependencies:
+  build_runner: ^2.3.3
   dependency_validator: ^3.0.0
   flutter_test:
     sdk: flutter
+  json_serializable: ^6.6.0
   mostly_reasonable_lints: ^0.1.1
 
 flutter:
   plugin:
     platforms:
       macos:
-        pluginClass: AutoUpdaterPlugin
+        default_package: auto_updater_macos
       windows:
-        pluginClass: AutoUpdaterPlugin
+        default_package: auto_updater_windows

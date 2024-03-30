@@ -22,6 +22,10 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  Stream<Map<Object?, Object?>> get sparkleEvents {
+    throw UnimplementedError('sparkleEvents getter has not been implemented.');
+  }
+
   /// Sets the url and initialize the auto updater.
   Future<void> setFeedURL(String feedUrl) async {
     throw UnimplementedError('setFeedURL() has not been implemented.');

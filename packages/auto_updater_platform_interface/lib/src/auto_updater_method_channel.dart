@@ -10,6 +10,17 @@ class MethodChannelAutoUpdater extends AutoUpdaterPlatform {
     'dev.leanflutter.plugins/auto_updater',
   );
 
+  /// The event channel used to receive events from the native platform.
+  @visibleForTesting
+  final eventChannel = const EventChannel(
+    'dev.leanflutter.plugins/auto_updater_event',
+  );
+
+  @override
+  Stream<Map<Object?, Object?>> get sparkleEvents {
+    return eventChannel.receiveBroadcastStream().cast<Map<Object?, Object?>>();
+  }
+
   @override
   Future<void> setFeedURL(String feedUrl) async {
     final Map<String, dynamic> arguments = {
