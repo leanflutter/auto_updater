@@ -16,4 +16,4 @@ x86/
 # but keep track of directories ending in .cache
 !*.[Cc]ache/
 
-!WinSparkle-0.8.0/x64
+!WinSparkle-0.8.1/x64

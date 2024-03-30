@@ -2,6 +2,7 @@
 
 * feat: Convert to federated plugin
 * feat: Add `UpdaterListener` to listen for update events
+* chore: [windows] Upgrade to `WinSparkle-0.8.1`
 
 ## 0.1.7
 

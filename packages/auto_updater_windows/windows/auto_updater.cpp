@@ -1,4 +1,4 @@
-#include "WinSparkle-0.8.0/include/winsparkle.h"
+#include "WinSparkle-0.8.1/include/winsparkle.h"
 
 #include <flutter/event_channel.h>
 #include <flutter/method_channel.h>
@@ -82,6 +82,7 @@ void AutoUpdater::CheckForUpdates() {
 
 void AutoUpdater::CheckForUpdatesWithoutUI() {
   win_sparkle_check_update_without_ui();
+  OnWinSparkleEvent("checking-for-update");
 }
 
 void AutoUpdater::SetScheduledCheckInterval(int interval) {

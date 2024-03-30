@@ -29,8 +29,7 @@ void AutoUpdaterWindowsPlugin::RegisterWithRegistrar(
       });
   auto event_channel =
       std::make_unique<flutter::EventChannel<flutter::EncodableValue>>(
-          registrar->messenger(),
-          "dev.leanflutter.plugins/auto_updater_event",
+          registrar->messenger(), "dev.leanflutter.plugins/auto_updater_event",
           &flutter::StandardMethodCodec::GetInstance());
   auto streamHandler = std::make_unique<flutter::StreamHandlerFunctions<>>(
       [plugin_pointer = plugin.get()](
@@ -39,8 +38,7 @@ void AutoUpdaterWindowsPlugin::RegisterWithRegistrar(
           -> std::unique_ptr<flutter::StreamHandlerError<>> {
         return plugin_pointer->OnListen(arguments, std::move(events));
       },
-      [plugin_pointer = plugin.get()](const flutter::EncodableValue*
-      arguments)
+      [plugin_pointer = plugin.get()](const flutter::EncodableValue* arguments)
           -> std::unique_ptr<flutter::StreamHandlerError<>> {
         return plugin_pointer->OnCancel(arguments);
       });

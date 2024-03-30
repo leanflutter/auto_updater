@@ -18,7 +18,6 @@ class AutoUpdater {
   final List<UpdaterListener> _listeners = [];
 
   void _handleSparkleEvents(event) {
-    print(event);
     UpdaterError? updaterError;
     Appcast? appcast;
     AppcastItem? appcastItem;
