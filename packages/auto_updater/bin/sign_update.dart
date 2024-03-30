@@ -1,11 +1,17 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
-Future<void> main(List<String> args) async {
-  if (!(Platform.isMacOS || Platform.isWindows)) {
-    throw UnsupportedError('auto_updater:sign_update');
-  }
+class SignUpdateResult {
+  const SignUpdateResult({
+    required this.signature,
+    required this.length,
+  });
 
+  final String signature;
+  final int length;
+}
+
+SignUpdateResult signUpdate(List<String> args) {
   String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
       : p.joinAll(
@@ -35,14 +41,34 @@ Future<void> main(List<String> args) async {
   );
 
   int exitCode = processResult.exitCode;
+
+  String? signUpdateOutput;
   if (exitCode == 0) {
-    String signature = processResult.stdout.toString();
+    signUpdateOutput = processResult.stdout.toString();
     if (Platform.isWindows) {
-      signature = signature.replaceFirst('\r\n', '').trim();
-      signature = 'sparkle:dsaSignature="$signature" length="0"';
+      signUpdateOutput = signUpdateOutput.replaceFirst('\r\n', '').trim();
+      signUpdateOutput = 'sparkle:dsaSignature="$signUpdateOutput" length="0"';
     }
-    stdout.write(signature);
+    stdout.write(signUpdateOutput);
   } else {
     stderr.write(processResult.stderr);
   }
+
+  RegExp regex = RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
+  RegExpMatch? match = regex.firstMatch(signUpdateOutput!);
+
+  if (match == null) {
+    throw Exception('Failed to sign update');
+  }
+  return SignUpdateResult(
+    signature: match.group(2)!,
+    length: int.tryParse(match.group(3)!)!,
+  );
+}
+
+Future<void> main(List<String> args) async {
+  if (!(Platform.isMacOS || Platform.isWindows)) {
+    throw UnsupportedError('auto_updater:sign_update');
+  }
+  signUpdate(args);
 }
