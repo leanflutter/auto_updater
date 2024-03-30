@@ -1,3 +1,8 @@
+## 0.2.0
+
+* feat: Convert to federated plugin
+* feat: Add `UpdaterListener` to listen for update events
+
 ## 0.1.7
 
 * Bump flutter to 3.10.2
