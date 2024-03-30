@@ -18,6 +18,7 @@ class AutoUpdater {
   final List<UpdaterListener> _listeners = [];
 
   void _handleSparkleEvents(event) {
+    print(event);
     UpdaterError? updaterError;
     Appcast? appcast;
     AppcastItem? appcastItem;
@@ -26,7 +27,6 @@ class AutoUpdater {
     Map<Object?, Object?>? data;
     if (event['data'] != null) {
       data = event['data'] as Map;
-
       if (data['error'] != null) {
         updaterError = UpdaterError(
           data['error'].toString(),
@@ -50,7 +50,7 @@ class AutoUpdater {
     for (var listener in _listeners) {
       switch (type) {
         case 'error':
-          listener.onUpdaterError(updaterError!);
+          listener.onUpdaterError(updaterError);
           break;
         case 'checking-for-update':
           listener.onUpdaterCheckingForUpdate(appcast);
