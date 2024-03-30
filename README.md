@@ -64,7 +64,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  auto_updater: ^0.1.7
+  auto_updater: ^0.1.8
 ```
 
 Or
@@ -192,9 +192,9 @@ Add `distribute_options.yaml` to your project root directory.
 ```yaml
 output: dist/
 releases:
-  - name: dev
+  - name: prod
     jobs:
-      - name: release-macos
+      - name: macos-zip
         package:
           platform: macos
           target: zip
@@ -202,7 +202,7 @@ releases:
             dart-define:
               APP_ENV: dev
       # See full documentation: https://distributor.leanflutter.org/configuration/makers/exe
-      - name: release-windows
+      - name: windows-exe
         package:
           platform: windows
           target: exe
@@ -216,7 +216,7 @@ releases:
 Run the following command:
 
 ```
-flutter_distributor release --name dev --jobs release-macos
+flutter_distributor release --name prod --jobs macos-zip
 ```
 
 ##### Windows
@@ -224,7 +224,7 @@ flutter_distributor release --name dev --jobs release-macos
 Run the following command:
 
 ```
-flutter_distributor release --name dev --jobs release-windows
+flutter_distributor release --name prod --jobs windows-exe
 ```
 
 #### Get signature

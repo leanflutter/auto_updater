@@ -64,7 +64,7 @@
 
 ```yaml
 dependencies:
-  auto_updater: ^0.1.7
+  auto_updater: ^0.1.8
 ```
 
 或
@@ -192,9 +192,9 @@ If you lose it, your users will be unable to upgrade!
 ```yaml
 output: dist/
 releases:
-  - name: dev
+  - name: prod
     jobs:
-      - name: release-macos
+      - name: macos-zip
         package:
           platform: macos
           target: zip
@@ -202,7 +202,7 @@ releases:
             dart-define:
               APP_ENV: dev
       # 查看完整文档：https://distributor.leanflutter.org/configuration/makers/exe
-      - name: release-windows
+      - name: windows-exe
         package:
           platform: windows
           target: exe
@@ -216,7 +216,7 @@ releases:
 运行以下命令：
 
 ```
-flutter_distributor release --name dev --jobs release-macos
+flutter_distributor release --name prod --jobs macos-zip
 ```
 
 ##### Windows
@@ -224,7 +224,7 @@ flutter_distributor release --name dev --jobs release-macos
 运行以下命令：
 
 ```
-flutter_distributor release --name dev --jobs release-windows
+flutter_distributor release --name prod --jobs windows-exe
 ```
 
 #### 获取签名

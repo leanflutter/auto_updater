@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:preference_list/preference_list.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,12 +20,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _handleClickSetFeedURL() async {
+  Future<void> _handleClickSetFeedURL() async {
     await autoUpdater.setFeedURL(_feedURL);
     _isFeedURLSetted = true;
   }
 
-  void _handleClickCheckForUpdates() async {
+  Future<void> _handleClickCheckForUpdates() async {
     if (!_isFeedURLSetted) {
       BotToast.showText(text: 'Please call setFeedURL method first.');
       return;
@@ -33,11 +33,11 @@ class _HomePageState extends State<HomePage> {
     await autoUpdater.checkForUpdates();
   }
 
-  void _handleClickCheckForUpdatesWithoutUI() async {
+  Future<void> _handleClickCheckForUpdatesWithoutUI() async {
     await autoUpdater.checkForUpdates(inBackground: true);
   }
 
-  void _handleClickSetScheduledCheckInterval() async {
+  Future<void> _handleClickSetScheduledCheckInterval() async {
     await autoUpdater.setScheduledCheckInterval(3600);
   }
 

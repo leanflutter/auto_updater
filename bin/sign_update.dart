@@ -8,18 +8,20 @@ Future<void> main(List<String> args) async {
 
   String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
-      : p.joinAll([
-          Directory.current.path,
-          'windows',
-          'flutter',
-          'ephemeral',
-          '.plugin_symlinks',
-          'auto_updater',
-          'windows',
-          'WinSparkle-0.8.0',
-          'bin',
-          'sign_update.bat'
-        ]);
+      : p.joinAll(
+          [
+            Directory.current.path,
+            'windows',
+            'flutter',
+            'ephemeral',
+            '.plugin_symlinks',
+            'auto_updater',
+            'windows',
+            'WinSparkle-0.8.0',
+            'bin',
+            'sign_update.bat',
+          ],
+        );
   List<String> arguments = List<String>.from(args);
   if (Platform.isWindows) {
     if (arguments.length == 1) {
