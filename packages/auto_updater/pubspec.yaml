@@ -8,7 +8,7 @@ platforms:
   windows:
 
 topics:
-  - auto_updater
+  - auto-updater
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
