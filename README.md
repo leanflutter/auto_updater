@@ -276,13 +276,15 @@ Add `appcast.xml` to your project `dist/` directory.
         <language>en</language>
         <item>
             <title>Version 1.1.0</title>
+            <!-- For the macOS item, it is recommended to add 'sparkle:version' and 'sparkle:shortVersionString' to the item node, rather than as part of the enclosure. -->
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
             <sparkle:releaseNotesLink>
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
             <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-macos.zip"
                        sparkle:edSignature="pbdyPt92pnPkzLfQ7BhS9hbjcV9/ndkzSIlWjFQIUMcaCNbAFO2fzl0tISMNJApG2POTkZY0/kJQ2yZYOSVgAA=="
-                       sparkle:version="1.1.0"
                        sparkle:os="macos"
                        length="13400992"
                        type="application/octet-stream" />
