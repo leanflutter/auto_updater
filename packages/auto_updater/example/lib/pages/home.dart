@@ -3,6 +3,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:preference_list/preference_list.dart';
+import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -136,5 +137,6 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
     if (kDebugMode) {
       print('onUpdaterBeforeQuitForUpdate: ${item?.toJson()}');
     }
+    windowManager.setPreventClose(false);
   }
 }

@@ -9,7 +9,7 @@
 
 这个插件允许 Flutter **桌面** 应用自动更新自己 (基于 [sparkle](https://sparkle-project.org/) 和 [winsparkle](https://winsparkle.com))。
 
-<img src="screenshots/sparkle.png" width="732" alt="">
+<img src="https://raw.githubusercontent.com/leanflutter/auto_updater/main/screenshots/sparkle.png" width="732" alt="">
 
 ---
 
@@ -20,33 +20,34 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [平台支持](#%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)
-- [快速开始](#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
-  - [安装](#%E5%AE%89%E8%A3%85)
-    - [⚠️ Windows requirements](#-windows-requirements)
-  - [用法](#%E7%94%A8%E6%B3%95)
-  - [发布你的应用](#%E5%8F%91%E5%B8%83%E4%BD%A0%E7%9A%84%E5%BA%94%E7%94%A8)
-    - [生成私钥](#%E7%94%9F%E6%88%90%E7%A7%81%E9%92%A5)
-      - [macOS](#macos)
-      - [Windows](#windows)
-    - [打包应用](#%E6%89%93%E5%8C%85%E5%BA%94%E7%94%A8)
-      - [macOS](#macos-1)
-      - [Windows](#windows-1)
-    - [获取签名](#%E8%8E%B7%E5%8F%96%E7%AD%BE%E5%90%8D)
-      - [macOS](#macos-2)
-      - [Windows](#windows-2)
-    - [分发应用](#%E5%88%86%E5%8F%91%E5%BA%94%E7%94%A8)
-- [故障排除](#%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4)
-  - [macOS](#macos-3)
-- [谁在用使用它？](#%E8%B0%81%E5%9C%A8%E7%94%A8%E4%BD%BF%E7%94%A8%E5%AE%83)
-- [API](#api)
-  - [AutoUpdater](#autoupdater)
-    - [Methods](#methods)
-      - [setFeedURL](#setfeedurl)
-      - [checkForUpdates](#checkforupdates)
-      - [setScheduledCheckInterval](#setscheduledcheckinterval)
-- [相关链接](#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5)
-- [许可证](#%E8%AE%B8%E5%8F%AF%E8%AF%81)
+- [auto\_updater](#auto_updater)
+  - [平台支持](#平台支持)
+  - [快速开始](#快速开始)
+    - [安装](#安装)
+      - [⚠️ Windows requirements](#️-windows-requirements)
+    - [用法](#用法)
+    - [发布你的应用](#发布你的应用)
+      - [生成私钥](#生成私钥)
+        - [macOS](#macos)
+        - [Windows](#windows)
+      - [打包应用](#打包应用)
+        - [macOS](#macos-1)
+        - [Windows](#windows-1)
+      - [获取签名](#获取签名)
+        - [macOS](#macos-2)
+        - [Windows](#windows-2)
+      - [分发应用](#分发应用)
+  - [故障排除](#故障排除)
+    - [macOS](#macos-3)
+  - [谁在用使用它？](#谁在用使用它)
+  - [API](#api)
+    - [AutoUpdater](#autoupdater)
+      - [Methods](#methods)
+        - [setFeedURL](#setfeedurl)
+        - [checkForUpdates](#checkforupdates)
+        - [setScheduledCheckInterval](#setscheduledcheckinterval)
+  - [相关链接](#相关链接)
+  - [许可证](#许可证)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

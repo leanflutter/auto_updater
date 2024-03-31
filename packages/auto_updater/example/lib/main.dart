@@ -8,6 +8,7 @@ void main() async {
   await windowManager.ensureInitialized();
 
   windowManager.waitUntilReadyToShow(null, () async {
+    await windowManager.setPreventClose(true);
     await windowManager.show();
     await windowManager.focus();
   });

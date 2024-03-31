@@ -9,7 +9,7 @@
 
 This plugin allows Flutter **desktop** apps to automatically update themselves (based on [sparkle](https://sparkle-project.org/) and [winsparkle](https://winsparkle.com)).
 
-<img src="screenshots/sparkle.png" width="732" alt="">
+<img src="https://raw.githubusercontent.com/leanflutter/auto_updater/main/screenshots/sparkle.png" width="732" alt="">
 
 ---
 
@@ -20,33 +20,34 @@ English | [简体中文](./README-ZH.md)
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Platform Support](#platform-support)
-- [Quick Start](#quick-start)
-  - [Installation](#installation)
-    - [⚠️ Windows requirements](#-windows-requirements)
-  - [Usage](#usage)
-  - [Publish your app](#publish-your-app)
-    - [Generate private key](#generate-private-key)
-      - [macOS](#macos)
-      - [Windows](#windows)
-    - [Packaging](#packaging)
-      - [macOS](#macos-1)
-      - [Windows](#windows-1)
-    - [Get signature](#get-signature)
-      - [macOS](#macos-2)
-      - [Windows](#windows-2)
-    - [Distributing](#distributing)
-- [Troubleshooting](#troubleshooting)
-  - [macOS](#macos-3)
-- [Who's using it?](#whos-using-it)
-- [API](#api)
-  - [AutoUpdater](#autoupdater)
-    - [Methods](#methods)
-      - [setFeedURL](#setfeedurl)
-      - [checkForUpdates](#checkforupdates)
-      - [setScheduledCheckInterval](#setscheduledcheckinterval)
-- [Related Links](#related-links)
-- [License](#license)
+- [auto\_updater](#auto_updater)
+  - [Platform Support](#platform-support)
+  - [Quick Start](#quick-start)
+    - [Installation](#installation)
+      - [⚠️ Windows requirements](#️-windows-requirements)
+    - [Usage](#usage)
+    - [Publish your app](#publish-your-app)
+      - [Generate private key](#generate-private-key)
+        - [macOS](#macos)
+        - [Windows](#windows)
+      - [Packaging](#packaging)
+        - [macOS](#macos-1)
+        - [Windows](#windows-1)
+      - [Get signature](#get-signature)
+        - [macOS](#macos-2)
+        - [Windows](#windows-2)
+      - [Distributing](#distributing)
+  - [Troubleshooting](#troubleshooting)
+    - [macOS](#macos-3)
+  - [Who's using it?](#whos-using-it)
+  - [API](#api)
+    - [AutoUpdater](#autoupdater)
+      - [Methods](#methods)
+        - [setFeedURL](#setfeedurl)
+        - [checkForUpdates](#checkforupdates)
+        - [setScheduledCheckInterval](#setscheduledcheckinterval)
+  - [Related Links](#related-links)
+  - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
