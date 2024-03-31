@@ -1,6 +1,6 @@
 name: auto_updater
 description: This plugin allows Flutter desktop apps to automatically update themselves (based on sparkle and winsparkle).
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/leanflutter/auto_updater
 
 platforms:
@@ -17,7 +17,7 @@ environment:
 dependencies:
   auto_updater_macos: ^0.2.0
   auto_updater_platform_interface: ^0.2.0
-  auto_updater_windows: ^0.2.0
+  auto_updater_windows: ^0.2.1
   flutter:
     sdk: flutter
   json_annotation: ^4.8.0

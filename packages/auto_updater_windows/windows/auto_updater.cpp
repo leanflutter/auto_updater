@@ -115,7 +115,7 @@ void __onShutdownRequestCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("shutdownRequest");
+  autoUpdater->OnWinSparkleEvent("before-quit-for-update");
 }
 
 void __onDidFindUpdateCallback() {
@@ -164,6 +164,6 @@ void __onUserRunInstallerCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("before-quit-for-update");
+  autoUpdater->OnWinSparkleEvent("userRunInstaller");
 }
 }  // namespace
