@@ -1,5 +1,5 @@
 name: auto_updater_workspace
-repository: https://github.com/leanflutter/auto_updater
+repository: https://github.com/drunisa007/auto_updater
 
 packages:
   - examples/**

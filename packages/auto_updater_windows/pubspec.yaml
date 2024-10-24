@@ -1,7 +1,7 @@
 name: auto_updater_windows
 description: Windows implementation of the auto_updater plugin.
 version: 0.2.1
-repository: https://github.com/leanflutter/auto_updater/tree/main/packages/auto_updater_windows
+repository: https://github.com/drunisa007/auto_updater/tree/main/packages/auto_updater_windows
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
