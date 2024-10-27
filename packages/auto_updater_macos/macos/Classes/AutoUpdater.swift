@@ -42,7 +42,7 @@ extension SUAppcastItem {
 public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     var _userDriver: SPUStandardUserDriver?
     var _updater: SPUUpdater?
-    
+    var feedURL: URL?
     public var onEvent:((String, NSDictionary) -> Void)?
     
     override init() {
@@ -56,10 +56,16 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
             userDriver: _userDriver!,
             delegate: self
         )
+        _updater?.clearFeedURLFromUserDefaults()
+        try? _updater?.start()
     }
     
+    public func feedURLString(for updater: SPUUpdater) -> String? {
+        return feedURL?.absoluteString
+    }
+
     public func setFeedURL(_ feedURL: URL?) {
-        _updater?.setFeedURL(feedURL)
+        self.feedURL = feedURL
         try? _updater?.start()
     }
     
