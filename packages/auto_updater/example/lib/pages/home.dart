@@ -2,7 +2,6 @@ import 'package:auto_updater/auto_updater.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:preference_list/preference_list.dart';
 import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,31 +50,31 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
   }
 
   Widget _buildBody(BuildContext context) {
-    return PreferenceList(
+    return ListView(
       children: <Widget>[
-        PreferenceListSection(
-          title: const Text('METHODS'),
+        Column(
+          // title: const Text('METHODS'),
           children: [
-            PreferenceListItem(
+            ListTile(
               title: const Text('setFeedURL'),
-              detailText: Text(_feedURL),
+              trailing: Text(_feedURL),
               onTap: () {
                 _handleClickSetFeedURL();
               },
             ),
-            PreferenceListItem(
+            ListTile(
               title: const Text('checkForUpdates'),
               onTap: () {
                 _handleClickCheckForUpdates();
               },
             ),
-            PreferenceListItem(
+            ListTile(
               title: const Text('checkForUpdatesWithoutUI'),
               onTap: () {
                 _handleClickCheckForUpdatesWithoutUI();
               },
             ),
-            PreferenceListItem(
+            ListTile(
               title: const Text('setScheduledCheckInterval'),
               onTap: () {
                 _handleClickSetScheduledCheckInterval();

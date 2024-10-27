@@ -1,3 +1,8 @@
+## 1.0.0
+
+* First major release.
+* [macos] Solve deprecate 'setFeedURL' (#66)
+
 ## 0.2.1 
 
 * chore(windows): Support before-quit-for-update event
