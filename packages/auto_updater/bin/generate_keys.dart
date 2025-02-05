@@ -7,7 +7,7 @@ Future<void> main(List<String> arguments) async {
     throw UnsupportedError('auto_updater:generate_keys');
   }
 
-  String executable = Platform.isMacOS
+  final String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/generate_keys'
       : p.joinAll(
           [
@@ -24,7 +24,7 @@ Future<void> main(List<String> arguments) async {
           ],
         );
 
-  Process process = await Process.start(
+  final Process process = await Process.start(
     executable,
     arguments,
   );

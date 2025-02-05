@@ -42,4 +42,11 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+
+  /// Checks for update information.
+  Future<void> checkForUpdateInformation() async {
+    throw UnimplementedError(
+      'checkForUpdateInformation() has not been implemented.',
+    );
+  }
 }
