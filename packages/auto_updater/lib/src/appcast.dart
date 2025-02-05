@@ -39,6 +39,7 @@ class AppcastItem {
     this.maximumSystemVersion,
     this.maximumOperatingSystemVersionIsOK,
     this.channel,
+    this.criticalUpdate,
   });
 
   factory AppcastItem.fromJson(Map<String, dynamic> json) =>
@@ -60,6 +61,7 @@ class AppcastItem {
   final String? maximumSystemVersion;
   final bool? maximumOperatingSystemVersionIsOK;
   final String? channel;
+  final bool? criticalUpdate;
 
   Map<String, dynamic> toJson() => _$AppcastItemToJson(this);
 }
