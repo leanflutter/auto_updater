@@ -86,6 +86,11 @@ void AutoUpdaterWindowsPlugin::HandleMethodCall(
     auto_updater.SetScheduledCheckInterval(interval);
     result->Success(flutter::EncodableValue(true));
 
+  } else if (method_name.compare("checkForUpdateInformation") == 0) {
+    const flutter::EncodableMap& args =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    auto_updater.CheckForUpdatesWithoutUI();
+    result->Success(flutter::EncodableValue(true));
   } else {
     result->NotImplemented();
   }

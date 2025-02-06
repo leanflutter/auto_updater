@@ -138,4 +138,14 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
     }
     windowManager.setPreventClose(false);
   }
+
+  @override
+  void onUpdaterUserUpdateChoice(
+    UserUpdateChoice? choice,
+    AppcastItem? appcastItem,
+  ) {
+    if (kDebugMode) {
+      print('onUpdaterUserUpdateChoice: $choice, ${appcastItem?.toJson()}');
+    }
+  }
 }

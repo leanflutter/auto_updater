@@ -136,34 +136,34 @@ void __onUpdateCancelledCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("updateCancelled");
+  autoUpdater->OnWinSparkleEvent("update-cancelled");
 }
 
 void __onUpdateSkippedCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("updateSkipped");
+  autoUpdater->OnWinSparkleEvent("update-skipped");
 }
 
 void __onUpdatePostponedCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("updatePostponed");
+  autoUpdater->OnWinSparkleEvent("update-postponed");
 }
 
 void __onUpdateDismissedCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("updateDismissed");
+  autoUpdater->OnWinSparkleEvent("update-dismissed");
 }
 
 void __onUserRunInstallerCallback() {
   AutoUpdater* autoUpdater = AutoUpdater::GetInstance();
   if (autoUpdater == nullptr)
     return;
-  autoUpdater->OnWinSparkleEvent("userRunInstaller");
+  autoUpdater->OnWinSparkleEvent("user-run-installer");
 }
 }  // namespace

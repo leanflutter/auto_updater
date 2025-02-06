@@ -88,7 +88,26 @@ class AutoUpdater {
         case UpdaterEvent.beforeQuitForUpdate:
           listener.onUpdaterBeforeQuitForUpdate(appcastItem);
         case UpdaterEvent.userUpdateChoice:
-          listener.onUpdaterUserUpdateChoice(userUpdateChoice, appcastItem);
+          // this function is only available on macOS
+          final choice = userUpdateChoice;
+          if (choice == null) return;
+          switch (choice) {
+            case UserUpdateChoice.skip:
+              listener.onUpdaterUpdateSkipped(appcastItem);
+            case UserUpdateChoice.install:
+              listener.onUpdaterUpdateInstalled(appcastItem);
+            case UserUpdateChoice.dismiss:
+              listener.onUpdaterUpdateCancelled(appcastItem);
+          }
+        case UpdaterEvent.updateCancelled:
+          // this event is only available on Windows
+          listener.onUpdaterUpdateCancelled(appcastItem);
+        case UpdaterEvent.updateSkipped:
+          // this event is only available on Windows
+          listener.onUpdaterUpdateSkipped(appcastItem);
+        case UpdaterEvent.updateInstalled:
+          // this event is only available on Windows
+          listener.onUpdaterUpdateInstalled(appcastItem);
       }
     }
   }
