@@ -36,6 +36,7 @@ AppcastItem _$AppcastItemFromJson(Map<String, dynamic> json) => AppcastItem(
           json['maximumOperatingSystemVersionIsOK'] as bool?,
       channel: json['channel'] as String?,
       criticalUpdate: json['criticalUpdate'] as bool?,
+      os: json['os'] as String?,
     );
 
 Map<String, dynamic> _$AppcastItemToJson(AppcastItem instance) =>
@@ -59,4 +60,5 @@ Map<String, dynamic> _$AppcastItemToJson(AppcastItem instance) =>
           instance.maximumOperatingSystemVersionIsOK,
       'channel': instance.channel,
       'criticalUpdate': instance.criticalUpdate,
+      'os': instance.os,
     };

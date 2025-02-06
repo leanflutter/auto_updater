@@ -35,6 +35,7 @@ extension SUAppcastItem {
             "maximumOperatingSystemVersionIsOK": self.maximumOperatingSystemVersionIsOK,
             "channel": self.channel ?? "",
             "criticalUpdate": self.isCriticalUpdate,
+            "os": self.osString,
         ]
         return dict;
     }
