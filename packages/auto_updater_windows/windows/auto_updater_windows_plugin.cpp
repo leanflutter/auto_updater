@@ -91,8 +91,14 @@ void AutoUpdaterWindowsPlugin::HandleMethodCall(
         std::get<flutter::EncodableMap>(*method_call.arguments());
     auto_updater.CheckForUpdatesWithoutUI();
     result->Success(flutter::EncodableValue(true));
+
+  } else if (method_name.compare("cleanup") == 0) {
+    auto_updater.Cleanup();
+    result->Success(flutter::EncodableValue(true));
+
   } else {
     result->NotImplemented();
+
   }
 }
 

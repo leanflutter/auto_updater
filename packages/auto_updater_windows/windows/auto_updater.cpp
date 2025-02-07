@@ -32,6 +32,7 @@ class AutoUpdater {
   void AutoUpdater::CheckForUpdates();
   void AutoUpdater::CheckForUpdatesWithoutUI();
   void AutoUpdater::SetScheduledCheckInterval(int interval);
+  void AutoUpdater::Cleanup();
 
   void AutoUpdater::RegisterEventSink(
       std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> ptr);
@@ -70,7 +71,6 @@ void AutoUpdater::SetFeedURL(std::string feedURL) {
   win_sparkle_set_update_skipped_callback(__onUpdateSkippedCallback);
   win_sparkle_set_update_postponed_callback(__onUpdatePostponedCallback);
   win_sparkle_set_update_dismissed_callback(__onUpdateDismissedCallback);
-  win_sparkle_set_user_run_installer_callback(__onUserRunInstallerCallback);
 }
 
 void AutoUpdater::CheckForUpdates() {
@@ -85,6 +85,10 @@ void AutoUpdater::CheckForUpdatesWithoutUI() {
 
 void AutoUpdater::SetScheduledCheckInterval(int interval) {
   win_sparkle_set_update_check_interval(interval);
+}
+
+void AutoUpdater::Cleanup() {
+  win_sparkle_cleanup();
 }
 
 void AutoUpdater::RegisterEventSink(

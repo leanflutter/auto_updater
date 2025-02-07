@@ -40,12 +40,15 @@ class AutoUpdater {
   Future<void> checkForUpdateInformation() =>
       _platform.checkForUpdateInformation();
 
+  /// Cleans up the auto updater.
+  ///
+  /// Notes: this function is only available on Windows.
+  Future<void> cleanup() => _platform.cleanup();
+
   void _handleSparkleEvents(dynamic event) {
     final type = event['type'] as String;
     final eventType = UpdaterEvent.fromString(type);
-    final eventData = event['data'] as Map<Object?, Object?>?;
-
-    if (eventData == null) return;
+    final eventData = event['data'] as Map<Object?, Object?>? ?? {};
 
     // Parse event data
     final updaterError = eventData['error'] != null

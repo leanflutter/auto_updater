@@ -49,4 +49,9 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'checkForUpdateInformation() has not been implemented.',
     );
   }
+
+  /// Cleans up the auto updater.
+  Future<void> cleanup() async {
+    throw UnimplementedError('cleanup() has not been implemented.');
+  }
 }
