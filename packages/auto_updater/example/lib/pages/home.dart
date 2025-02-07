@@ -140,12 +140,23 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
   }
 
   @override
-  void onUpdaterUserUpdateChoice(
-    UserUpdateChoice? choice,
-    AppcastItem? appcastItem,
-  ) {
+  void onUpdaterUpdateSkipped(AppcastItem? appcastItem) {
     if (kDebugMode) {
-      print('onUpdaterUserUpdateChoice: $choice, ${appcastItem?.toJson()}');
+      print('onUpdaterUpdateSkipped: ${appcastItem?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateCancelled(AppcastItem? appcastItem) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateCancelled: ${appcastItem?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateInstalled(AppcastItem? appcastItem) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateInstalled: ${appcastItem?.toJson()}');
     }
   }
 }

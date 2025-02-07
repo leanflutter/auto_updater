@@ -108,6 +108,13 @@ class AutoUpdater {
         case UpdaterEvent.updateInstalled:
           // this event is only available on Windows
           listener.onUpdaterUpdateInstalled(appcastItem);
+        case UpdaterEvent.updateDismissed:
+          // this event is only available on Windows
+          listener.onUpdaterUpdateCancelled(appcastItem);
+        case UpdaterEvent.updatePostponed:
+        case UpdaterEvent.userRunInstaller:
+          // this event is only available on Windows, ignore it
+          break;
       }
     }
   }

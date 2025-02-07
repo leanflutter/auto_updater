@@ -10,9 +10,12 @@ enum UpdaterEvent {
   userUpdateChoice,
 
   // these events are only available on Windows
+  updatePostponed,
+  updateDismissed,
   updateCancelled,
   updateSkipped,
-  updateInstalled;
+  updateInstalled,
+  userRunInstaller;
 
   static UpdaterEvent fromString(String name) {
     switch (name) {
@@ -36,6 +39,12 @@ enum UpdaterEvent {
         return UpdaterEvent.updateSkipped;
       case 'update-installed':
         return UpdaterEvent.updateInstalled;
+      case 'update-postponed':
+        return UpdaterEvent.updatePostponed;
+      case 'update-dismissed':
+        return UpdaterEvent.updateDismissed;
+      case 'user-run-installer':
+        return UpdaterEvent.userRunInstaller;
       default:
         throw ArgumentError('Invalid event name: $name');
     }

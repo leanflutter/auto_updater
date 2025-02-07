@@ -38,3 +38,5 @@ flutter:
         default_package: auto_updater_macos
       windows:
         default_package: auto_updater_windows
+      linux:
+        default_package: auto_updater_linux
