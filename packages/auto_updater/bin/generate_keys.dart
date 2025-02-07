@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
 Future<void> main(List<String> arguments) async {
@@ -18,7 +19,7 @@ Future<void> main(List<String> arguments) async {
             '.plugin_symlinks',
             'auto_updater_windows',
             'windows',
-            'WinSparkle-0.8.1',
+            'WinSparkle-0.8.3',
             'bin',
             'generate_keys.bat',
           ],

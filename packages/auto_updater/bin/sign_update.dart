@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
 class SignUpdateResult {
@@ -23,7 +24,7 @@ SignUpdateResult signUpdate(List<String> args) {
             '.plugin_symlinks',
             'auto_updater_windows',
             'windows',
-            'WinSparkle-0.8.1',
+            'WinSparkle-0.8.3',
             'bin',
             'sign_update.bat',
           ],
@@ -54,7 +55,8 @@ SignUpdateResult signUpdate(List<String> args) {
     stderr.write(processResult.stderr);
   }
 
-  final RegExp regex = RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
+  final RegExp regex =
+      RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
   final RegExpMatch? match = regex.firstMatch(signUpdateOutput!);
 
   if (match == null) {
