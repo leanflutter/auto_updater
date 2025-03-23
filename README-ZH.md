@@ -1,3 +1,5 @@
+> **🚀 快速发布您的应用**: 试试 [Fastforge](https://fastforge.dev) - 构建、打包和分发您的 Flutter 应用最简单的方式。
+
 # auto_updater
 
 [![pub version][pub-image]][pub-url] [![][discord-image]][discord-url]
