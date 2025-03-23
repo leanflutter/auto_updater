@@ -189,7 +189,7 @@ Change the file `windows/runner/Runner.rc` as follows:
 
 #### Packaging
 
-> To simplify the packaging process, [Flutter Distributor](https://github.com/leanflutter/flutter_distributor) is used here, A complete tool dedicated to packaging and publishing Flutter apps.
+> To simplify the packaging process, [Fastforge](https://fastforge.dev) is used here, A complete tool dedicated to packaging and publishing Flutter apps.
 
 Add `distribute_options.yaml` to your project root directory.
 
@@ -205,7 +205,7 @@ releases:
           build_args:
             dart-define:
               APP_ENV: dev
-      # See full documentation: https://distributor.leanflutter.org/configuration/makers/exe
+      # See full documentation: https://fastforge.dev/makers/exe
       - name: windows-exe
         package:
           platform: windows
@@ -220,7 +220,7 @@ releases:
 Run the following command:
 
 ```
-flutter_distributor release --name prod --jobs macos-zip
+fastforge release --name prod --jobs macos-zip
 ```
 
 ##### Windows
@@ -228,7 +228,7 @@ flutter_distributor release --name prod --jobs macos-zip
 Run the following command:
 
 ```
-flutter_distributor release --name prod --jobs windows-exe
+fastforge release --name prod --jobs windows-exe
 ```
 
 #### Get signature

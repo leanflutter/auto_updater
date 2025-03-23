@@ -189,7 +189,7 @@ If you lose it, your users will be unable to upgrade!
 
 #### 打包应用
 
-> 为了简化打包的过程，这里使用了 [Flutter Distributor](https://github.com/leanflutter/flutter_distributor) ，一个专门用于打包和发布 Flutter 应用的完整工具。
+> 为了简化打包的过程，这里使用了 [Fastforge](https://fastforge.dev) ，一个专门用于打包和发布 Flutter 应用的完整工具。
 
 将 `distribute_options.yaml` 添加到你的项目根目录。
 
@@ -205,7 +205,7 @@ releases:
           build_args:
             dart-define:
               APP_ENV: dev
-      # 查看完整文档：https://distributor.leanflutter.org/configuration/makers/exe
+      # 查看完整文档：https://fastforge.dev/makers/exe
       - name: windows-exe
         package:
           platform: windows
@@ -220,7 +220,7 @@ releases:
 运行以下命令：
 
 ```
-flutter_distributor release --name prod --jobs macos-zip
+fastforge release --name prod --jobs macos-zip
 ```
 
 ##### Windows
@@ -228,7 +228,7 @@ flutter_distributor release --name prod --jobs macos-zip
 运行以下命令：
 
 ```
-flutter_distributor release --name prod --jobs windows-exe
+fastforge release --name prod --jobs windows-exe
 ```
 
 #### 获取签名
