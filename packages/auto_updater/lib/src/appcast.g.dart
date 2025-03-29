@@ -20,7 +20,7 @@ AppcastItem _$AppcastItemFromJson(Map<String, dynamic> json) => AppcastItem(
       versionString: json['versionString'] as String?,
       displayVersionString: json['displayVersionString'] as String?,
       fileURL: json['fileURL'] as String?,
-      contentLength: json['contentLength'] as int?,
+      contentLength: (json['contentLength'] as num?)?.toInt(),
       infoURL: json['infoURL'] as String?,
       title: json['title'] as String?,
       dateString: json['dateString'] as String?,
@@ -35,6 +35,8 @@ AppcastItem _$AppcastItemFromJson(Map<String, dynamic> json) => AppcastItem(
       maximumOperatingSystemVersionIsOK:
           json['maximumOperatingSystemVersionIsOK'] as bool?,
       channel: json['channel'] as String?,
+      criticalUpdate: json['criticalUpdate'] as bool?,
+      os: json['os'] as String?,
     );
 
 Map<String, dynamic> _$AppcastItemToJson(AppcastItem instance) =>
@@ -57,4 +59,6 @@ Map<String, dynamic> _$AppcastItemToJson(AppcastItem instance) =>
       'maximumOperatingSystemVersionIsOK':
           instance.maximumOperatingSystemVersionIsOK,
       'channel': instance.channel,
+      'criticalUpdate': instance.criticalUpdate,
+      'os': instance.os,
     };

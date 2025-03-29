@@ -138,4 +138,25 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
     }
     windowManager.setPreventClose(false);
   }
+
+  @override
+  void onUpdaterUpdateSkipped(AppcastItem? appcastItem) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateSkipped: ${appcastItem?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateCancelled(AppcastItem? appcastItem) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateCancelled: ${appcastItem?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateInstalled(AppcastItem? appcastItem) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateInstalled: ${appcastItem?.toJson()}');
+    }
+  }
 }

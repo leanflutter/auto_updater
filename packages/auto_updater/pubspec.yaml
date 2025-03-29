@@ -29,7 +29,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.6.0
-  mostly_reasonable_lints: ^0.1.2
+  flutter_lints: ^4.0.0
 
 flutter:
   plugin:
@@ -38,3 +38,5 @@ flutter:
         default_package: auto_updater_macos
       windows:
         default_package: auto_updater_windows
+      linux:
+        default_package: auto_updater_linux

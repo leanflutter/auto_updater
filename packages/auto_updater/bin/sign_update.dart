@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
 class SignUpdateResult {
@@ -12,7 +13,7 @@ class SignUpdateResult {
 }
 
 SignUpdateResult signUpdate(List<String> args) {
-  String executable = Platform.isMacOS
+  final String executable = Platform.isMacOS
       ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
       : p.joinAll(
           [
@@ -23,24 +24,24 @@ SignUpdateResult signUpdate(List<String> args) {
             '.plugin_symlinks',
             'auto_updater_windows',
             'windows',
-            'WinSparkle-0.8.1',
+            'WinSparkle-0.8.3',
             'bin',
             'sign_update.bat',
           ],
         );
-  List<String> arguments = List<String>.from(args);
+  final List<String> arguments = List<String>.from(args);
   if (Platform.isWindows) {
     if (arguments.length == 1) {
       arguments.add(p.join('dsa_priv.pem'));
     }
   }
 
-  ProcessResult processResult = Process.runSync(
+  final ProcessResult processResult = Process.runSync(
     executable,
     arguments,
   );
 
-  int exitCode = processResult.exitCode;
+  final int exitCode = processResult.exitCode;
 
   String? signUpdateOutput;
   if (exitCode == 0) {
@@ -54,8 +55,9 @@ SignUpdateResult signUpdate(List<String> args) {
     stderr.write(processResult.stderr);
   }
 
-  RegExp regex = RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
-  RegExpMatch? match = regex.firstMatch(signUpdateOutput!);
+  final RegExp regex =
+      RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
+  final RegExpMatch? match = regex.firstMatch(signUpdateOutput!);
 
   if (match == null) {
     throw Exception('Failed to sign update');

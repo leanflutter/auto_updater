@@ -3,9 +3,9 @@ import FlutterMacOS
 
 public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandler {
     private var _eventSink: FlutterEventSink?
-    
+
     private var autoUpdater: AutoUpdater = AutoUpdater()
-    
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "dev.leanflutter.plugins/auto_updater", binaryMessenger: registrar.messenger)
         let instance = AutoUpdaterMacosPlugin()
@@ -24,20 +24,20 @@ public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandle
             eventSink(event)
         }
     }
-    
+
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         self._eventSink = events
         return nil;
     }
-    
+
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         self._eventSink = nil
         return nil
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let args: [String: Any] = call.arguments as? [String: Any] ?? [:]
-        
+
         switch call.method {
         case "setFeedURL":
             let feedURL = URL(string: args["feedURL"] as! String)
@@ -51,6 +51,10 @@ public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandle
             }else {
                 autoUpdater.checkForUpdates()
             }
+            result(true)
+            break
+        case "checkForUpdateInformation":
+            autoUpdater.checkForUpdateInformation()
             result(true)
             break
         case "setScheduledCheckInterval":
