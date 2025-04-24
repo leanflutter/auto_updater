@@ -31,6 +31,7 @@ English | [简体中文](./README-ZH.md)
       - [setFeedURL](#setfeedurl)
       - [checkForUpdates](#checkforupdates)
       - [setScheduledCheckInterval](#setscheduledcheckinterval)
+      - [setAllowedChannels](#setallowedchannels)
 - [Related Links](#related-links)
 - [License](#license)
 
@@ -71,6 +72,10 @@ Asks the server whether there is an update. You must call setFeedURL before usin
 ##### setScheduledCheckInterval
 
 Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
+
+##### setAllowedChannels
+
+Sets which channels the app is allowed to receive updates from. On macOS this allows receiving updates from specific channels like 'beta' in addition to the default channel.
 
 <!-- README_DOC_GEN -->
 

@@ -44,4 +44,12 @@ class MethodChannelAutoUpdater extends AutoUpdaterPlatform {
     };
     await methodChannel.invokeMethod('setScheduledCheckInterval', arguments);
   }
+  
+  @override
+  Future<void> setAllowedChannels(List<String> channels) async {
+    final Map<String, dynamic> arguments = {
+      'channels': channels,
+    };
+    await methodChannel.invokeMethod('setAllowedChannels', arguments);
+  }
 }

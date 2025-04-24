@@ -42,4 +42,15 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+
+  /// Sets which channels the app is allowed to receive updates from.
+  ///
+  /// On macOS this allows receiving updates from specific channels
+  /// like 'beta' in addition to the default channel. If this is not called, the app will
+  /// only receive updates from the default channel.
+  ///
+  /// This has no effect on platforms other than macOS. See https://github.com/vslavik/winsparkle/issues/248
+  Future<void> setAllowedChannels(List<String> channels) async {
+    throw UnimplementedError('setAllowedChannels() has not been implemented.');
+  }
 }

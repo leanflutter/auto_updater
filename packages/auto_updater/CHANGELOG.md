@@ -1,3 +1,7 @@
+## 1.1.0
+
+* [macos] Add support for Sparkle channels via new `setAllowedChannels` method (#74)
+
 ## 1.0.0
 
 * First major release.

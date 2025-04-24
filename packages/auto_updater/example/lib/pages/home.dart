@@ -49,6 +49,11 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
     await autoUpdater.setScheduledCheckInterval(3600);
   }
 
+  Future<void> _handleClickSetAllowedChannels() async {
+    await autoUpdater.setAllowedChannels(['beta']);
+    BotToast.showText(text: 'Allowed channels set to: beta');
+  }
+
   Widget _buildBody(BuildContext context) {
     return ListView(
       children: <Widget>[
@@ -78,6 +83,12 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
               title: const Text('setScheduledCheckInterval'),
               onTap: () {
                 _handleClickSetScheduledCheckInterval();
+              },
+            ),
+            ListTile(
+              title: const Text('setAllowedChannels'),
+              onTap: () {
+                _handleClickSetAllowedChannels();
               },
             ),
           ],

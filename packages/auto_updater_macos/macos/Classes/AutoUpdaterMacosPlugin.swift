@@ -58,6 +58,11 @@ public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandle
             autoUpdater.setScheduledCheckInterval(interval)
             result(true)
             break
+        case "setAllowedChannels":
+            let channels = args["channels"] as! [String]
+            autoUpdater.setAllowedChannels(channels)
+            result(true)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }

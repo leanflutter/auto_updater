@@ -43,6 +43,7 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     var _userDriver: SPUStandardUserDriver?
     var _updater: SPUUpdater?
     var feedURL: URL?
+    var allowedChannels: Set<String>?
     public var onEvent:((String, NSDictionary) -> Void)?
     
     override init() {
@@ -79,6 +80,10 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     
     public func setScheduledCheckInterval(_ interval: Int) {
         _updater?.updateCheckInterval = TimeInterval(interval)
+    }
+    
+    public func setAllowedChannels(_ channels: [String]) {
+        self.allowedChannels = Set(channels)
     }
     
     // SPUUpdaterDelegate
@@ -124,6 +129,10 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
         ]
         _emitEvent("before-quit-for-update", data)
         return true
+    }
+    
+    public func allowedChannels(for updater: SPUUpdater) -> Set<String> {
+        return allowedChannels ?? Set<String>()
     }
     
     public func _emitEvent(_ eventName: String, _ data: NSDictionary) {

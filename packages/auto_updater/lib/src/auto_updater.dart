@@ -96,6 +96,23 @@ class AutoUpdater {
   Future<void> setScheduledCheckInterval(int interval) {
     return _platform.setScheduledCheckInterval(interval);
   }
+
+  /// Sets which channels the app is allowed to receive updates from.
+  ///
+  /// On macOS this allows receiving updates from specific channels
+  /// like 'beta' in addition to the default channel. If this is not called, the app will
+  /// only receive updates from the default channel.
+  ///
+  /// This has no effect on platforms other than macOS.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Allow updates from both default channel and beta channel
+  /// autoUpdater.setAllowedChannels(['beta']);
+  /// ```
+  Future<void> setAllowedChannels(List<String> channels) {
+    return _platform.setAllowedChannels(channels);
+  }
 }
 
 final autoUpdater = AutoUpdater.instance;
