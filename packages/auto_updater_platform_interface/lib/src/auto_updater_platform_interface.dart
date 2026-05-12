@@ -42,4 +42,9 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+
+  /// Installs the downloaded update immediately when the native updater has one ready.
+  Future<void> installUpdateNow() async {
+    throw UnimplementedError('installUpdateNow() has not been implemented.');
+  }
 }

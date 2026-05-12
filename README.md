@@ -72,6 +72,10 @@ Asks the server whether there is an update. You must call setFeedURL before usin
 
 Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
 
+##### installUpdateNow
+
+Installs the downloaded update immediately when the native updater has one ready.
+
 <!-- README_DOC_GEN -->
 
 ## Related Links

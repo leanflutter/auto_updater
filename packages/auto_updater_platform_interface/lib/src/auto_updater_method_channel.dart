@@ -23,9 +23,7 @@ class MethodChannelAutoUpdater extends AutoUpdaterPlatform {
 
   @override
   Future<void> setFeedURL(String feedUrl) async {
-    final Map<String, dynamic> arguments = {
-      'feedURL': feedUrl,
-    };
+    final Map<String, dynamic> arguments = {'feedURL': feedUrl};
     await methodChannel.invokeMethod('setFeedURL', arguments);
   }
 
@@ -39,9 +37,12 @@ class MethodChannelAutoUpdater extends AutoUpdaterPlatform {
 
   @override
   Future<void> setScheduledCheckInterval(int interval) async {
-    final Map<String, dynamic> arguments = {
-      'interval': interval,
-    };
+    final Map<String, dynamic> arguments = {'interval': interval};
     await methodChannel.invokeMethod('setScheduledCheckInterval', arguments);
+  }
+
+  @override
+  Future<void> installUpdateNow() async {
+    await methodChannel.invokeMethod('installUpdateImmediately');
   }
 }

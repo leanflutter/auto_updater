@@ -43,6 +43,7 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     var _userDriver: SPUStandardUserDriver?
     var _updater: SPUUpdater?
     var feedURL: URL?
+    var immediateInstallHandler: (() -> Void)?
     public var onEvent:((String, NSDictionary) -> Void)?
     
     override init() {
@@ -79,6 +80,21 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     
     public func setScheduledCheckInterval(_ interval: Int) {
         _updater?.updateCheckInterval = TimeInterval(interval)
+    }
+
+    public func installUpdateImmediately() -> Bool {
+        guard let immediateInstallHandler = immediateInstallHandler else {
+            let data: NSDictionary = [
+                "error": "No downloaded update is ready to install immediately.",
+            ]
+            _emitEvent("error", data)
+            return false
+        }
+
+        DispatchQueue.main.async {
+            immediateInstallHandler()
+        }
+        return true
     }
     
     // SPUUpdaterDelegate
@@ -119,6 +135,7 @@ public class AutoUpdater: NSObject, SPUUpdaterDelegate {
     }
     
     public func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem, immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+        self.immediateInstallHandler = immediateInstallHandler
         let data: NSDictionary = [
             "appcastItem": item.toDictionary()
         ]

@@ -86,6 +86,10 @@ void AutoUpdaterWindowsPlugin::HandleMethodCall(
     auto_updater.SetScheduledCheckInterval(interval);
     result->Success(flutter::EncodableValue(true));
 
+  } else if (method_name.compare("installUpdateImmediately") == 0) {
+    auto_updater.InstallUpdateNow();
+    result->Success(flutter::EncodableValue(true));
+
   } else {
     result->NotImplemented();
   }

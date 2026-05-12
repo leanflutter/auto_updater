@@ -27,9 +27,7 @@ class AutoUpdater {
     if (event['data'] != null) {
       data = event['data'] as Map;
       if (data['error'] != null) {
-        updaterError = UpdaterError(
-          data['error'].toString(),
-        );
+        updaterError = UpdaterError(data['error'].toString());
       }
       if (data['appcast'] != null) {
         appcast = Appcast.fromJson(
@@ -87,14 +85,17 @@ class AutoUpdater {
 
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
   Future<void> checkForUpdates({bool? inBackground}) {
-    return _platform.checkForUpdates(
-      inBackground: inBackground,
-    );
+    return _platform.checkForUpdates(inBackground: inBackground);
   }
 
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
   Future<void> setScheduledCheckInterval(int interval) {
     return _platform.setScheduledCheckInterval(interval);
+  }
+
+  /// Installs the downloaded update immediately when the native updater has one ready.
+  Future<void> installUpdateNow() {
+    return _platform.installUpdateNow();
   }
 }
 

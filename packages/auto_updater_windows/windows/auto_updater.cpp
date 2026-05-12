@@ -32,6 +32,7 @@ class AutoUpdater {
   void AutoUpdater::CheckForUpdates();
   void AutoUpdater::CheckForUpdatesWithoutUI();
   void AutoUpdater::SetScheduledCheckInterval(int interval);
+  void AutoUpdater::InstallUpdateNow();
 
   void AutoUpdater::RegisterEventSink(
       std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> ptr);
@@ -87,6 +88,10 @@ void AutoUpdater::CheckForUpdatesWithoutUI() {
 
 void AutoUpdater::SetScheduledCheckInterval(int interval) {
   win_sparkle_set_update_check_interval(interval);
+}
+
+void AutoUpdater::InstallUpdateNow() {
+  win_sparkle_check_update_with_ui_and_install();
 }
 
 void AutoUpdater::RegisterEventSink(

@@ -58,9 +58,19 @@ public class AutoUpdaterMacosPlugin: NSObject, FlutterPlugin,FlutterStreamHandle
             autoUpdater.setScheduledCheckInterval(interval)
             result(true)
             break
+        case "installUpdateImmediately":
+            if autoUpdater.installUpdateImmediately() {
+                result(true)
+            } else {
+                result(FlutterError(
+                    code: "UPDATE_NOT_READY",
+                    message: "No downloaded update is ready to install immediately.",
+                    details: nil
+                ))
+            }
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 }
-
