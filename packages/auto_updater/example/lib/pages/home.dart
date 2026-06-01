@@ -89,9 +89,7 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
+      appBar: AppBar(title: const Text('Plugin example app')),
       body: _buildBody(context),
     );
   }

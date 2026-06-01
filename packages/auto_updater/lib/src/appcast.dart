@@ -4,9 +4,7 @@ part 'appcast.g.dart';
 
 @JsonSerializable()
 class Appcast {
-  const Appcast({
-    required this.items,
-  });
+  const Appcast({required this.items});
 
   factory Appcast.fromJson(Map<String, dynamic> json) {
     json['items'] = (json['items'] as List)

@@ -1,3 +1,9 @@
+## 1.0.1
+
+* feat(macos): Add Swift Package Manager support for Sparkle.
+* chore: Support Sparkle tools from CocoaPods, SwiftPM, or `AUTO_UPDATER_SPARKLE_BIN`.
+* chore: Require Dart `>=3.11.0` and Flutter `>=3.41.0`.
+
 ## 1.0.0
 
 * First major release.
