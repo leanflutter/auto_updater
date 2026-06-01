@@ -1,6 +1,6 @@
 name: auto_updater_platform_interface
 description: A common platform interface for the auto_updater plugin.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/leanflutter/auto_updater/blob/main/packages/auto_updater_platform_interface
 
 environment:

@@ -1,6 +1,6 @@
 name: auto_updater_macos
 description: macOS implementation of the auto_updater plugin.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/leanflutter/auto_updater/tree/main/packages/auto_updater_macos
 
 environment:
