@@ -34,6 +34,14 @@ Run the following command:
 choco install openssl
 ```
 
+### ⚠️ macOS requirements
+
+- Flutter `>=3.41.0`
+- macOS deployment target `>=10.15`
+
+The macOS implementation supports both Flutter's Swift Package Manager integration
+and CocoaPods. It depends on Sparkle `>=2.9.2 <3.0`.
+
 ## Usage
 
 ```dart
@@ -65,6 +73,9 @@ dart run auto_updater:generate_keys
 ```
 
 > You need to run this command on `macOS` and `Windows` systems separately.
+> On macOS, this command uses the Sparkle tools from
+> `AUTO_UPDATER_SPARKLE_BIN`, `macos/Pods/Sparkle/bin`, or
+> `build/macos/SourcePackages/artifacts/sparkle/Sparkle/bin`.
 
 #### macOS
 
@@ -263,7 +274,9 @@ serve -l 5002
 
 ### macOS
 
-- Make sure you have the sparkle pod added as described in [Sparkle Documentation](https://sparkle-project.org/documentation/)
+- If you use CocoaPods, make sure you have the Sparkle pod added as described in [Sparkle Documentation](https://sparkle-project.org/documentation/)
+- If you use Swift Package Manager, run `flutter build macos` first so Xcode fetches Sparkle into `build/macos/SourcePackages/artifacts/sparkle/Sparkle/bin`.
+- If Sparkle tools are installed somewhere else, set `AUTO_UPDATER_SPARKLE_BIN` to the directory containing `generate_keys` and `sign_update`.
 - Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
 
 ```

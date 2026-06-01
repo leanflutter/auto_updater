@@ -1,4 +1,6 @@
 .dart_tool/
+.build/
+.swiftpm/
 .idea/
 
 *.iml

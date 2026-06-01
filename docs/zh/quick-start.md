@@ -34,6 +34,14 @@ dependencies:
 choco install openssl
 ```
 
+### ⚠️ macOS 要求
+
+- Flutter `>=3.41.0`
+- macOS 部署目标 `>=10.15`
+
+macOS 实现同时支持 Flutter 的 Swift Package Manager 集成和 CocoaPods。它依赖
+Sparkle `>=2.9.2 <3.0`。
+
 ## 用法
 
 ```dart
@@ -65,6 +73,9 @@ dart run auto_updater:generate_keys
 ```
 
 > 需要分别在 `macOS` 和 `Windows` 系统中运行该命令。
+> 在 macOS 上，该命令会从 `AUTO_UPDATER_SPARKLE_BIN`、
+> `macos/Pods/Sparkle/bin` 或
+> `build/macos/SourcePackages/artifacts/sparkle/Sparkle/bin` 查找 Sparkle 工具。
 
 #### macOS
 
@@ -263,7 +274,9 @@ serve -l 5002
 
 ### macOS
 
-- 确保按照 [Sparkle 文档](https://sparkle-project.org/documentation/)中的说明添加了 sparkle pod
+- 如果使用 CocoaPods，请确保按照 [Sparkle 文档](https://sparkle-project.org/documentation/)中的说明添加了 Sparkle pod
+- 如果使用 Swift Package Manager，请先运行 `flutter build macos`，让 Xcode 将 Sparkle 拉取到 `build/macos/SourcePackages/artifacts/sparkle/Sparkle/bin`
+- 如果 Sparkle 工具安装在其他位置，请将 `AUTO_UPDATER_SPARKLE_BIN` 设置为包含 `generate_keys` 和 `sign_update` 的目录
 - 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
 
 ```
