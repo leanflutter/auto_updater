@@ -35,6 +35,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - working-directory: ./packages/auto_updater/example
         run: |
+          rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
           flutter build macos --release
 
   # build-web:
