@@ -1,0 +1,23 @@
+name: Verify signed WinSparkle MSI upgrade
+
+on:
+  push:
+    branches: [codex/verify-winsparkle-msi]
+
+permissions:
+  contents: read
+
+jobs:
+  upgrade:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.14.0'
+          architecture: x64
+      - working-directory: packages/winsparkle
+        run: dart pub get
+      - name: Install version 1 and upgrade to a signed MSI
+        shell: pwsh
+        run: ./packages/winsparkle/tool/fixtures/msi_update.ps1
