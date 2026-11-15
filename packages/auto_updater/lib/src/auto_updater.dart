@@ -83,6 +83,28 @@ class AutoUpdater {
     return _platform.setFeedURL(feedUrl);
   }
 
+  static final _invalidHeaderName = RegExp(r"[^!#$%&'*+.^_\x60|~0-9A-Za-z-]");
+  static final _invalidHeaderValue = RegExp(r'[\x00-\x08\x0A-\x1F\x7F]');
+
+  /// Replaces the custom HTTP headers used by the updater.
+  ///
+  /// Configure headers before calling [setFeedURL]. Pass an empty map to
+  /// clear them. The native updater can send these headers to both the feed
+  /// and the URLs referenced by it.
+  Future<void> setHttpHeaders(Map<String, String> headers) async {
+    final normalized = <String, String>{};
+    for (final MapEntry(:key, :value) in headers.entries) {
+      if (key.isEmpty || _invalidHeaderName.hasMatch(key)) {
+        throw ArgumentError('Invalid HTTP header name');
+      }
+      if (_invalidHeaderValue.hasMatch(value)) {
+        throw ArgumentError('Invalid HTTP header value');
+      }
+      normalized[key.toLowerCase()] = value;
+    }
+    await _platform.setHttpHeaders(normalized);
+  }
+
   /// Checks for updates after [setFeedURL] has been called.
   ///
   /// Set [inBackground] to true for a background check. On macOS, foreground

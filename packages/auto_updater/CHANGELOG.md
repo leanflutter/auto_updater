@@ -6,6 +6,7 @@
 * Support the Sparkle signing tools when macOS apps use SwiftPM.
 * Add `dart run auto_updater:generate_appcast` for macOS release automation.
 * Add `getLastCheckTime()` on macOS and Windows.
+* Add `setHttpHeaders()` for authenticated update feeds on macOS and Windows.
 
 ## 1.0.0
 

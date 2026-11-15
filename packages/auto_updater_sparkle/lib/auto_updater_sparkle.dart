@@ -80,6 +80,11 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
   }
 
   @override
+  Future<void> setHttpHeaders(Map<String, String> headers) async {
+    autoReleasePool(() => _updater.httpHeaders = headers.toNSDictionary());
+  }
+
+  @override
   Future<void> checkForUpdates({bool? inBackground}) async {
     autoReleasePool(() {
       if (inBackground ?? false) {

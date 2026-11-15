@@ -74,6 +74,19 @@ void main() async {
 
 > 请看这个插件的示例应用，以了解完整的例子。
 
+### 使用需要认证的更新源
+
+先设置请求头，再设置 feed URL。
+
+```dart
+await autoUpdater.setHttpHeaders({'Authorization': 'Bearer $accessToken'});
+await autoUpdater.setFeedURL('https://example.com/updates/appcast.xml');
+```
+
+Sparkle 和 WinSparkle 下载更新时也会发送这些请求头，请为 feed 和安装包使用
+可信的 HTTPS 地址。再次调用 `setHttpHeaders` 会替换已有的请求头，传入空
+Map 可清除这些请求头。
+
 ## 发布你的应用
 
 ### 生成私钥

@@ -30,6 +30,11 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
     throw UnimplementedError('setFeedURL() has not been implemented.');
   }
 
+  /// Replaces the custom headers used by the native updater.
+  Future<void> setHttpHeaders(Map<String, String> headers) async {
+    throw UnimplementedError('setHttpHeaders() has not been implemented.');
+  }
+
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
   Future<void> checkForUpdates({bool? inBackground}) async {
     throw UnimplementedError('checkForUpdates() has not been implemented.');
