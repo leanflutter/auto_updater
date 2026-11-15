@@ -43,6 +43,6 @@ jobs:
       - name: Verify example shutdown and signed MSI upgrade
         shell: pwsh
         run: |
-          $arch = '${{ matrix.architecture }}'
+          $arch = 'x64'
           $release = (Resolve-Path "packages/auto_updater/example/build/windows/$arch/runner/Release").Path
           ./packages/winsparkle/tool/fixtures/msi_update.ps1 -ReleaseDirectory $release -Architecture $arch
