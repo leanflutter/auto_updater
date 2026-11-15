@@ -4,6 +4,9 @@
   `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
 * Require Flutter 3.50 and Dart 3.14 or later.
 * Support the Sparkle signing tools when macOS apps use SwiftPM.
+* Preserve native output and exit status in `generate_keys`, including on
+  localized Windows systems.
+* Report the Windows installer's size in `sign_update` output.
 
 ## 1.0.0
 
