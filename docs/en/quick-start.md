@@ -290,8 +290,10 @@ the installed app has the matching public key.
 
 Await `setFeedURL` and log any exception from it. Sparkle reports configuration
 errors during startup, including an invalid `SUPublicEDKey` or missing
-entitlements. Use `UpdaterListener.onUpdaterError` for errors reported during
-update checks. When debugging a release build, verify that the exported
+entitlements. After `setFeedURL` and any scheduled interval setting complete,
+you can call `checkForUpdates()` immediately. Use
+`UpdaterListener.onUpdaterError` for errors reported during update checks.
+When debugging a release build, verify that the exported
 `.app` contains `Contents/Frameworks/Sparkle.framework` and that the exported
 app's `Info.plist` contains the expected update configuration.
 

@@ -285,7 +285,8 @@ serve -l 5002
 ### macOS
 
 等待 `setFeedURL` 完成，并记录它抛出的异常。Sparkle 会报告启动时的配置错误，
-例如无效的 `SUPublicEDKey` 或缺失的授权。检查更新期间的错误可通过
+例如无效的 `SUPublicEDKey` 或缺失的授权。设置好 feed 和所需的检查间隔后，
+可以立即调用 `checkForUpdates()`。检查更新期间的错误可通过
 `UpdaterListener.onUpdaterError` 获取。排查 release 版本时，请确认导出的
 `.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
 `Info.plist` 是否包含预期的更新配置。
