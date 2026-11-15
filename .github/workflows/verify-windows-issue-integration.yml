@@ -48,30 +48,47 @@ jobs:
 
 
   flutter-msi:
-    runs-on: windows-2022
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+          - runner: windows-11-arm
+            architecture: arm64
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.50.0'
           channel: stable
-          cache: true
-      - uses: actions/download-artifact@v8
-        with:
-          name: winsparkle-x64
-          path: ${{ runner.temp }}/patched-winsparkle
-          run-id: 43693960183
-          github-token: ${{ github.token }}
-      - name: Build release with the verified WinSparkle DLL
+          architecture: x64
+          cache: ${{ matrix.architecture == 'x64' }}
+      - name: Select native Dart on Windows Arm64
+        if: matrix.architecture == 'arm64'
+        env:
+          FLUTTER_HOST_ARCH: arm64
         shell: pwsh
         run: |
-          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/x64/Release
+          $flutterBin = Split-Path (Get-Command flutter).Source
+          Remove-Item "$flutterBin/cache/engine-dart-sdk.stamp" -Force
+          Remove-Item "$flutterBin/cache/windows-sdk.stamp" -Force -ErrorAction SilentlyContinue
+          flutter --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((dart --version 2>&1 | Out-String) -notmatch 'windows_arm64') {
+            throw 'Expected the native Dart VM.'
+          }
+      - name: Build Release fixture with the shipped example and WinSparkle
+        shell: pwsh
+        run: |
           dart run melos bootstrap
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Set-Location packages/auto_updater/example
           flutter build windows --release -t lib/codex_integrated_msi_smoke.dart
-      - name: Upgrade to a signed MSI from the Flutter app
+      - name: Verify example shutdown and signed MSI upgrade
         shell: pwsh
         run: |
-          $release = (Resolve-Path 'packages/auto_updater/example/build/windows/x64/runner/Release').Path
-          ./packages/winsparkle/tool/fixtures/msi_update.ps1 -ReleaseDirectory $release
+          $arch = '${{ matrix.architecture }}'
+          $release = (Resolve-Path "packages/auto_updater/example/build/windows/$arch/runner/Release").Path
+          ./packages/winsparkle/tool/fixtures/msi_update.ps1 -ReleaseDirectory $release -Architecture $arch

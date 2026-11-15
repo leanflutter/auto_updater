@@ -1,4 +1,7 @@
-param([Parameter(Mandatory)][string] $ReleaseDirectory)
+param(
+    [Parameter(Mandatory)][string] $ReleaseDirectory,
+    [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string] $Architecture
+)
 
 $ErrorActionPreference = 'Stop'
 $fixture = Join-Path $env:RUNNER_TEMP 'winsparkle-msi'
@@ -12,7 +15,7 @@ foreach ($version in @('1.0.0', '2.0.0')) {
     $versionPath = Join-Path $fixture "version-$version.txt"
     $msi = Join-Path $fixture "fixture-$version.msi"
     Set-Content -Path $versionPath -Value $version
-    $wixArgs = @('build', '-arch', 'x64', '-d', "Version=$version", '-d', "Marker=$versionPath",
+    $wixArgs = @('build', '-arch', $Architecture, '-d', "Version=$version", '-d', "Marker=$versionPath",
         (Join-Path $PSScriptRoot 'msi-update.wxs'), '-o', $msi)
     & (Join-Path $tool 'wix.exe') @wixArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -46,8 +49,12 @@ if (!$app.WaitForExit(55000)) {
     $app.Kill()
     throw 'Timed out waiting for the Flutter app to exit.'
 }
-Get-Content (Join-Path $ReleaseDirectory 'msi-integration.result')
+$message = Get-Content (Join-Path $ReleaseDirectory 'msi-integration.result') -Raw
+Write-Host $message
 if ($app.ExitCode -ne 0) { exit $app.ExitCode }
+if ($message -notmatch 'The shipped example received a shutdown request') {
+    throw 'The Flutter example quit before receiving the updater request.'
+}
 for ($attempt = 0; $attempt -lt 30; $attempt++) {
     if ((Test-Path $marker) -and ((Get-Content $marker) -eq '2.0.0')) {
         Write-Host 'Windows Installer upgraded the signed WinSparkle MSI fixture to 2.0.0.'
