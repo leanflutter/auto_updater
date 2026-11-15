@@ -320,8 +320,7 @@ errors, add `sparkle:installerArguments="/passive"` to the enclosure.
 
 WinSparkle controls downloading and running the installer.
 Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
-shutdown. Sparkle on macOS also provides `onUpdaterUpdateDownloaded` when the
-download completes.
+shutdown.
 
 WinSparkle's update dialog reads a single release-notes URL per item. To
 localize the notes, serve one appcast per supported locale, each with a single

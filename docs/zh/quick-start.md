@@ -312,8 +312,7 @@ serve -l 5002
 [WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
 WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
-`onUpdaterBeforeQuitForUpdate` 保存应用状态。macOS 上的 Sparkle 还会在下载完成时
-触发 `onUpdaterUpdateDownloaded`。
+`onUpdaterBeforeQuitForUpdate` 保存应用状态。
 
 WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
 语言提供一份 appcast，每个更新项只放一个对应语言的
