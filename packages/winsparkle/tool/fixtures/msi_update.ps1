@@ -44,14 +44,24 @@ $env:CODEX_MSI_PUBLIC = [Convert]::ToBase64String($publicDer, $publicDer.Length 
 $env:CODEX_MSI_SIGNATURE = [Convert]::ToBase64String([IO.File]::ReadAllBytes($signature))
 $env:CODEX_MSI_LOG = Join-Path $fixture 'upgrade.log'
 $appPath = Join-Path $ReleaseDirectory 'auto_updater_example.exe'
-$app = Start-Process -WorkingDirectory $ReleaseDirectory -PassThru $appPath
+$stdout = Join-Path $fixture 'flutter.stdout.log'
+$stderr = Join-Path $fixture 'flutter.stderr.log'
+$app = Start-Process -WorkingDirectory $ReleaseDirectory -PassThru $appPath `
+    -RedirectStandardOutput $stdout -RedirectStandardError $stderr
 if (!$app.WaitForExit(55000)) {
     $app.Kill()
     throw 'Timed out waiting for the Flutter app to exit.'
 }
+$app.WaitForExit()
+$appExitCode = $app.ExitCode
+Write-Host "Flutter app exit code: $appExitCode"
+Get-Content $stdout, $stderr -ErrorAction SilentlyContinue
 $message = Get-Content (Join-Path $ReleaseDirectory 'msi-integration.result') -Raw
 Write-Host $message
-if ($app.ExitCode -ne 0) { exit $app.ExitCode }
+if ($appExitCode -ne 0) {
+    if (Test-Path $env:CODEX_MSI_LOG) { Get-Content $env:CODEX_MSI_LOG -Tail 40 }
+    throw "The Flutter example exited with code $appExitCode."
+}
 if ($message -notmatch 'The shipped example received a shutdown request') {
     throw 'The Flutter example quit before receiving the updater request.'
 }
