@@ -11,9 +11,9 @@ Add both packages to your app's `pubspec.yaml` to use this implementation.
 ## Bundled WinSparkle
 
 The x64 and ARM64 DLLs are built from WinSparkle 0.9.4 with patches for relative
-enclosure URLs and the download-completion event. To rebuild one of the DLLs,
-run this from the package directory on Windows with Git, NuGet, and Visual
-Studio 2022 MSBuild available:
+enclosure URLs, the download-completion event, and keeping the update dialog
+above the app window. To rebuild one of the DLLs, run this from the package
+directory on Windows with Git, NuGet, and Visual Studio 2022 MSBuild available:
 
 ```powershell
 ./tool/build_winsparkle.ps1 -Architecture x64 -OutputDirectory windows/WinSparkle-0.9.4
