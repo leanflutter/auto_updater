@@ -58,12 +58,19 @@ void main() async {
 
   String feedURL = 'http://localhost:5002/appcast.xml';
   await autoUpdater.setFeedURL(feedURL);
-  await autoUpdater.checkForUpdates();
-  await autoUpdater.setScheduledCheckInterval(3600);
 
   runApp(MyApp());
 }
 ```
+
+调用 `setFeedURL` 即可初始化更新器。原生更新器根据自动更新设置安排检查。
+可使用 `setScheduledCheckInterval` 自定义检查间隔，并在用户点击「检查更新」
+菜单项时调用 `checkForUpdates()`。
+
+在 macOS 上，Sparkle 的自动检查和后台检查会遵循「跳过此版本」的选择。
+手动调用 `checkForUpdates()` 时，仍可能显示已跳过的版本。如果应用需要在启动时
+主动进行后台检查，请在设置 feed URL 后调用 `checkForUpdates(inBackground: true)`。
+[Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
 > 请看这个插件的示例应用，以了解完整的例子。
 
@@ -271,7 +278,7 @@ sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOm
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
-            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows.exe"
+            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
@@ -283,6 +290,10 @@ sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOm
 ```
 
 > 本示例中 `macOS` 和 `Windows` 使用同一个 `appcast.xml` 文件，你需根据配置 `sparkle:os` 属性的值。
+
+安装包和 appcast 一起托管时，`enclosure` 可以使用相对路径。在 Windows 上，
+更新器以重定向后的最终 appcast URL 为基准解析该路径。如果安装包在另一台
+服务器上，请使用绝对 HTTPS URL。
 
 启动测试更新服务器：
 
