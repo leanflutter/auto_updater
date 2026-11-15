@@ -10,6 +10,8 @@
 * Preserve native output and exit status in `generate_keys`, including on
   localized Windows systems.
 * Report the Windows installer's size in `sign_update` output.
+* Add `checkForUpdatesAndInstall()` to start a Windows update without a
+  separate confirmation prompt.
 
 ## 1.0.0
 

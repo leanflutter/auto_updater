@@ -76,6 +76,15 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   }
 
   @override
+  Future<void> checkForUpdatesAndInstall() async {
+    if (!_initialized) {
+      throw StateError('Call setFeedURL before checkForUpdatesAndInstall().');
+    }
+    _updater.win_sparkle_check_update_with_ui_and_install();
+    _emit('checking-for-update');
+  }
+
+  @override
   Future<void> setScheduledCheckInterval(int interval) async {
     _updater.win_sparkle_set_update_check_interval(interval);
   }
