@@ -1,0 +1,31 @@
+name: Build patched WinSparkle
+
+on:
+  push:
+    branches: [codex/build-winsparkle-relative-urls]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, ARM64]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[17.0,18.0)'
+      - name: Build WinSparkle
+        shell: pwsh
+        run: |
+          ./packages/auto_updater_winsparkle/tool/build_winsparkle.ps1 `
+            -Architecture ${{ matrix.architecture }} -OutputDirectory "$env:RUNNER_TEMP/winsparkle"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/winsparkle/${{ matrix.architecture }}/Release/WinSparkle.dll
+          if-no-files-found: error

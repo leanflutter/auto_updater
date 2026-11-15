@@ -1,0 +1,152 @@
+diff --git a/src/download.cpp b/src/download.cpp
+index 82044ad..e867540 100644
+--- a/src/download.cpp
++++ b/src/download.cpp
+@@ -143,6 +143,20 @@ std::wstring GetURLFileName(const char *url)
+     return AnsiToWide(fn);
+ }
+
++std::string GetEffectiveURL(HINTERNET handle)
++{
++    DWORD size = 0;
++    InternetQueryOptionA(handle, INTERNET_OPTION_URL, NULL, &size);
++    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || size == 0)
++        return {};
++
++    DataBuffer<char> url(size);
++    if (!InternetQueryOptionA(handle, INTERNET_OPTION_URL, url, &size))
++        return {};
++
++    return std::string(url);
++}
++
+ struct DownloadCallbackContext
+ {
+     DownloadCallbackContext(InetHandle *conn_) : conn(conn_), lastError(ERROR_SUCCESS) {}
+@@ -191,7 +205,27 @@ void WaitUntilSignaledWithTerminationCheck(Event& event, Thread *thread)
+                                 public functions
+  *--------------------------------------------------------------------------*/
+
+-void DownloadFile(const std::string& url, IDownloadSink* sink, Thread* onThread, const std::string& headers_, int flags)
++std::string ResolveDownloadURL(const std::string& base, const std::string& reference)
++{
++    // Preserve absolute URLs verbatim, including signed query parameters.
++    const auto delimiter = reference.find_first_of(":/?#");
++    if (delimiter != std::string::npos && reference[delimiter] == ':')
++        return reference;
++
++    constexpr DWORD flags = ICU_BROWSER_MODE;
++    DWORD size = 0;
++    InternetCombineUrlA(base.c_str(), reference.c_str(), NULL, &size, flags);
++    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || size == 0)
++        throw Win32Exception();
++
++    DataBuffer<char> result(size);
++    if (!InternetCombineUrlA(base.c_str(), reference.c_str(), result, &size, flags))
++        throw Win32Exception();
++
++    return std::string(result);
++}
++
++std::string DownloadFile(const std::string& url, IDownloadSink* sink, Thread* onThread, const std::string& headers_, int flags)
+ {
+     std::string headers = headers_;
+     char url_path[2048];
+@@ -278,6 +312,8 @@ void DownloadFile(const std::string& url, IDownloadSink* sink, Thread* onThread,
+     if ( GetHttpHeader(conn, HTTP_QUERY_CONTENT_LENGTH, contentLength) )
+         sink->SetLength(contentLength);
+
++    const auto effectiveURL = GetEffectiveURL(conn);
++
+     // Get filename fron Content-Disposition, if available
+     char contentDisposition[512];
+     DWORD cdSize = 512;
+@@ -314,22 +350,7 @@ void DownloadFile(const std::string& url, IDownloadSink* sink, Thread* onThread,
+     }
+
+     if ( !filename_set )
+-    {
+-        DWORD ousize = 0;
+-        InternetQueryOptionA(conn, INTERNET_OPTION_URL, NULL, &ousize);
+-        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+-        {
+-            DataBuffer<char> optionurl(ousize);
+-            if ( InternetQueryOptionA(conn, INTERNET_OPTION_URL, optionurl, &ousize) )
+-                sink->SetFilename(GetURLFileName(optionurl));
+-            else
+-                sink->SetFilename(GetURLFileName(urlc.lpszUrlPath));
+-        }
+-        else
+-        {
+-            sink->SetFilename(GetURLFileName(urlc.lpszUrlPath));
+-        }
+-    }
++        sink->SetFilename(GetURLFileName(effectiveURL.empty() ? urlc.lpszUrlPath : effectiveURL.c_str()));
+
+     // Download the data:
+     char buffer[10240];
+@@ -359,6 +380,8 @@ void DownloadFile(const std::string& url, IDownloadSink* sink, Thread* onThread,
+
+         sink->Add(ibuf.lpvBuffer, ibuf.dwBufferLength);
+     }
++
++    return effectiveURL.empty() ? url : effectiveURL;
+ }
+
+ } // namespace winsparkle
+diff --git a/src/download.h b/src/download.h
+index f182f8c..2f6feec 100644
+--- a/src/download.h
++++ b/src/download.h
+@@ -89,10 +89,14 @@ enum DownloadFlag
+     @param sink      Where to put downloaded data.
+     @param onThread  Thread the request runs on.
+     @param flags     Or-combination of DownloadFlag values.
++    @return The final URL, including any HTTP redirects.
+
+     @see CheckConnection()
+  */
+-void DownloadFile(const std::string& url, IDownloadSink *sink, Thread *onThread, const std::string &headers = "", int flags = 0);
++std::string DownloadFile(const std::string& url, IDownloadSink *sink, Thread *onThread, const std::string &headers = "", int flags = 0);
++
++/// Resolve a relative enclosure URL against the downloaded appcast.
++std::string ResolveDownloadURL(const std::string& base, const std::string& reference);
+
+ } // namespace winsparkle
+
+diff --git a/src/updatechecker.cpp b/src/updatechecker.cpp
+index aee5b33..3ddee7b 100644
+--- a/src/updatechecker.cpp
++++ b/src/updatechecker.cpp
+@@ -228,7 +228,7 @@ void UpdateChecker::PerformUpdateCheck()
+         CheckForInsecureURL(url, "appcast feed");
+
+         StringDownloadSink appcast_xml;
+-        DownloadFile(url, &appcast_xml, this, Settings::GetHttpHeadersString(), Download_BypassProxies);
++        const auto appcastURL = DownloadFile(url, &appcast_xml, this, Settings::GetHttpHeadersString(), Download_BypassProxies);
+
+         auto all = Appcast::Load(appcast_xml.data);
+
+@@ -250,9 +250,6 @@ void UpdateChecker::PerformUpdateCheck()
+
+         if (!appcast.ReleaseNotesURL.empty())
+             CheckForInsecureURL(appcast.ReleaseNotesURL, "release notes");
+-        if (!appcast.enclosure.DownloadURL.empty())
+-            CheckForInsecureURL(appcast.enclosure.DownloadURL, "update file");
+-
+         Settings::WriteConfigValue("LastCheckTime", time(NULL));
+
+         const std::string currentVersion =
+@@ -273,6 +270,12 @@ void UpdateChecker::PerformUpdateCheck()
+             return;
+         }
+
++        if (!appcast.enclosure.DownloadURL.empty())
++        {
++            appcast.enclosure.DownloadURL = ResolveDownloadURL(appcastURL, appcast.enclosure.DownloadURL);
++            CheckForInsecureURL(appcast.enclosure.DownloadURL, "update file");
++        }
++
+         UI::NotifyUpdateAvailable(appcast, ShouldAutomaticallyInstall());
+     }
+     catch ( ... )
