@@ -1,6 +1,11 @@
 import 'package:auto_updater/auto_updater.dart';
 
 abstract mixin class UpdaterListener {
+  /// Called when the native updater fails to check for or prepare an update.
+  ///
+  /// The bundled Windows updater includes request and signature diagnostics in
+  /// [UpdaterError.message]. A custom WinSparkle DLL may report an error
+  /// without a message, in which case [error] is null.
   void onUpdaterError(UpdaterError? error);
   void onUpdaterCheckingForUpdate(Appcast? appcast);
   void onUpdaterUpdateAvailable(AppcastItem? appcastItem);

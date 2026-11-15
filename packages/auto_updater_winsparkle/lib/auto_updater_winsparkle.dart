@@ -11,6 +11,8 @@ import 'package:winsparkle/winsparkle.dart';
 typedef _PostCObject =
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>;
 typedef _NativeCallback = Pointer<NativeFunction<Void Function()>>;
+typedef _ErrorDetailsCallback =
+    Pointer<NativeFunction<Void Function(Pointer<Utf8>)>>;
 
 class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   static void registerWith() {
@@ -29,6 +31,8 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
       >('auto_updater_set_event_port');
   static const _downloadedCallbackSymbol =
       'auto_updater_winsparkle_set_downloaded_callback';
+  static const _errorDetailsCallbackSymbol =
+      'auto_updater_winsparkle_set_error_details_callback';
 
   RawReceivePort? _eventPort;
   AppLifecycleListener? _lifecycle;
@@ -104,12 +108,23 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   void _listenForNativeEvents() {
     if (_eventPort != null) return;
 
-    final port = RawReceivePort(_emit)..keepIsolateAlive = false;
+    final port = RawReceivePort(_handleNativeEvent)..keepIsolateAlive = false;
     _setEventPort(port.sendPort.nativePort, NativeApi.postCObject);
     _eventPort = port;
     _lifecycle = AppLifecycleListener(onDetach: _detach);
 
-    _updater.win_sparkle_set_error_callback(_callback('error'));
+    if (_winSparkle.providesSymbol(_errorDetailsCallbackSymbol)) {
+      final setErrorDetailsCallback = _winSparkle
+          .lookupFunction<
+            Void Function(_ErrorDetailsCallback),
+            void Function(_ErrorDetailsCallback)
+          >(_errorDetailsCallbackSymbol);
+      setErrorDetailsCallback(
+        _eventBridge.lookup('auto_updater_on_error_details'),
+      );
+    } else {
+      _updater.win_sparkle_set_error_callback(_callback('error'));
+    }
     _updater.win_sparkle_set_shutdown_request_callback(
       _callback('shutdown_request'),
     );
@@ -152,5 +167,17 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
 
   void _emit(String type) {
     _events.add({'type': type});
+  }
+
+  void _handleNativeEvent(Object? event) {
+    switch (event) {
+      case String type:
+        _emit(type);
+      case ['error', final String message]:
+        _events.add({
+          'type': 'error',
+          'data': {'error': message},
+        });
+    }
   }
 }
