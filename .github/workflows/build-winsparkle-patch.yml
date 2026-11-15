@@ -29,3 +29,47 @@ jobs:
           name: winsparkle-${{ matrix.architecture }}
           path: ${{ runner.temp }}/winsparkle/${{ matrix.architecture }}/Release/WinSparkle.dll
           if-no-files-found: error
+
+  smoke:
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+            dart-architecture: x64
+          - runner: windows-11-arm
+            architecture: ARM64
+            dart-architecture: arm64
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.14.0'
+          architecture: ${{ matrix.dart-architecture }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/patched-winsparkle
+      - working-directory: packages/winsparkle
+        run: dart pub get
+      - name: Reproduce with the stock DLL
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $stock = "../auto_updater_winsparkle/windows/WinSparkle-0.9.4/${{ matrix.architecture }}/Release/WinSparkle.dll"
+          $failure = dart run tool/relative_enclosure_smoke.dart $stock relative 2>&1 | Out-String
+          if ($LASTEXITCODE -eq 0 -or $failure -notmatch 'failed before requesting the installer') {
+            throw "Expected the stock DLL to reject a relative URL: $failure"
+          }
+          Write-Host 'The stock DLL failed before requesting the relative enclosure.'
+      - name: Verify bundled ABI and enclosure resolution
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $dll = "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll"
+          dart run tool/smoke_test.dart $dll
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dart run tool/relative_enclosure_smoke.dart $dll
