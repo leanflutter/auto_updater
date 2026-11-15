@@ -40,7 +40,7 @@ jobs:
       - run: melos run ${{ matrix.script }}
 
   build:
-    name: build-${{ matrix.platform }}
+    name: build-${{ matrix.platform }}${{ matrix.suffix }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -50,15 +50,41 @@ jobs:
             runner: macos-latest
           - platform: windows
             runner: windows-latest
+          - platform: windows
+            runner: windows-11-arm
+            suffix: -arm64
     steps:
       - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
+          architecture: ${{ matrix.platform == 'windows' && 'x64' || '' }}
+          # The Arm64 job replaces the Dart SDK from the x64 archive.
+          cache: ${{ matrix.runner != 'windows-11-arm' }}
+      - name: Select native Dart on Windows Arm64
+        if: matrix.runner == 'windows-11-arm'
+        env:
+          FLUTTER_HOST_ARCH: arm64
+        shell: pwsh
+        run: |
+          $flutterBin = Split-Path (Get-Command flutter).Source
+          Remove-Item "$flutterBin/cache/engine-dart-sdk.stamp" -Force
+          Remove-Item "$flutterBin/cache/windows-sdk.stamp" -Force -ErrorAction SilentlyContinue
+          flutter --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((dart --version 2>&1 | Out-String) -notmatch 'windows_arm64') {
+            throw 'Flutter requires a native Dart VM to build for Windows Arm64.'
+          }
       - uses: bluefireteam/melos-action@v3
         with:
           melos-version: ${{ env.MELOS_VERSION }}
       - working-directory: packages/auto_updater/example
         run: flutter build ${{ matrix.platform }} --release
+      - name: Load the bundled WinSparkle DLL
+        if: matrix.platform == 'windows'
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $targetArchitecture = '${{ runner.arch }}'.ToLowerInvariant()
+          dart run tool/smoke_test.dart "../auto_updater/example/build/windows/$targetArchitecture/runner/Release/WinSparkle.dll"
