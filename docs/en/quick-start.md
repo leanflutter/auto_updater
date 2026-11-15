@@ -278,6 +278,24 @@ serve -l 5002
 
 ## Troubleshooting
 
+### Update prompts
+
+Use `checkForUpdates(inBackground: true)` to check for updates without a
+progress dialog. The native updater can show an update prompt when it finds a
+new version.
+
+Add `<sparkle:criticalUpdate />` directly inside an appcast `<item>` to mark
+that release as critical. On Windows, WinSparkle hides **Skip This Version**
+and **Remind Me Later**. On macOS, Sparkle hides **Skip This Version** for
+critical updates that are outside a major upgrade. The macOS **Remind Me Later**
+button follows Sparkle's automatic update settings.
+[Sparkle critical updates](https://sparkle-project.org/documentation/publishing/#critical-updates)
+
+To require a minimum app version, enforce the version requirement in your app
+or backend. The standard update dialogs control the update flow. For a custom
+macOS dialog, a platform implementation can supply a Sparkle `SPUUserDriver`.
+[Sparkle custom user interfaces](https://sparkle-project.org/documentation/custom-user-interfaces/)
+
 ### macOS
 
 - Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
