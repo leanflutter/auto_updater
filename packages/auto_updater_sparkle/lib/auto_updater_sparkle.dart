@@ -9,18 +9,28 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
     final platform = AutoUpdaterSparkle();
     AutoUpdaterPlatform.instance = platform;
     // Start at registration so Sparkle can schedule checks from Info.plist.
-    autoReleasePool(platform._start);
+    try {
+      autoReleasePool(platform._start);
+    } on NSErrorException {
+      // An explicit setFeedURL call retries startup and reports the error.
+    }
   }
 
   final _events = StreamController<Map<Object?, Object?>>.broadcast();
   NSString? _feedUrl;
   bool _started = false;
 
+  // Sparkle 2.10.1 puts the HTTP status in this unlocalized description.
+  // Read only the status so signed URLs stay out of the appended details.
+  static final _httpDownloadError = RegExp(
+    r'^A network error occurred while downloading .* \(([1-5][0-9]{2})\)$',
+  );
+
   // Sparkle holds its delegate weakly. Keep it alive for the life of the updater.
   late final _delegate = SPUUpdaterDelegate$Builder.implement(
     feedURLStringForUpdater_: (_) => _feedUrl,
     updater_didAbortWithError_: (_, error) =>
-        _emit('error', {'error': error.localizedDescription.toDartString()}),
+        _emit('error', {'error': _describeUpdateError(error)}),
     updater_didFinishLoadingAppcast_: (_, appcast) =>
         _emit('checking-for-update', {
           'appcast': {
@@ -61,11 +71,7 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
 
   void _start() {
     if (_started) return;
-    try {
-      _started = _updater.startUpdater();
-    } on NSErrorException {
-      // The host can still supply a feed later through setFeedURL.
-    }
+    _started = _updater.startUpdater();
   }
 
   @override
@@ -97,6 +103,35 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
 
   void _emit(String type, Map<String, Object?> data) {
     _events.add({'type': type, 'data': data});
+  }
+
+  String _describeUpdateError(NSError error) {
+    final message = error.localizedDescription.toDartString();
+    final underlyingError = 'NSUnderlyingError'.toNSString();
+    final causes = <String>{};
+    var current = error;
+    for (var depth = 0; depth < 8; depth++) {
+      final next = current.userInfo.objectForKey(underlyingError);
+      if (next == null || !NSError.isA(next)) break;
+      current = NSError.as(next);
+
+      final domain = current.domain.toDartString();
+      final code = current.code;
+      if (domain == 'SUSparkleErrorDomain' &&
+          code == SUError.SUDownloadError.value) {
+        final status = _httpDownloadError
+            .firstMatch(current.localizedDescription.toDartString())
+            ?.group(1);
+        if (status != null) return '$message (HTTP $status)';
+      }
+
+      // Foundation uses -1200 through -1206 for secure connection failures.
+      if (domain == 'NSURLErrorDomain' && code >= -1206 && code <= -1200) {
+        return '$message (TLS failure, $domain $code)';
+      }
+      causes.add('$domain $code');
+    }
+    return causes.isEmpty ? message : '$message (${causes.join(', ')})';
   }
 
   Map<String, Object?> _appcastItemData(SUAppcastItem item) => {

@@ -278,15 +278,126 @@ serve -l 5002
 
 ## Troubleshooting
 
+### Update offered but download fails
+
+From an affected machine, download the enclosure URL and verify that the
+response contains the installer archive. Check that redirects end at a valid
+HTTPS URL with a certificate trusted by that machine. Verify that the
+appcast's signature was generated from the exact bytes being served and that
+the installed app has the matching public key.
+
 ### macOS
 
-- Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
+Await `setFeedURL` and log any exception from it. Sparkle reports configuration
+errors during startup, including an invalid `SUPublicEDKey` or missing
+entitlements. After `setFeedURL` and any scheduled interval setting complete,
+you can call `checkForUpdates()` immediately. Use
+`UpdaterListener.onUpdaterError` for errors reported during update checks.
+When debugging a release build, verify that the exported
+`.app` contains `Contents/Frameworks/Sparkle.framework` and that the exported
+app's `Info.plist` contains the expected update configuration.
 
+`onUpdaterError` includes the HTTP status or underlying native error codes when
+Sparkle provides them. For additional signing or installation details, look for
+the Sparkle log category in Console. Redact tokens in logged URLs before
+sharing them.
+
+For a sandboxed app, enable Sparkle's installer XPC service and add the
+entitlements required by Sparkle to the release configuration.
+[Sparkle sandboxing guide](https://sparkle-project.org/documentation/sandboxing/)
+
+If Sparkle's standard update dialog has slipped behind other windows, a
+user-initiated `checkForUpdates()` brings the existing dialog back into focus.
+[Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+The prebuilt SwiftPM framework preserves the installed `.app` filename. To
+enable renaming, check out the Sparkle version pinned in the plugin's
+`Package.swift` and run this command from that Sparkle checkout.
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
 ```
-<key>com.apple.security.network.client</key>
-  <true/>
-<key>com.apple.security.network.server</key>
-  <true/>
-<key>com.apple.security.app-sandbox</key>
-  <false/>
+
+In the staged Flutter release app, replace `Contents/Frameworks/Sparkle.framework`
+with the entire framework from `Sparkle.xcarchive/Products/Library/Frameworks/`.
+Use `ditto` to preserve its symlinks and sign the app after staging.
+
+Ship this framework in a transitional release that keeps the old filename and
+sets `SUBundleName` to the new name without the `.app` extension. Sparkle
+reads that name from the installed release and uses the new filename when
+the destination is available. Keep the same bundle identifier in the renamed
+update and update its `CFBundleDisplayName` and `CFBundleName`, including
+any localized values.
+[Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+Keep the transitional release available so existing installations receive it
+first. If every installed version uses Sparkle 2.9 or later, keep both releases
+in the same appcast and set `sparkle:minimumUpdateVersion` on the renamed
+updates to the transitional release's `CFBundleVersion`. If older Sparkle
+versions are still in use, leave the transitional release as the latest entry
+in the original appcast. Configure the transitional release to use a separate
+appcast for renamed updates, including the URL passed to `setFeedURL`.
+[Sparkle appcast migration guide](https://sparkle-project.org/documentation/publishing/#upgrading-to-newer-features)
+
+If a pinned Dock item still shows the old app, remove that item and add the
+renamed app from Finder.
+[Apple's Dock guide](https://support.apple.com/en-au/guide/mac-help/-mh35859/mac)
+
+### Windows
+
+For MSI updates, publish a direct link to the signed `.msi` in the enclosure.
+Run the same installer from Explorer on a machine with the old version to
+verify that it upgrades the existing installation. To show only progress and
+errors, add `sparkle:installerArguments="/passive"` to the enclosure.
+[WinSparkle installer arguments](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
+
+WinSparkle starts the installer and requests that the app quit. Register a
+listener before initializing the updater. Save any app state and exit from
+`onUpdaterBeforeQuitForUpdate` on Windows. On macOS, the callback signals a
+prepared update for the next regular quit.
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// In your UpdaterListener implementation.
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // Save any pending app state here.
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
 ```
+
+If your Windows runner calls `CoUninitialize()` after its message loop, call
+`window.Destroy()` first so Flutter releases its window and engine while COM is
+still available. See the [example Windows runner](../../packages/auto_updater/example/windows/runner/main.cpp).
+
+Windows Installer continues running after the app exits. If the upgrade
+fails, add `/l*v` and a writable log path to
+`sparkle:installerArguments` for a test run, then inspect the Windows
+Installer log.
+[Windows Installer command-line options](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
+
+WinSparkle's update dialog reads a single release-notes URL per item. To
+localize the notes, serve one appcast per supported locale, each with a single
+`<sparkle:releaseNotesLink>` pointing directly to that locale's HTML page. Keep
+the installer and its signature the same for each copy of the release. Select
+the feed using the app's language before calling `setFeedURL`.
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+WinSparkle can open a JavaScript redirect in the external browser after the
+first page has loaded.
+[WinSparkle appcast parser](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

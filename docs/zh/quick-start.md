@@ -276,15 +276,110 @@ serve -l 5002
 
 ## 故障排除
 
+### 找到更新但无法下载
+
+在出现问题的机器上下载 `enclosure` 中的 URL，确认响应是安装包文件。
+如果 URL 有重定向，请检查最终的 HTTPS 地址和证书是否受到该机器信任。
+确认 appcast 中的签名由实际提供下载的文件生成，并检查已安装应用的公钥是否匹配。
+
 ### macOS
 
-- 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
+等待 `setFeedURL` 完成，并记录它抛出的异常。Sparkle 会报告启动时的配置错误，
+例如无效的 `SUPublicEDKey` 或缺失的授权。设置好 feed 和所需的检查间隔后，
+可以立即调用 `checkForUpdates()`。检查更新期间的错误可通过
+`UpdaterListener.onUpdaterError` 获取。排查 release 版本时，请确认导出的
+`.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
+`Info.plist` 是否包含预期的更新配置。
 
+如果 Sparkle 提供了 HTTP 状态码或底层原生错误码，`onUpdaterError` 会一并返回。
+若需查看更详细的签名或安装信息，请在「控制台」应用中查看 Sparkle 类别的日志。
+分享日志前，请删去 URL 中的令牌。
+
+如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
+所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
+
+如果 Sparkle 的标准更新窗口被其他窗口遮挡，用户可以再次点击「检查更新」。
+前台 `checkForUpdates()` 会将已有的更新窗口带到前台。
+[Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+SwiftPM 提供的预编译 framework 会保留已安装应用的 `.app` 文件名。
+如需启用重命名，请检出插件 `Package.swift` 固定的 Sparkle 版本，并在 Sparkle 源码目录运行以下命令。
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
 ```
-<key>com.apple.security.network.client</key>
-  <true/>
-<key>com.apple.security.network.server</key>
-  <true/>
-<key>com.apple.security.app-sandbox</key>
-  <false/>
+
+打包 Flutter release 应用时，将 `Contents/Frameworks/Sparkle.framework` 整个替换为
+`Sparkle.xcarchive/Products/Library/Frameworks/` 下构建出的 framework。
+使用 `ditto` 保留符号链接，再按常规流程签名应用。
+
+先发布一个保留旧文件名的过渡版本，随包提供自定义 framework，并将
+`SUBundleName` 设为新名称，无需加上 `.app` 后缀。Sparkle 会从已安装的
+过渡版本读取名称，并在目标路径可用时使用新文件名。改名版本保留原有的
+bundle identifier，并更新 `CFBundleDisplayName` 和 `CFBundleName` 及其本地化值。
+[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+保留过渡版本，确保旧版应用会先收到它。如果已安装的版本都使用 Sparkle 2.9
+或更高版本，可将两个版本放在同一份 appcast 中，并在改名更新项中将
+`sparkle:minimumUpdateVersion` 设为过渡版本的 `CFBundleVersion`。如果仍有
+应用使用更早的 Sparkle，请将过渡版本保留为原 appcast 的最新项，并让过渡版本
+使用单独的 appcast 获取改名更新，同时更新传给 `setFeedURL` 的地址。
+[Sparkle appcast 迁移指南](https://sparkle-project.org/documentation/publishing/#upgrading-to-newer-features)
+
+如果固定在程序坞上的图标仍显示旧应用，可移除该图标，再从访达添加改名后的应用。
+[Apple 程序坞指南](https://support.apple.com/en-au/guide/mac-help/-mh35859/mac)
+
+### Windows
+
+使用 MSI 更新时，请在 `enclosure` 中填写已签名 `.msi` 文件的直接下载地址。
+先在装有旧版本的机器上从资源管理器运行同一安装包，确认能升级现有安装。
+如只需显示安装进度和错误，可在 `enclosure` 中添加
+`sparkle:installerArguments="/passive"`。
+[WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
+
+WinSparkle 会启动安装器并请求退出应用。请在初始化更新器之前注册监听器。
+在 Windows 上，通过 `onUpdaterBeforeQuitForUpdate` 保存应用状态并退出。
+在 macOS 上，此回调表示自动更新已就绪，将在应用下次正常退出时安装。
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// 在 UpdaterListener 的实现中。
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // 在此保存待处理的应用状态。
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
 ```
+
+如果 Windows runner 在消息循环结束后调用 `CoUninitialize()`，请先调用
+`window.Destroy()`，让 Flutter 在 COM 仍可用时释放窗口和引擎。
+见 [Windows runner 示例](../../packages/auto_updater/example/windows/runner/main.cpp)。
+
+应用退出后，Windows Installer 会继续运行。如果升级失败，可在测试时通过
+`sparkle:installerArguments` 传入
+`/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
+[Windows Installer 命令行选项](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
+
+WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
+语言提供一份 appcast，每个更新项只放一个对应语言的
+`<sparkle:releaseNotesLink>`，直接指向该语言的 HTML 页面。同一版本的各语言 feed
+使用相同的安装包和签名。在应用内按语言选好 feed，再调用 `setFeedURL`。
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+页面加载后的 JavaScript 重定向可能会在系统浏览器中打开。
+[WinSparkle appcast 解析器](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)
