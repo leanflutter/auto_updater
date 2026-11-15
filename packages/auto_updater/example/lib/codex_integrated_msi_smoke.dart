@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show AppExitType;
 
 import 'package:auto_updater/auto_updater.dart';
 // ignore: depend_on_referenced_packages
 import 'package:ffi/ffi.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 // ignore: depend_on_referenced_packages
 import 'package:winsparkle/winsparkle.dart';
@@ -58,6 +60,13 @@ class _Probe with UpdaterListener {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.environment['CODEX_EXIT_ONLY'] == '1') {
+    runApp(const example.MyApp());
+    await WidgetsBinding.instance.endOfFrame;
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+    await Future<void>.delayed(const Duration(seconds: 7));
+    exit(2);
+  }
   final result = File('msi-integration.result');
   HttpServer? server;
   try {

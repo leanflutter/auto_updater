@@ -44,6 +44,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
     ::DispatchMessage(&msg);
   }
 
+  // A platform exit may end the message loop before the window is closed.
+  window.Destroy();
   ::CoUninitialize();
   return EXIT_SUCCESS;
 }

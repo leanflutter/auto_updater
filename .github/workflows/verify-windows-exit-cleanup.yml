@@ -1,0 +1,48 @@
+name: Verify Windows exit after orderly runner cleanup
+
+on:
+  push:
+    branches: [codex/verify-windows-exit-cleanup]
+
+permissions:
+  contents: read
+
+jobs:
+  flutter-msi:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          architecture: x64
+          cache: true
+      - name: Build Release fixture with the shipped example and WinSparkle
+        shell: pwsh
+        run: |
+          dart run melos bootstrap
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Location packages/auto_updater/example
+          flutter build windows --release -t lib/codex_integrated_msi_smoke.dart
+      - name: Check Flutter exit without WinSparkle
+        shell: pwsh
+        run: |
+          $env:CODEX_EXIT_ONLY = '1'
+          $release = (Resolve-Path 'packages/auto_updater/example/build/windows/x64/runner/Release').Path
+          $app = Start-Process -WorkingDirectory $release -PassThru (Join-Path $release 'auto_updater_example.exe') `
+            -RedirectStandardOutput "$env:RUNNER_TEMP/standalone.stdout" -RedirectStandardError "$env:RUNNER_TEMP/standalone.stderr"
+          if (!$app.WaitForExit(15000)) {
+            $app.Kill()
+            throw 'The standalone Flutter exit timed out.'
+          }
+          $app.WaitForExit()
+          Write-Host "Standalone exit code: $($app.ExitCode)"
+          Get-Content "$env:RUNNER_TEMP/standalone.stdout", "$env:RUNNER_TEMP/standalone.stderr" -ErrorAction SilentlyContinue
+          if ($app.ExitCode -ne 0) { throw 'The standalone Flutter exit failed.' }
+      - name: Verify example shutdown and signed MSI upgrade
+        shell: pwsh
+        run: |
+          $arch = '${{ matrix.architecture }}'
+          $release = (Resolve-Path "packages/auto_updater/example/build/windows/$arch/runner/Release").Path
+          ./packages/winsparkle/tool/fixtures/msi_update.ps1 -ReleaseDirectory $release -Architecture $arch
