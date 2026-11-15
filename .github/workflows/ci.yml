@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.50.0"
+  MELOS_VERSION: "6.3.3"
+
+jobs:
+  check:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: analyze
+            script: analyze
+          - name: format
+            script: format-check
+          - name: test
+            script: test --no-select
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - uses: bluefireteam/melos-action@v3
+        with:
+          melos-version: ${{ env.MELOS_VERSION }}
+      - run: melos run ${{ matrix.script }}
+
+  build:
+    name: build-${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos
+            runner: macos-latest
+          - platform: windows
+            runner: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - uses: bluefireteam/melos-action@v3
+        with:
+          melos-version: ${{ env.MELOS_VERSION }}
+      - working-directory: packages/auto_updater/example
+        run: flutter build ${{ matrix.platform }} --release

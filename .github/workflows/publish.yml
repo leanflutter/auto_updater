@@ -1,0 +1,63 @@
+name: Publish to pub.dev
+
+# On pub.dev, set the tag pattern to v{{version}} for auto_updater and
+# <package>-v{{version}} for each other package.
+# Publish sparkle and winsparkle before their corresponding platform plugins.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+      - "auto_updater_platform_interface-v[0-9]+.[0-9]+.[0-9]+*"
+      - "auto_updater_sparkle-v[0-9]+.[0-9]+.[0-9]+*"
+      - "auto_updater_winsparkle-v[0-9]+.[0-9]+.[0-9]+*"
+      - "sparkle-v[0-9]+.[0-9]+.[0-9]+*"
+      - "winsparkle-v[0-9]+.[0-9]+.[0-9]+*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  auto-updater:
+    if: startsWith(github.ref_name, 'v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      working-directory: packages/auto_updater
+
+  auto-updater-platform-interface:
+    if: startsWith(github.ref_name, 'auto_updater_platform_interface-v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      working-directory: packages/auto_updater_platform_interface
+
+  auto-updater-sparkle:
+    if: startsWith(github.ref_name, 'auto_updater_sparkle-v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      working-directory: packages/auto_updater_sparkle
+
+  auto-updater-winsparkle:
+    if: startsWith(github.ref_name, 'auto_updater_winsparkle-v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      working-directory: packages/auto_updater_winsparkle
+
+  sparkle:
+    if: startsWith(github.ref_name, 'sparkle-v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      use-flutter: false
+      working-directory: packages/sparkle
+
+  winsparkle:
+    if: startsWith(github.ref_name, 'winsparkle-v')
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      sdk: "3.14.0"
+      use-flutter: false
+      working-directory: packages/winsparkle
