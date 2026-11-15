@@ -81,7 +81,7 @@ dart run auto_updater:generate_keys
 
 #### macOS
 
-使用 SwiftPM 时，先运行 `flutter build macos`，再使用 `auto_updater:generate_keys` 或 `auto_updater:sign_update`。命令会从 Flutter 构建目录查找 Sparkle 工具。使用自定义构建目录或直接在 Xcode 中构建时，可将 `SPARKLE_BIN_DIR` 设为包含 `generate_keys` 和 `sign_update` 的目录。[Sparkle 集成文档](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
+使用 SwiftPM 时，先运行 `flutter build macos`，再使用 Sparkle 命令。命令会从 Flutter 构建目录查找 Sparkle 工具。使用自定义构建目录或直接在 Xcode 中构建时，可将 `SPARKLE_BIN_DIR` 设为包含 Sparkle 可执行文件的目录。[Sparkle 集成文档](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
 
 准备使用 `EdDSA` 签名算法进行签名：
 
@@ -186,6 +186,23 @@ fastforge release --name prod --jobs macos-zip
 ```
 fastforge release --name prod --jobs windows-exe
 ```
+
+### 在 CI 中生成 macOS appcast
+
+将 macOS 更新归档放入发布目录，例如 `dist/macos`。在 macOS CI
+运行器上，从 Flutter 项目根目录执行以下命令。
+
+```bash
+dart run auto_updater:generate_appcast \
+  --download-url-prefix https://example.com/updates/macos/ \
+  dist/macos
+```
+
+Sparkle 会为归档签名，并创建或更新 `dist/macos/appcast.xml`。
+发布时上传此文件及其引用的文件。默认使用 macOS 钥匙串中的 Sparkle
+签名密钥。CI 可以通过 `--ed-key-file` 指定由 CI 密钥存储提供的私钥文件。
+运行 `dart run auto_updater:generate_appcast --help` 可查看全部 Sparkle 选项。
+[Sparkle 发布文档](https://sparkle-project.org/documentation/publishing/)
 
 ### 获取签名
 
