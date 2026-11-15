@@ -8,7 +8,9 @@ import 'package:flutter/widgets.dart';
 import 'package:winsparkle/winsparkle.dart';
 
 const _previousWindow = 3; // GW_HWNDPREV
+const _ownerWindow = 4; // GW_OWNER
 const _buttonClick = 0x00F5; // BM_CLICK
+const _closeWindow = 0x0010; // WM_CLOSE
 const _moveInZOrderOnly = 0x0013; // SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE
 final _user = DynamicLibrary.open('user32.dll');
 final _findWindow = _user
@@ -139,6 +141,11 @@ type="application/octet-stream" /></item></channel></rss>''');
       () => _window('Software Update'),
       'the update dialog',
     );
+    if (_getWindow(dialog, _ownerWindow) != host) {
+      throw StateError(
+        'The update dialog did not attach to the Flutter window',
+      );
+    }
     final install = await _waitForWindow(
       () => _visibleChild(dialog, 'Install update'),
       'the first Install update button',
@@ -147,34 +154,26 @@ type="application/octet-stream" /></item></channel></rss>''');
       throw StateError('The update button did not receive BM_CLICK');
     }
     await downloadStarted.future.timeout(const Duration(seconds: 10));
-    if (_setPosition(host, 0, 0, 0, 0, 0, _moveInZOrderOnly) == 0) {
-      throw StateError('Could not move the host window to HWND_TOP');
-    }
-    var scenario = 'normal host';
-    if (!_isAbove(host, dialog)) {
-      scenario = 'always-on-top host';
-      if (_setPosition(host, -1, 0, 0, 0, 0, _moveInZOrderOnly) == 0 ||
-          !_isAbove(host, dialog)) {
-        throw StateError(
-          'The host could not cover the update dialog during download',
-        );
-      }
+    if (_setPosition(host, -1, 0, 0, 0, 0, _moveInZOrderOnly) == 0) {
+      throw StateError('Could not make the host always on top');
     }
     completeDownload.complete();
     await _waitForWindow(
       () => _visibleChild(dialog, 'Ready to install.'),
       'the Ready to install state',
     );
-    if (!_isAbove(host, dialog)) {
+    if (!_isAbove(dialog, host)) {
       throw StateError(
-        'The dialog already appears above the host when it is ready',
+        'The always-on-top host still covers the ready-to-install dialog',
       );
     }
     result.writeAsStringSync(
-      'Reproduced: ready-to-install dialog remains below the $scenario.',
+      'The owned ready-to-install dialog remained above the always-on-top host.',
     );
     await endpoint.close(force: true);
-    exit(0);
+    if (_post(host, _closeWindow, 0, 0) == 0) {
+      throw StateError('Could not close the Flutter app normally');
+    }
   } catch (error, stack) {
     result.writeAsStringSync('$error\n$stack');
     await server?.close(force: true);

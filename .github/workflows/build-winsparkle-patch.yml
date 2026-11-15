@@ -1,16 +1,91 @@
-name: Reproduce WinSparkle install dialog ordering
+name: Verify WinSparkle dialog ownership
 
 on:
   push:
-    branches: [codex/repro-winsparkle-install-window]
+    branches: [codex/build-winsparkle-install-dialog]
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
-  reproduce:
+  build:
     runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, ARM64]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[17.0,18.0)'
+      - name: Build WinSparkle
+        shell: pwsh
+        run: |
+          ./packages/auto_updater_winsparkle/tool/build_winsparkle.ps1 `
+            -Architecture ${{ matrix.architecture }} -OutputDirectory "$env:RUNNER_TEMP/winsparkle"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/winsparkle/${{ matrix.architecture }}/Release/WinSparkle.dll
+          if-no-files-found: error
+
+  smoke:
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+            dart-architecture: x64
+          - runner: windows-11-arm
+            architecture: ARM64
+            dart-architecture: arm64
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.14.0'
+          architecture: ${{ matrix.dart-architecture }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/patched-winsparkle
+      - working-directory: packages/winsparkle
+        run: dart pub get
+      - name: Reproduce with the stock DLL
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $stock = "../auto_updater_winsparkle/windows/WinSparkle-0.9.4/${{ matrix.architecture }}/Release/WinSparkle.dll"
+          $failure = dart run tool/relative_enclosure_smoke.dart $stock relative 2>&1 | Out-String
+          if ($LASTEXITCODE -eq 0 -or $failure -notmatch 'failed before requesting the installer') {
+            throw "Expected the stock DLL to reject a relative URL: $failure"
+          }
+          Write-Host 'The stock DLL failed before requesting the relative enclosure.'
+          exit 0
+      - name: Verify bundled ABI and enclosure resolution
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $dll = "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll"
+          dart run tool/smoke_test.dart $dll
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dart run tool/relative_enclosure_smoke.dart $dll
+
+  window:
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+          - runner: windows-11-arm
+            architecture: ARM64
     steps:
       - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
@@ -18,27 +93,40 @@ jobs:
           flutter-version: '3.50.0'
           channel: stable
           architecture: x64
+      - name: Select native Windows Arm64 Flutter artifacts
+        if: runner.arch == 'ARM64'
+        env:
+          FLUTTER_HOST_ARCH: arm64
+        shell: pwsh
+        run: |
+          $flutterBin = Split-Path (Get-Command flutter).Source
+          Remove-Item "$flutterBin/cache/engine-dart-sdk.stamp" -Force
+          Remove-Item "$flutterBin/cache/windows-sdk.stamp" -Force -ErrorAction SilentlyContinue
+          flutter --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((dart --version 2>&1 | Out-String) -notmatch 'windows_arm64') {
+            throw 'Expected a native Dart VM.'
+          }
       - uses: actions/download-artifact@v8
         with:
-          run-id: 43690237694
-          github-token: ${{ github.token }}
-          name: winsparkle-x64
+          name: winsparkle-${{ matrix.architecture }}
           path: ${{ runner.temp }}/patched-winsparkle
       - shell: pwsh
         run: |
-          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/x64/Release
+          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/${{ matrix.architecture }}/Release
           dart run melos bootstrap
-      - name: Check the Ready to install dialog position
+      - name: Verify update dialog ownership and normal app exit
         working-directory: packages/auto_updater/example
         shell: pwsh
         run: |
           flutter build windows --release -t lib/codex_install_window_smoke.dart
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $release = Resolve-Path 'build/windows/x64/runner/Release'
+          $target = '${{ matrix.architecture }}'.ToLowerInvariant()
+          $release = Resolve-Path "build/windows/$target/runner/Release"
           $app = Start-Process -WorkingDirectory $release -PassThru (Join-Path $release 'auto_updater_example.exe')
           if (!$app.WaitForExit(55000)) {
             $app.Kill()
-            throw 'Install dialog reproduction timed out.'
+            throw 'The fixture timed out during the update check or app exit.'
           }
           Get-Content (Join-Path $release 'install-window.result')
           exit $app.ExitCode

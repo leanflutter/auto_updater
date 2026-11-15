@@ -1,0 +1,56 @@
+diff --git a/src/ui.cpp b/src/ui.cpp
+index ba63b81..e074714 100644
+--- a/src/ui.cpp
++++ b/src/ui.cpp
+@@ -164,6 +164,7 @@ struct EnumProcessWindowsData
+ {
+     DWORD process_id = 0;
+     wxRect biggest;
++    HWND biggestWindow = NULL;
+ };
+ 
+ BOOL CALLBACK EnumProcessWindowsCallback(HWND handle, LPARAM lParam)
+@@ -188,7 +189,10 @@ BOOL CALLBACK EnumProcessWindowsCallback(HWND handle, LPARAM lParam)
+ 
+     wxRect r(rwin.left, rwin.top, rwin.right - rwin.left, rwin.bottom - rwin.top);
+     if (r.width * r.height > data.biggest.width * data.biggest.height)
++    {
+         data.biggest = r;
++        data.biggestWindow = handle;
++    }
+ 
+     return TRUE;
+ }
+@@ -220,7 +224,7 @@ wxPoint GetWindowOriginSoThatItFits(int display, const wxRect& windowRect)
+     return pos;
+ }
+ 
+-void CenterWindowOnHostApplication(wxTopLevelWindow *win)
++void CenterWindowOnHostApplication(wxTopLevelWindow *win, bool attachToHost = false)
+ {
+     // find application's biggest window:
+     EnumProcessWindowsData data;
+@@ -236,6 +240,14 @@ void CenterWindowOnHostApplication(wxTopLevelWindow *win)
+ 
+     const wxRect& host(data.biggest);
+ 
++    if (attachToHost)
++    {
++        // An owned dialog stays above the host even if the host is topmost.
++        const auto dialog = reinterpret_cast<HWND>(win->GetHandle());
++        SetWindowLongPtrW(dialog, GWLP_HWNDPARENT,
++                          reinterpret_cast<LONG_PTR>(data.biggestWindow));
++    }
++
+     // and center WinSparkle on it:
+     wxSize winsz = win->GetClientSize();
+     wxPoint pos(host.x + (host.width - winsz.x) / 2,
+@@ -1355,7 +1367,7 @@ void App::ShowWindow()
+ 
+     m_win->Freeze();
+     if (!m_win->IsShown())
+-        CenterWindowOnHostApplication(m_win);
++        CenterWindowOnHostApplication(m_win, true);
+     m_win->Show();
+     m_win->Thaw();
+     m_win->Raise();
