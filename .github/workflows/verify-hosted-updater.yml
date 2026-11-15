@@ -1,0 +1,97 @@
+name: Verify hosted updater packages
+
+on:
+  push:
+    branches: [codex/verify-hosted-updater-release]
+
+permissions:
+  contents: read
+
+jobs:
+  archives:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - name: Create the six pub publication archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          archives="$RUNNER_TEMP/archives"
+          port_file="$RUNNER_TEMP/registry-port"
+          mkdir -p "$archives"
+          python3 -m venv "$RUNNER_TEMP/registry-venv"
+          registry_python="$RUNNER_TEMP/registry-venv/bin/python"
+          "$registry_python" -m pip --disable-pip-version-check install PyYAML
+          "$registry_python" .github/fixtures/hosted_release/registry.py "$archives" "$port_file" > "$RUNNER_TEMP/registry.log" 2>&1 &
+          registry_pid=$!
+          trap 'kill "$registry_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..80}; do
+            test ! -s "$port_file" || break
+            if ! kill -0 "$registry_pid" 2>/dev/null; then cat "$RUNNER_TEMP/registry.log"; exit 1; fi
+            sleep 0.1
+          done
+          export PUB_HOSTED_URL="http://127.0.0.1:$(cat "$port_file")"
+          export PUB_CACHE="$RUNNER_TEMP/hosted-pub-cache"
+          for package in sparkle winsparkle auto_updater_platform_interface auto_updater_sparkle auto_updater_winsparkle auto_updater; do
+            case "$package" in
+              sparkle|winsparkle) runtime=dart ;;
+              *) runtime=flutter ;;
+            esac
+            (cd "packages/$package" && "$runtime" pub publish --to-archive "$archives/$package.tar.gz")
+            test -s "$archives/$package.tar.gz"
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: updater-pub-archives
+          path: ${{ runner.temp }}/archives
+          if-no-files-found: error
+          retention-days: 3
+
+  windows-consumer:
+    needs: archives
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+          - runner: windows-11-arm
+            architecture: arm64
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          architecture: x64
+          cache: ${{ matrix.architecture == 'x64' }}
+      - name: Select native Dart on Windows Arm64
+        if: matrix.architecture == 'arm64'
+        env:
+          FLUTTER_HOST_ARCH: arm64
+        shell: pwsh
+        run: |
+          $flutterBin = Split-Path (Get-Command flutter).Source
+          Remove-Item "$flutterBin/cache/engine-dart-sdk.stamp" -Force
+          Remove-Item "$flutterBin/cache/windows-sdk.stamp" -Force -ErrorAction SilentlyContinue
+          flutter --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((dart --version 2>&1 | Out-String) -notmatch 'windows_arm64') {
+            throw 'Expected the native Dart VM.'
+          }
+      - uses: actions/download-artifact@v8
+        with:
+          name: updater-pub-archives
+          path: ${{ runner.temp }}/archives
+      - name: Build and update a fresh Windows app from the hosted archives
+        shell: pwsh
+        run: |
+          python -m pip --disable-pip-version-check install PyYAML
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./.github/fixtures/hosted_release/windows_consumer.ps1 -Architecture '${{ matrix.architecture }}' -ArchiveDirectory "$env:RUNNER_TEMP/archives"
