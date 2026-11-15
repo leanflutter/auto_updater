@@ -1,0 +1,265 @@
+diff --git a/src/appcontroller.cpp b/src/appcontroller.cpp
+index bf0a68d..7132d35 100644
+--- a/src/appcontroller.cpp
++++ b/src/appcontroller.cpp
+@@ -25,10 +25,22 @@
+ 
+ #include "appcontroller.h"
+ 
++#include <atomic>
+ 
+ namespace winsparkle
+ {
+ 
++namespace
++{
++using ErrorDetailsCallback = void (__cdecl*)(const char*);
++std::atomic<ErrorDetailsCallback> errorDetailsCallback{nullptr};
++}
++
++extern "C" WIN_SPARKLE_API void __cdecl auto_updater_winsparkle_set_error_details_callback(ErrorDetailsCallback callback)
++{
++    errorDetailsCallback.store(callback);
++}
++
+ CriticalSection ApplicationController::ms_csVars;
+ 
+ win_sparkle_error_callback_t               ApplicationController::ms_cbError = NULL;
+@@ -71,8 +83,11 @@ void ApplicationController::RequestShutdown()
+     // nothing yet
+ }
+ 
+-void ApplicationController::NotifyUpdateError()
++void ApplicationController::NotifyUpdateError(const char* message)
+ {
++    if (const auto callback = errorDetailsCallback.load())
++        callback(message);
++
+     {
+         CriticalSectionLocker lock(ms_csVars);
+         if ( ms_cbError )
+diff --git a/src/appcontroller.h b/src/appcontroller.h
+index d54bf56..0af6637 100644
+--- a/src/appcontroller.h
++++ b/src/appcontroller.h
+@@ -58,7 +58,7 @@ public:
+     //@{
+ 
+     /// Notify that an error occurred.
+-    static void NotifyUpdateError();
++    static void NotifyUpdateError(const char* message);
+ 
+     /// Notify that an update has been found.
+     static void NotifyUpdateFound();
+diff --git a/src/download.cpp b/src/download.cpp
+index e867540..3c652f1 100644
+--- a/src/download.cpp
++++ b/src/download.cpp
+@@ -198,6 +198,36 @@ void WaitUntilSignaledWithTerminationCheck(Event& event, Thread *thread)
+     }
+ }
+ 
++DownloadException InternetFailure(DWORD code)
++{
++    const char* description;
++    switch (code)
++    {
++        case ERROR_INTERNET_INVALID_CA:
++            description = "Untrusted TLS certificate authority";
++            break;
++        case ERROR_INTERNET_SEC_CERT_CN_INVALID:
++            description = "TLS certificate did not match the server name";
++            break;
++        case ERROR_INTERNET_SEC_CERT_DATE_INVALID:
++            description = "TLS certificate was outside its validity period";
++            break;
++        case ERROR_INTERNET_SEC_CERT_ERRORS:
++        case ERROR_INTERNET_SEC_INVALID_CERT:
++        case ERROR_INTERNET_SEC_CERT_REVOKED:
++        case ERROR_INTERNET_SEC_CERT_REV_FAILED:
++            description = "TLS certificate validation failed";
++            break;
++        case ERROR_INTERNET_SECURITY_CHANNEL_ERROR:
++            description = "TLS connection failed";
++            break;
++        default:
++            description = "WinINet request failed";
++            break;
++    }
++    return DownloadException(std::string(description) + " (WinINet " + std::to_string(code) + ").");
++}
++
+ } // anonymous namespace
+ 
+ 
+@@ -236,7 +266,7 @@ std::string DownloadFile(const std::string& url, IDownloadSink* sink, Thread* on
+     urlc.dwUrlPathLength = sizeof(url_path);
+ 
+     if ( !InternetCrackUrlA(url.c_str(), 0, ICU_DECODE, &urlc) )
+-        throw Win32Exception();
++        throw InternetFailure(GetLastError());
+ 
+     InetHandle inet = InternetOpen
+                       (
+@@ -247,7 +277,7 @@ std::string DownloadFile(const std::string& url, IDownloadSink* sink, Thread* on
+                           INTERNET_FLAG_ASYNC // dwFlags
+                       );
+     if ( !inet )
+-        throw Win32Exception();
++        throw InternetFailure(GetLastError());
+ 
+     DWORD dwOption = HTTP_PROTOCOL_FLAG_HTTP2;
+     InternetSetOptionW(inet, INTERNET_OPTION_ENABLE_HTTP_PROTOCOL, &dwOption, sizeof(dwOption));
+@@ -293,18 +323,23 @@ std::string DownloadFile(const std::string& url, IDownloadSink* sink, Thread* on
+     }
+     else
+     {
+-        if (GetLastError() != ERROR_IO_PENDING)
+-            throw Win32Exception();
++        const DWORD error = GetLastError();
++        if (error != ERROR_IO_PENDING)
++            throw InternetFailure(error);
+     }
+ 
+     WaitUntilSignaledWithTerminationCheck(context.eventRequestComplete, onThread);
++    if (context.lastError != ERROR_SUCCESS)
++        throw InternetFailure(context.lastError);
++    if (!conn)
++        throw DownloadException("WinINet did not return a request handle.");
+ 
+     // Check returned status code - we need to detect 404 instead of
+     // downloading the human-readable 404 page:
+     DWORD statusCode;
+     if ( GetHttpHeader(conn, HTTP_QUERY_STATUS_CODE, statusCode) && statusCode >= 400 )
+     {
+-        throw std::runtime_error("Update file not found on the server.");
++        throw DownloadException("Server returned HTTP " + std::to_string(statusCode) + ".");
+     }
+ 
+     // Get content length if possible:
+@@ -363,20 +398,18 @@ std::string DownloadFile(const std::string& url, IDownloadSink* sink, Thread* on
+ 
+         if (!InternetReadFileEx(conn, &ibuf, IRF_ASYNC | IRF_NO_WAIT, NULL))
+         {
+-            if (GetLastError() != ERROR_IO_PENDING)
+-                throw Win32Exception();
++            const DWORD error = GetLastError();
++            if (error != ERROR_IO_PENDING)
++                throw InternetFailure(error);
+ 
+             WaitUntilSignaledWithTerminationCheck(context.eventRequestComplete, onThread);
++            if (context.lastError != ERROR_SUCCESS)
++                throw InternetFailure(context.lastError);
+             continue;
+         }
+ 
+         if (ibuf.dwBufferLength == 0)
+-        {
+-            if (context.lastError != ERROR_SUCCESS)
+-                throw Win32Exception();
+-            else
+-                break; // all of the file was downloaded
+-        }
++            break; // all of the file was downloaded
+ 
+         sink->Add(ibuf.lpvBuffer, ibuf.dwBufferLength);
+     }
+diff --git a/src/download.h b/src/download.h
+index 2f6feec..0070586 100644
+--- a/src/download.h
++++ b/src/download.h
+@@ -26,6 +26,7 @@
+ #ifndef _download_h_
+ #define _download_h_
+ 
++#include <stdexcept>
+ #include <string>
+ 
+ namespace winsparkle
+@@ -33,6 +34,13 @@ namespace winsparkle
+ 
+ class Thread;
+ 
++// Contains a diagnostic safe to report to the host application.
++class DownloadException : public std::runtime_error
++{
++public:
++    using std::runtime_error::runtime_error;
++};
++
+ /**
+     Abstraction for storing downloaded data.
+  */
+diff --git a/src/ui.cpp b/src/ui.cpp
+index e074714..c77bada 100644
+--- a/src/ui.cpp
++++ b/src/ui.cpp
+@@ -1626,9 +1626,9 @@ void UI::NotifyUpdateDownloaded(const std::wstring& updateFile, const Appcast &a
+ 
+ 
+ /*static*/
+-void UI::NotifyUpdateError(ErrorCode err)
++void UI::NotifyUpdateError(const std::string& message, ErrorCode err)
+ {
+-    ApplicationController::NotifyUpdateError();
++    ApplicationController::NotifyUpdateError(message.c_str());
+ 
+     UIThreadAccess uit;
+ 
+diff --git a/src/ui.h b/src/ui.h
+index e4cd890..3ab3533 100644
+--- a/src/ui.h
++++ b/src/ui.h
+@@ -75,7 +75,7 @@ public:
+         (i.e. the user is manually checking for updates), "update error"
+         message is shown. Otherwise, does nothing.
+      */
+-    static void NotifyUpdateError(ErrorCode err = Err_Generic);
++    static void NotifyUpdateError(const std::string& message, ErrorCode err = Err_Generic);
+ 
+     /**
+         Notifies the UI that a new version is available.
+diff --git a/src/updatechecker.cpp b/src/updatechecker.cpp
+index 3ddee7b..8fda2e4 100644
+--- a/src/updatechecker.cpp
++++ b/src/updatechecker.cpp
+@@ -278,9 +278,14 @@ void UpdateChecker::PerformUpdateCheck()
+ 
+         UI::NotifyUpdateAvailable(appcast, ShouldAutomaticallyInstall());
+     }
++    catch (const DownloadException& error)
++    {
++        UI::NotifyUpdateError(std::string("Appcast request failed. ") + error.what());
++        throw;
++    }
+     catch ( ... )
+     {
+-        UI::NotifyUpdateError();
++        UI::NotifyUpdateError("WinSparkle could not check for updates.");
+         throw;
+     }
+ }
+diff --git a/src/updatedownloader.cpp b/src/updatedownloader.cpp
+index 3f85d57..7674720 100644
+--- a/src/updatedownloader.cpp
++++ b/src/updatedownloader.cpp
+@@ -212,12 +212,17 @@ void UpdateDownloader::Run()
+     catch (BadSignatureException&)
+     {
+         CleanLeftovers();  // remove potentially corrupted file
+-        UI::NotifyUpdateError(Err_BadSignature);
++        UI::NotifyUpdateError("The update signature could not be verified.", Err_BadSignature);
++        throw;
++    }
++    catch (const DownloadException& error)
++    {
++        UI::NotifyUpdateError(std::string("Installer request failed. ") + error.what());
+         throw;
+     }
+     catch ( ... )
+     {
+-        UI::NotifyUpdateError();
++        UI::NotifyUpdateError("WinSparkle could not prepare the installer.");
+         throw;
+     }
+ }
