@@ -14,11 +14,13 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
 
   final _events = StreamController<Map<Object?, Object?>>.broadcast();
   NSString? _feedUrl;
+  Set<String> _allowedChannels = const {};
   bool _started = false;
 
   // Sparkle holds its delegate weakly. Keep it alive for the life of the updater.
   late final _delegate = SPUUpdaterDelegate$Builder.implement(
     feedURLStringForUpdater_: (_) => _feedUrl,
+    allowedChannelsForUpdater_: (_) => _allowedChannels.toNSSet(),
     updater_didAbortWithError_: (_, error) =>
         _emit('error', {'error': error.localizedDescription.toDartString()}),
     updater_didFinishLoadingAppcast_: (_, appcast) =>
@@ -77,6 +79,14 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
       _feedUrl = NSURL.URLWithString(feedUrl.toNSString())?.absoluteString;
       _start();
     });
+  }
+
+  @override
+  Future<void> setAllowedChannels(List<String> channels) async {
+    _allowedChannels = channels.toSet();
+    if (_started) {
+      autoReleasePool(_updater.resetUpdateCycleAfterShortDelay);
+    }
   }
 
   @override

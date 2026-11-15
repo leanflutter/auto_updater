@@ -276,6 +276,14 @@ cd dist/
 serve -l 5002
 ```
 
+### Publishing a beta channel on macOS
+
+Add `<sparkle:channel>beta</sparkle:channel>` to a beta appcast item. To allow
+that channel on macOS, call `await autoUpdater.setAllowedChannels(['beta'])`
+before the update check. Sparkle still considers releases on the default
+channel. Call `setAllowedChannels([])` to return to the default selection.
+[Sparkle channels](https://sparkle-project.org/documentation/publishing/#channels)
+
 ## Troubleshooting
 
 ### macOS
