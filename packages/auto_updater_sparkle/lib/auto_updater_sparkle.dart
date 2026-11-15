@@ -46,7 +46,8 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
         _emit('update-downloaded', {'appcastItem': _appcastItemData(item)}),
     updater_willInstallUpdateOnQuit_immediateInstallationBlock_: (_, item, _) {
       _emit('before-quit-for-update', {'appcastItem': _appcastItemData(item)});
-      return true;
+      // Let Sparkle keep scheduling checks while the update waits for app quit.
+      return false;
     },
     $keepIsolateAlive: false,
   );
