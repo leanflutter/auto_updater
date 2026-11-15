@@ -83,7 +83,7 @@ dart run auto_updater:generate_keys
 
 #### macOS
 
-With SwiftPM, run `flutter build macos` before using `auto_updater:generate_keys` or `auto_updater:sign_update`. The commands use the Sparkle tools from the Flutter build. For a custom build directory or a build started from Xcode, set `SPARKLE_BIN_DIR` to the directory containing `generate_keys` and `sign_update`. [Sparkle setup](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
+With SwiftPM, run `flutter build macos` before using the Sparkle commands. They use the tools from the Flutter build. For a custom build directory or a build started from Xcode, set `SPARKLE_BIN_DIR` to the directory containing the Sparkle binaries. [Sparkle setup](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
 
 Prepare signing with `EdDSA` signatures:
 
@@ -188,6 +188,24 @@ Run the following command:
 ```
 fastforge release --name prod --jobs windows-exe
 ```
+
+### Generate a macOS appcast in CI
+
+Place your macOS update archives in a release directory such as `dist/macos`.
+From the Flutter project root on a macOS runner, run:
+
+```bash
+dart run auto_updater:generate_appcast \
+  --download-url-prefix https://example.com/updates/macos/ \
+  dist/macos
+```
+
+Sparkle signs the archives and creates or updates `dist/macos/appcast.xml`.
+Publish the feed and the files it references. The tool uses the Sparkle signing
+key in the macOS Keychain by default. In CI, use `--ed-key-file` with a key file
+provided by your CI secret store. Run
+`dart run auto_updater:generate_appcast --help` for all Sparkle options.
+[Sparkle publishing guide](https://sparkle-project.org/documentation/publishing/)
 
 ### Get signature
 
