@@ -87,6 +87,9 @@ Sparkle 和 WinSparkle 下载更新时也会发送这些请求头，请为 feed 
 可信的 HTTPS 地址。再次调用 `setHttpHeaders` 会替换已有的请求头，传入空
 Map 可清除这些请求头。
 
+在 Windows 上，需通过 `Authorization` 认证的 feed 和安装包应使用最终 URL。
+WinINet 跟随重定向时可能丢弃此请求头，同源的 302 重定向也会出现这种情况。
+
 ### 自动安装更新
 
 在 macOS 上，将 `macos/Runner/Info.plist` 中的 `SUEnableAutomaticChecks`

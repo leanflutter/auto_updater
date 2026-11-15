@@ -91,6 +91,10 @@ Sparkle and WinSparkle also send the headers on update downloads, so use trusted
 HTTPS URLs for the feed and its downloads. Calling `setHttpHeaders` again
 replaces the previous headers. An empty map clears them.
 
+On Windows, use the final URL for any feed or download that requires
+`Authorization`. WinINet can drop this header when it follows a redirect,
+including a 302 to the same origin.
+
 ### Installing updates automatically
 
 On macOS, set `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to
