@@ -7,6 +7,9 @@
 * Add `dart run auto_updater:generate_appcast` for macOS release automation.
 * Add `getLastCheckTime()` on macOS and Windows.
 * Add `setHttpHeaders()` for authenticated update feeds on macOS and Windows.
+* Preserve native output and exit status in `generate_keys`, including on
+  localized Windows systems.
+* Report the Windows installer's size in `sign_update` output.
 
 ## 1.0.0
 

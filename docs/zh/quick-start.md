@@ -257,7 +257,8 @@ dart run auto_updater:sign_update dist/1.1.0+2/auto_updater_example-1.1.0+2-wind
 sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk=" length="13400992"
 ```
 
-将获得的新签名更新到 `appcast.xml` 文件 `enclosure` 节点的 `sparkle:dsaSignature` 属性值。
+将输出中的 `sparkle:dsaSignature` 和 `length` 填到 `appcast.xml` 中 Windows 的
+`enclosure` 节点。`length` 是安装包的字节数。
 
 ### 分发应用
 
@@ -295,7 +296,7 @@ sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOm
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
-                       length="0"
+                       length="13400992"
                        type="application/octet-stream" />
         </item>
     </channel>
