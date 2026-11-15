@@ -35,6 +35,13 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
     throw UnimplementedError('checkForUpdates() has not been implemented.');
   }
 
+  /// Checks for and installs updates without a separate confirmation prompt.
+  Future<void> checkForUpdatesAndInstall() async {
+    throw UnsupportedError(
+      'checkForUpdatesAndInstall() is available on Windows.',
+    );
+  }
+
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
   Future<void> setScheduledCheckInterval(int interval) async {
     throw UnimplementedError(

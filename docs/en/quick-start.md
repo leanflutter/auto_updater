@@ -69,6 +69,18 @@ void main() async {
 
 > Please see the example app of this plugin for a full example.
 
+### Installing updates automatically
+
+On macOS, set `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to
+`true` in `macos/Runner/Info.plist` to enable background checks and automatic
+installation by default. Sparkle may still ask for authorization to install
+an update. [Sparkle settings](https://sparkle-project.org/documentation/customization/)
+
+On Windows, call `await autoUpdater.checkForUpdatesAndInstall()` after setting
+the feed. WinSparkle shows progress and starts installing an available update
+without showing its confirmation dialog. Installer dialogs and Windows
+authorization prompts are controlled by the installer and the system.
+
 ## Publish your app
 
 ### Generate private key
