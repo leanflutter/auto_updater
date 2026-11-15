@@ -1,32 +1,15 @@
 import 'package:auto_updater_example/pages/home.dart';
-import 'package:bot_toast/bot_toast.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:window_manager/window_manager.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-
-  windowManager.waitUntilReadyToShow(null, () async {
-    await windowManager.setPreventClose(true);
-    await windowManager.show();
-    await windowManager.focus();
-  });
-
+void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
   Widget build(BuildContext context) {
-    final botToastBuilder = BotToastInit();
     return MaterialApp(
       theme: ThemeData(
         primaryColor: const Color(0xff416ff4),
@@ -34,14 +17,6 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: const Color(0xffF7F9FB),
         dividerColor: Colors.grey.withValues(alpha: 0.3),
       ),
-      builder: (context, child) {
-        // BotToast still uses the Material widgets bundled with Flutter.
-        // ignore: deprecated_member_use
-        return MaterialUiCompatibilityBridge(
-          child: botToastBuilder(context, child),
-        );
-      },
-      navigatorObservers: [BotToastNavigatorObserver()],
       home: const HomePage(),
     );
   }

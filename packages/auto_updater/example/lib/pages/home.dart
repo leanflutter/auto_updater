@@ -1,8 +1,6 @@
 import 'package:auto_updater/auto_updater.dart';
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +12,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with UpdaterListener {
   final String _feedURL = 'http://localhost:5002/appcast.xml';
 
-  bool _isFeedURLSetted = false;
+  bool _hasFeedUrl = false;
 
   @override
   void initState() {
@@ -30,12 +28,14 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
 
   Future<void> _handleClickSetFeedURL() async {
     await autoUpdater.setFeedURL(_feedURL);
-    _isFeedURLSetted = true;
+    _hasFeedUrl = true;
   }
 
   Future<void> _handleClickCheckForUpdates() async {
-    if (!_isFeedURLSetted) {
-      BotToast.showText(text: 'Please call setFeedURL method first.');
+    if (!_hasFeedUrl) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please call setFeedURL method first.')),
+      );
       return;
     }
     await autoUpdater.checkForUpdates();
@@ -134,6 +134,5 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
     if (kDebugMode) {
       print('onUpdaterBeforeQuitForUpdate: ${item?.toJson()}');
     }
-    windowManager.setPreventClose(false);
   }
 }

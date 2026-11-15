@@ -14,11 +14,9 @@ dependencies:
     path: ../../auto_updater_sparkle
   auto_updater_winsparkle:
     path: ../../auto_updater_winsparkle
-  bot_toast: ^4.1.3
   flutter:
     sdk: flutter
   material_ui: ^1.11.0
-  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
