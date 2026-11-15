@@ -83,7 +83,11 @@ class AutoUpdater {
     return _platform.setFeedURL(feedUrl);
   }
 
-  /// Asks the server whether there is an update. You must call setFeedURL before using this API.
+  /// Checks for updates after [setFeedURL] has been called.
+  ///
+  /// Set [inBackground] to true for a background check. On macOS, foreground
+  /// checks can offer skipped versions again, while background checks honor
+  /// the user's choice to skip.
   Future<void> checkForUpdates({bool? inBackground}) {
     return _platform.checkForUpdates(inBackground: inBackground);
   }
