@@ -60,12 +60,21 @@ void main() async {
 
   String feedURL = 'http://localhost:5002/appcast.xml';
   await autoUpdater.setFeedURL(feedURL);
-  await autoUpdater.checkForUpdates();
-  await autoUpdater.setScheduledCheckInterval(3600);
 
   runApp(MyApp());
 }
 ```
+
+Calling `setFeedURL` initializes the updater. The native updater schedules
+checks according to its automatic update settings. Use
+`setScheduledCheckInterval` to customize the interval and call
+`checkForUpdates()` from a user action such as a Check for Updates menu item.
+
+On macOS, Sparkle honors **Skip This Version** during automatic and background
+checks. A manual `checkForUpdates()` can offer the skipped version again. If
+your app explicitly checks in the background when it starts, call
+`checkForUpdates(inBackground: true)` after setting the feed URL.
+[Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
 > Please see the example app of this plugin for a full example.
 
@@ -256,7 +265,7 @@ Add `appcast.xml` to your project `dist/` directory.
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
-            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows.exe"
+            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
@@ -268,6 +277,11 @@ Add `appcast.xml` to your project `dist/` directory.
 ```
 
 > This example uses the same `appcast.xml` file for `macOS` and `Windows`, and you need to configure the value of the `sparkle:os` property accordingly.
+
+An enclosure can use a relative path when the installer is hosted alongside
+the appcast. On Windows, the updater resolves the path against the final
+appcast URL after redirects. Use an absolute HTTPS URL to point to an
+installer on another server.
 
 Start the test update server:
 
