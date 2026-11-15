@@ -8,6 +8,17 @@ Add `auto_updater` and one implementation for each platform your app targets.
 Use `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
 Flutter registers the selected implementation automatically.
 
+Once the 2.0.0 release is available on pub.dev, add the published packages to
+your app's `pubspec.yaml`. Apps upgrading from 1.x need to add the platform
+implementation explicitly. Keep the implementations for the platforms you target.
+
+```yaml
+dependencies:
+  auto_updater: ^2.0.0
+  auto_updater_sparkle: ^1.0.0
+  auto_updater_winsparkle: ^1.0.0
+```
+
 To use the development version from a local checkout, replace
 `/path/to/auto_updater` with the checkout path in your app's `pubspec.yaml`.
 For an app targeting one platform, omit the other implementation and its
@@ -33,7 +44,7 @@ dependency_overrides:
 
 ### macOS requirements
 
-The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. When using `auto_updater_sparkle`, enable Swift Package Manager in Flutter to bundle Sparkle 2.10.1.
+Version 2.0.0 requires Flutter 3.50, Dart 3.14, and macOS 12 or later. When using `auto_updater_sparkle`, enable Swift Package Manager in Flutter to bundle Sparkle 2.10.1.
 
 If an existing project embeds Sparkle through CocoaPods, remove that CocoaPods integration as part of switching to SwiftPM so Xcode embeds a single copy. [Flutter’s migration guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 
