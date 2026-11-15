@@ -297,9 +297,10 @@ When debugging a release build, verify that the exported
 `.app` contains `Contents/Frameworks/Sparkle.framework` and that the exported
 app's `Info.plist` contains the expected update configuration.
 
-Look for the Sparkle log category in Console if the update dialog shows a
-generic download error. The native log can expose the underlying HTTP status or
-signature failure. Redact tokens in logged URLs before sharing them.
+`onUpdaterError` includes the HTTP status or underlying native error codes when
+Sparkle provides them. For additional signing or installation details, look for
+the Sparkle log category in Console. Redact tokens in logged URLs before
+sharing them.
 
 For a sandboxed app, enable Sparkle's installer XPC service and add the
 entitlements required by Sparkle to the release configuration.
