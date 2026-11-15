@@ -50,4 +50,8 @@ __declspec(dllexport) void auto_updater_on_update_cancelled() {
   PostEvent("updateCancelled");
 }
 
+__declspec(dllexport) void auto_updater_on_update_downloaded() {
+  PostEvent("update-downloaded");
+}
+
 }  // extern "C"
