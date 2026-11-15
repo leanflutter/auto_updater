@@ -359,6 +359,10 @@ Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
 }
 ```
 
+If your Windows runner calls `CoUninitialize()` after its message loop, call
+`window.Destroy()` first so Flutter releases its window and engine while COM is
+still available. See the [example Windows runner](../../packages/auto_updater/example/windows/runner/main.cpp).
+
 Windows Installer continues running after the app exits. If the upgrade
 fails, add `/l*v` and a writable log path to
 `sparkle:installerArguments` for a test run, then inspect the Windows

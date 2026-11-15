@@ -348,6 +348,10 @@ Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
 }
 ```
 
+如果 Windows runner 在消息循环结束后调用 `CoUninitialize()`，请先调用
+`window.Destroy()`，让 Flutter 在 COM 仍可用时释放窗口和引擎。
+见 [Windows runner 示例](../../packages/auto_updater/example/windows/runner/main.cpp)。
+
 应用退出后，Windows Installer 会继续运行。如果升级失败，可在测试时通过
 `sparkle:installerArguments` 传入
 `/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
