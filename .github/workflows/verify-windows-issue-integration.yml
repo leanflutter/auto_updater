@@ -1,0 +1,75 @@
+name: Verify Integrated Windows updater
+
+on:
+  push:
+    branches: [codex/verify-windows-issue-integration]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+            dart-architecture: x64
+          - runner: windows-11-arm
+            architecture: ARM64
+            dart-architecture: arm64
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.14.0'
+          architecture: ${{ matrix.dart-architecture }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/patched-winsparkle
+          run-id: 43693960183
+          github-token: ${{ github.token }}
+      - working-directory: packages/winsparkle
+        run: dart pub get
+      - name: Verify bundled ABI and enclosure resolution
+        working-directory: packages/winsparkle
+        shell: pwsh
+        run: |
+          $dll = "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll"
+          dart run tool/smoke_test.dart $dll
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dart run tool/relative_enclosure_smoke.dart $dll
+
+
+  flutter-msi:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-x64
+          path: ${{ runner.temp }}/patched-winsparkle
+          run-id: 43693960183
+          github-token: ${{ github.token }}
+      - name: Build release with the verified WinSparkle DLL
+        shell: pwsh
+        run: |
+          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/x64/Release
+          dart run melos bootstrap
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Location packages/auto_updater/example
+          flutter build windows --release -t lib/codex_integrated_msi_smoke.dart
+      - name: Upgrade to a signed MSI from the Flutter app
+        shell: pwsh
+        run: |
+          $release = (Resolve-Path 'packages/auto_updater/example/build/windows/x64/runner/Release').Path
+          ./packages/winsparkle/tool/fixtures/msi_update.ps1 -ReleaseDirectory $release

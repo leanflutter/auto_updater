@@ -1,0 +1,21 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="LeanFlutter WinSparkle MSI Fixture" Manufacturer="LeanFlutter"
+           Version="$(var.Version)" Scope="perUser"
+           UpgradeCode="{8B9CF3C5-13F9-49E3-BCA9-41010C7D8C75}">
+    <MajorUpgrade DowngradeErrorMessage="A newer fixture is installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="INSTALLDIR" Name="LeanFlutterMsiFixture">
+        <Component Id="Marker" Guid="{654480C2-1E00-4E60-9FCB-1DD368C27E91}">
+          <File Source="$(var.Marker)" Name="version.txt" />
+          <RemoveFolder Id="RemoveInstallDir" On="uninstall" />
+          <RegistryValue Root="HKCU" Key="Software\LeanFlutter\WinSparkleMsiFixture"
+                         Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    <Feature Id="Main">
+      <ComponentRef Id="Marker" />
+    </Feature>
+  </Package>
+</Wix>
