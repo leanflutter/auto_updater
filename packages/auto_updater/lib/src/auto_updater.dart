@@ -83,6 +83,14 @@ class AutoUpdater {
     return _platform.setFeedURL(feedUrl);
   }
 
+  /// Sets additional Sparkle channels allowed on macOS.
+  ///
+  /// Updates on the default channel are always eligible. Pass an empty list
+  /// to restore the default channel selection.
+  Future<void> setAllowedChannels(List<String> channels) {
+    return _platform.setAllowedChannels(channels);
+  }
+
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
   Future<void> checkForUpdates({bool? inBackground}) {
     return _platform.checkForUpdates(inBackground: inBackground);
