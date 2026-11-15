@@ -41,6 +41,11 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+
+  /// Returns the last update check time in UTC, or null if there was no check.
+  Future<DateTime?> getLastCheckTime() async {
+    throw UnimplementedError('getLastCheckTime() has not been implemented.');
+  }
 }
 
 class _UnsupportedAutoUpdater extends AutoUpdaterPlatform {

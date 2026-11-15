@@ -31,6 +31,7 @@
       - [setFeedURL](#setfeedurl)
       - [checkForUpdates](#checkforupdates)
       - [setScheduledCheckInterval](#setscheduledcheckinterval)
+      - [getLastCheckTime](#getlastchecktime)
 - [相关链接](#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5)
 - [许可证](#%E8%AE%B8%E5%8F%AF%E8%AF%81)
 
@@ -72,6 +73,10 @@
 ##### setScheduledCheckInterval
 
 设置检查时间间隔，默认 86400，最少 3600, 0 不更新
+
+##### getLastCheckTime
+
+返回最近一次检查更新的 UTC 时间。尚无检查记录时返回 `null`。
 
 <!-- README_DOC_GEN -->
 

@@ -31,6 +31,7 @@ English | [简体中文](./README-ZH.md)
       - [setFeedURL](#setfeedurl)
       - [checkForUpdates](#checkforupdates)
       - [setScheduledCheckInterval](#setscheduledcheckinterval)
+      - [getLastCheckTime](#getlastchecktime)
 - [Related Links](#related-links)
 - [License](#license)
 
@@ -72,6 +73,10 @@ Asks the server whether there is an update. You must call setFeedURL before usin
 ##### setScheduledCheckInterval
 
 Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
+
+##### getLastCheckTime
+
+Returns the last update check time in UTC, or `null` if there was no check.
 
 <!-- README_DOC_GEN -->
 
