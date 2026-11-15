@@ -8,6 +8,16 @@
 macOS 可使用 `auto_updater_sparkle`，Windows 可使用 `auto_updater_winsparkle`。
 Flutter 会自动注册选定的实现。
 
+2.0.0 在 pub.dev 发布后，可在应用的 `pubspec.yaml` 中添加以下依赖。
+从 1.x 升级的应用需要显式添加平台实现，只保留目标平台所需的实现。
+
+```yaml
+dependencies:
+  auto_updater: ^2.0.0
+  auto_updater_sparkle: ^1.0.0
+  auto_updater_winsparkle: ^1.0.0
+```
+
 要从本地仓库使用开发版，请将下面的 `/path/to/auto_updater` 替换为仓库路径。
 如果应用只面向一个平台，可以省略另一个平台的实现和对应的绑定覆盖项。
 
@@ -31,7 +41,7 @@ dependency_overrides:
 
 ### macOS 要求
 
-开发版本要求 Flutter 3.50、Dart 3.14 和 macOS 12 或更高版本。使用 `auto_updater_sparkle` 时，请在 Flutter 中启用 Swift Package Manager 以打包 Sparkle 2.10.1。
+在 macOS 上，2.0.0 要求 Flutter 3.50、Dart 3.14 和 macOS 12 或更高版本。使用 `auto_updater_sparkle` 时，请在 Flutter 中启用 Swift Package Manager 以打包 Sparkle 2.10.1。
 
 如果项目原先通过 CocoaPods 嵌入 Sparkle，切换到 SwiftPM 时请移除原有的 Sparkle 集成，避免 Xcode 重复打包同一个 framework。[Flutter 迁移指南](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 
