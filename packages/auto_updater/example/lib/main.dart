@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
 import 'package:auto_updater/auto_updater.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
@@ -125,9 +129,12 @@ class _HomePageState extends State<_HomePage> with UpdaterListener {
   }
 
   @override
-  void onUpdaterBeforeQuitForUpdate(AppcastItem? item) {
+  Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
     if (kDebugMode) {
       print('onUpdaterBeforeQuitForUpdate: ${item?.toJson()}');
+    }
+    if (Platform.isWindows) {
+      await ServicesBinding.instance.exitApplication(AppExitType.required);
     }
   }
 }
