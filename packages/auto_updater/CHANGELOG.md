@@ -12,6 +12,7 @@
 * Report the Windows installer's size in `sign_update` output.
 * Add `checkForUpdatesAndInstall()` to start a Windows update without a
   separate confirmation prompt.
+* Add `setAllowedChannels()` to opt into additional macOS update channels.
 
 ## 1.0.0
 

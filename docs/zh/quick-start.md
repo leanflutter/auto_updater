@@ -328,6 +328,14 @@ cd dist/
 serve -l 5002
 ```
 
+### 发布 macOS beta 渠道
+
+在 beta 版本的 appcast `<item>` 中加入 `<sparkle:channel>beta</sparkle:channel>`。
+在 macOS 上检查更新前调用 `await autoUpdater.setAllowedChannels(['beta'])`
+即可启用该渠道。Sparkle 仍会检查默认渠道的版本。调用
+`setAllowedChannels([])` 可恢复默认的渠道选择。
+[Sparkle 渠道文档](https://sparkle-project.org/documentation/publishing/#channels)
+
 ## 故障排除
 
 ### 更新提示

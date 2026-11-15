@@ -83,6 +83,14 @@ class AutoUpdater {
     return _platform.setFeedURL(feedUrl);
   }
 
+  /// Sets additional Sparkle channels allowed on macOS.
+  ///
+  /// Updates on the default channel are always eligible. Pass an empty list
+  /// to restore the default channel selection.
+  Future<void> setAllowedChannels(List<String> channels) {
+    return _platform.setAllowedChannels(channels);
+  }
+
   static final _invalidHeaderName = RegExp(r"[^!#$%&'*+.^_\x60|~0-9A-Za-z-]");
   static final _invalidHeaderValue = RegExp(r'[\x00-\x08\x0A-\x1F\x7F]');
 

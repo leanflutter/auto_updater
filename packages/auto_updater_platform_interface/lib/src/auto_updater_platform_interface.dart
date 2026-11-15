@@ -35,6 +35,11 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
     throw UnimplementedError('setHttpHeaders() has not been implemented.');
   }
 
+  /// Sets the additional appcast channels accepted by the updater.
+  Future<void> setAllowedChannels(List<String> channels) async {
+    throw UnsupportedError('setAllowedChannels() is available on macOS.');
+  }
+
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
   Future<void> checkForUpdates({bool? inBackground}) async {
     throw UnimplementedError('checkForUpdates() has not been implemented.');
