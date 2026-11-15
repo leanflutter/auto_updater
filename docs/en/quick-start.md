@@ -285,10 +285,10 @@ progress dialog. The native updater can show an update prompt when it finds a
 new version.
 
 Add `<sparkle:criticalUpdate />` directly inside an appcast `<item>` to mark
-that release as critical. On Windows, WinSparkle hides **Skip This Version**
-and **Remind Me Later**. On macOS, Sparkle hides **Skip This Version** for
-critical updates that are outside a major upgrade. The macOS **Remind Me Later**
-button follows Sparkle's automatic update settings.
+that release as critical. WinSparkle hides **Skip This Version** and
+**Remind Me Later** for critical updates. Sparkle hides both buttons for
+critical updates outside a major upgrade. Sparkle also hides **Remind Me
+Later** when automatic checks are disabled.
 [Sparkle critical updates](https://sparkle-project.org/documentation/publishing/#critical-updates)
 
 To require a minimum app version, enforce the version requirement in your app
