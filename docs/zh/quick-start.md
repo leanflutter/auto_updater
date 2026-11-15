@@ -312,7 +312,10 @@ serve -l 5002
 [WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
 WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
-`onUpdaterBeforeQuitForUpdate` 保存应用状态。
+`onUpdaterBeforeQuitForUpdate` 保存应用状态。应用退出后，Windows Installer 会
+继续运行。如果升级失败，可在测试时通过 `sparkle:installerArguments` 传入
+`/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
+[Windows Installer 命令行选项](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
 
 WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
 语言提供一份 appcast，每个更新项只放一个对应语言的

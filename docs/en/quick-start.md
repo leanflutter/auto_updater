@@ -320,7 +320,11 @@ errors, add `sparkle:installerArguments="/passive"` to the enclosure.
 
 WinSparkle controls downloading and running the installer.
 Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
-shutdown.
+shutdown. Windows Installer continues running after the app exits. If the
+upgrade fails, add `/l*v` and a writable log path to
+`sparkle:installerArguments` for a test run, then inspect the Windows
+Installer log.
+[Windows Installer command-line options](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
 
 WinSparkle's update dialog reads a single release-notes URL per item. To
 localize the notes, serve one appcast per supported locale, each with a single
