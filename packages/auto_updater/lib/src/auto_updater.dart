@@ -96,6 +96,11 @@ class AutoUpdater {
   Future<void> setScheduledCheckInterval(int interval) {
     return _platform.setScheduledCheckInterval(interval);
   }
+
+  /// Returns the last update check time in UTC, or null if there was no check.
+  Future<DateTime?> getLastCheckTime() {
+    return _platform.getLastCheckTime();
+  }
 }
 
 final autoUpdater = AutoUpdater.instance;

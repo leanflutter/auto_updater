@@ -5,6 +5,7 @@
 * Require Flutter 3.50 and Dart 3.14 or later.
 * Support the Sparkle signing tools when macOS apps use SwiftPM.
 * Add `dart run auto_updater:generate_appcast` for macOS release automation.
+* Add `getLastCheckTime()` on macOS and Windows.
 
 ## 1.0.0
 
