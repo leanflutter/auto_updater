@@ -1,6 +1,6 @@
 import 'package:auto_updater_example/pages/home.dart';
 import 'package:bot_toast/bot_toast.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -26,14 +26,21 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    final botToastBuilder = BotToastInit();
     return MaterialApp(
       theme: ThemeData(
         primaryColor: const Color(0xff416ff4),
         canvasColor: Colors.white,
         scaffoldBackgroundColor: const Color(0xffF7F9FB),
-        dividerColor: Colors.grey.withOpacity(0.3),
+        dividerColor: Colors.grey.withValues(alpha: 0.3),
       ),
-      builder: BotToastInit(),
+      builder: (context, child) {
+        // BotToast still uses the Material widgets bundled with Flutter.
+        // ignore: deprecated_member_use
+        return MaterialUiCompatibilityBridge(
+          child: botToastBuilder(context, child),
+        );
+      },
       navigatorObservers: [BotToastNavigatorObserver()],
       home: const HomePage(),
     );

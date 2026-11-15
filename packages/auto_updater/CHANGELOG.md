@@ -1,3 +1,8 @@
+## Unreleased
+
+* Require Flutter 3.50 and Dart 3.14 or later.
+* Support the Sparkle signing tools when macOS apps use SwiftPM.
+
 ## 1.0.0
 
 * First major release.

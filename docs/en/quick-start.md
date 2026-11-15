@@ -8,7 +8,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  auto_updater: ^0.2.0
+  auto_updater: ^1.0.0
 ```
 
 Or
@@ -20,7 +20,20 @@ dependencies:
       path: packages/auto_updater
       url: https://github.com/leanflutter/auto_updater.git
       ref: main
+
+dependency_overrides:
+  auto_updater_macos:
+    git:
+      path: packages/auto_updater_macos
+      url: https://github.com/leanflutter/auto_updater.git
+      ref: main
 ```
+
+### macOS requirements
+
+The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. Flutter resolves Sparkle through SwiftPM when building the macOS app. For a project that uses CocoaPods, the plugin also provides a podspec.
+
+If an existing project embeds Sparkle through CocoaPods, remove that CocoaPods integration as part of switching to SwiftPM so Xcode embeds a single copy. [Flutter’s migration guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 
 ### ⚠️ Windows requirements
 
@@ -67,6 +80,8 @@ dart run auto_updater:generate_keys
 > You need to run this command on `macOS` and `Windows` systems separately.
 
 #### macOS
+
+With SwiftPM, run `flutter build macos` before using `auto_updater:generate_keys` or `auto_updater:sign_update`. The commands use the Sparkle tools from the Flutter build. For a custom build directory or a build started from Xcode, set `SPARKLE_BIN_DIR` to the directory containing `generate_keys` and `sign_update`. [Sparkle setup](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
 
 Prepare signing with `EdDSA` signatures:
 
@@ -263,7 +278,6 @@ serve -l 5002
 
 ### macOS
 
-- Make sure you have the sparkle pod added as described in [Sparkle Documentation](https://sparkle-project.org/documentation/)
 - Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
 
 ```

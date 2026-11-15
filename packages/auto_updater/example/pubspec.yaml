@@ -4,7 +4,8 @@ version: 1.0.0+1
 publish_to: "none"
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
 
 dependencies:
   auto_updater:
@@ -12,7 +13,8 @@ dependencies:
   bot_toast: ^4.1.3
   flutter:
     sdk: flutter
-  window_manager: ^0.4.3
+  material_ui: ^1.11.0
+  window_manager: ^0.5.1
 
 dev_dependencies:
   flutter_test:

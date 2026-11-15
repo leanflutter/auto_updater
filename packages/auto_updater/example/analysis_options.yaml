@@ -1,1 +1,6 @@
+analyzer:
+  exclude:
+    - build/**
+    - windows/**
+    - macos/**
 include: package:mostly_reasonable_lints/analysis_options.yaml

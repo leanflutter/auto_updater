@@ -8,7 +8,7 @@
 
 ```yaml
 dependencies:
-  auto_updater: ^0.2.0
+  auto_updater: ^1.0.0
 ```
 
 或
@@ -20,7 +20,20 @@ dependencies:
       path: packages/auto_updater
       url: https://github.com/leanflutter/auto_updater.git
       ref: main
+
+dependency_overrides:
+  auto_updater_macos:
+    git:
+      path: packages/auto_updater_macos
+      url: https://github.com/leanflutter/auto_updater.git
+      ref: main
 ```
+
+### macOS 要求
+
+开发版本要求 Flutter 3.50、Dart 3.14 和 macOS 12 或更高版本。构建 macOS 应用时，Flutter 会通过 SwiftPM 解析 Sparkle。使用 CocoaPods 的项目也可以通过插件的 podspec 集成。
+
+如果项目原先通过 CocoaPods 嵌入 Sparkle，切换到 SwiftPM 时请移除原有的 Sparkle 集成，避免 Xcode 重复打包同一个 framework。[Flutter 迁移指南](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 
 ### ⚠️ Windows requirements
 
@@ -67,6 +80,8 @@ dart run auto_updater:generate_keys
 > 需要分别在 `macOS` 和 `Windows` 系统中运行该命令。
 
 #### macOS
+
+使用 SwiftPM 时，先运行 `flutter build macos`，再使用 `auto_updater:generate_keys` 或 `auto_updater:sign_update`。命令会从 Flutter 构建目录查找 Sparkle 工具。使用自定义构建目录或直接在 Xcode 中构建时，可将 `SPARKLE_BIN_DIR` 设为包含 `generate_keys` 和 `sign_update` 的目录。[Sparkle 集成文档](https://sparkle-project.org/documentation/#1-add-the-sparkle-framework-to-your-project)
 
 准备使用 `EdDSA` 签名算法进行签名：
 
@@ -263,7 +278,6 @@ serve -l 5002
 
 ### macOS
 
-- 确保按照 [Sparkle 文档](https://sparkle-project.org/documentation/)中的说明添加了 sparkle pod
 - 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
 
 ```

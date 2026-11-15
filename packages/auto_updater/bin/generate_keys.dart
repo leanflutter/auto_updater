@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
+
+import 'src/sparkle.dart';
 
 Future<void> main(List<String> arguments) async {
   if (!(Platform.isMacOS || Platform.isWindows)) {
@@ -8,26 +11,24 @@ Future<void> main(List<String> arguments) async {
   }
 
   String executable = Platform.isMacOS
-      ? '${Directory.current.path}/macos/Pods/Sparkle/bin/generate_keys'
-      : p.joinAll(
-          [
-            Directory.current.path,
-            'windows',
-            'flutter',
-            'ephemeral',
-            '.plugin_symlinks',
-            'auto_updater_windows',
-            'windows',
-            'WinSparkle-0.8.1',
-            'bin',
-            'generate_keys.bat',
-          ],
-        );
+      ? findSparkleTool(
+          'generate_keys',
+          binDirectory: Platform.environment['SPARKLE_BIN_DIR'],
+        )
+      : p.joinAll([
+          Directory.current.path,
+          'windows',
+          'flutter',
+          'ephemeral',
+          '.plugin_symlinks',
+          'auto_updater_windows',
+          'windows',
+          'WinSparkle-0.8.1',
+          'bin',
+          'generate_keys.bat',
+        ]);
 
-  Process process = await Process.start(
-    executable,
-    arguments,
-  );
+  Process process = await Process.start(executable, arguments);
 
   process.stdout.transform(utf8.decoder).listen(stdout.write);
   process.stderr.transform(utf8.decoder).listen(stderr.write);

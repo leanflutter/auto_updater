@@ -1,11 +1,11 @@
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
+import 'src/sparkle.dart';
+
 class SignUpdateResult {
-  const SignUpdateResult({
-    required this.signature,
-    required this.length,
-  });
+  const SignUpdateResult({required this.signature, required this.length});
 
   final String signature;
   final int length;
@@ -13,21 +13,22 @@ class SignUpdateResult {
 
 SignUpdateResult signUpdate(List<String> args) {
   String executable = Platform.isMacOS
-      ? '${Directory.current.path}/macos/Pods/Sparkle/bin/sign_update'
-      : p.joinAll(
-          [
-            Directory.current.path,
-            'windows',
-            'flutter',
-            'ephemeral',
-            '.plugin_symlinks',
-            'auto_updater_windows',
-            'windows',
-            'WinSparkle-0.8.1',
-            'bin',
-            'sign_update.bat',
-          ],
-        );
+      ? findSparkleTool(
+          'sign_update',
+          binDirectory: Platform.environment['SPARKLE_BIN_DIR'],
+        )
+      : p.joinAll([
+          Directory.current.path,
+          'windows',
+          'flutter',
+          'ephemeral',
+          '.plugin_symlinks',
+          'auto_updater_windows',
+          'windows',
+          'WinSparkle-0.8.1',
+          'bin',
+          'sign_update.bat',
+        ]);
   List<String> arguments = List<String>.from(args);
   if (Platform.isWindows) {
     if (arguments.length == 1) {
@@ -35,10 +36,7 @@ SignUpdateResult signUpdate(List<String> args) {
     }
   }
 
-  ProcessResult processResult = Process.runSync(
-    executable,
-    arguments,
-  );
+  ProcessResult processResult = Process.runSync(executable, arguments);
 
   int exitCode = processResult.exitCode;
 

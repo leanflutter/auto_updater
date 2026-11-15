@@ -27,9 +27,7 @@ class AutoUpdater {
     if (event['data'] != null) {
       data = event['data'] as Map;
       if (data['error'] != null) {
-        updaterError = UpdaterError(
-          data['error'].toString(),
-        );
+        updaterError = UpdaterError(data['error'].toString());
       }
       if (data['appcast'] != null) {
         appcast = Appcast.fromJson(
@@ -87,9 +85,7 @@ class AutoUpdater {
 
   /// Asks the server whether there is an update. You must call setFeedURL before using this API.
   Future<void> checkForUpdates({bool? inBackground}) {
-    return _platform.checkForUpdates(
-      inBackground: inBackground,
-    );
+    return _platform.checkForUpdates(inBackground: inBackground);
   }
 
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update

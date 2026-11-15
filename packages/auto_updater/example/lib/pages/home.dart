@@ -1,7 +1,7 @@
 import 'package:auto_updater/auto_updater.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -89,9 +89,7 @@ class _HomePageState extends State<HomePage> with UpdaterListener {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
+      appBar: AppBar(title: const Text('Plugin example app')),
       body: _buildBody(context),
     );
   }
