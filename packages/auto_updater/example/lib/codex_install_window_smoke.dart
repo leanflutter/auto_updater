@@ -150,8 +150,15 @@ type="application/octet-stream" /></item></channel></rss>''');
     if (_setPosition(host, 0, 0, 0, 0, 0, _moveInZOrderOnly) == 0) {
       throw StateError('Could not move the host window to HWND_TOP');
     }
+    var scenario = 'normal host';
     if (!_isAbove(host, dialog)) {
-      throw StateError('The host is already behind the update dialog');
+      scenario = 'always-on-top host';
+      if (_setPosition(host, -1, 0, 0, 0, 0, _moveInZOrderOnly) == 0 ||
+          !_isAbove(host, dialog)) {
+        throw StateError(
+          'The host could not cover the update dialog during download',
+        );
+      }
     }
     completeDownload.complete();
     await _waitForWindow(
@@ -164,7 +171,7 @@ type="application/octet-stream" /></item></channel></rss>''');
       );
     }
     result.writeAsStringSync(
-      'Reproduced: ready-to-install dialog remains below the host.',
+      'Reproduced: ready-to-install dialog remains below the $scenario.',
     );
     await endpoint.close(force: true);
     exit(0);
