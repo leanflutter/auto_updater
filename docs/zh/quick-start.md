@@ -278,13 +278,23 @@ serve -l 5002
 
 ### macOS
 
-- 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
+等待 `setFeedURL` 完成，并记录它抛出的异常。Sparkle 会报告启动时的配置错误，
+例如无效的 `SUPublicEDKey` 或缺失的授权。检查更新期间的错误可通过
+`UpdaterListener.onUpdaterError` 获取。排查 release 版本时，请确认导出的
+`.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
+`Info.plist` 是否包含预期的更新配置。
 
-```
-<key>com.apple.security.network.client</key>
-  <true/>
-<key>com.apple.security.network.server</key>
-  <true/>
-<key>com.apple.security.app-sandbox</key>
-  <false/>
-```
+如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
+所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
+
+### Windows
+
+使用 MSI 更新时，请在 `enclosure` 中填写已签名 `.msi` 文件的直接下载地址。
+先在装有旧版本的机器上从资源管理器运行同一安装包，确认能升级现有安装。
+如只需显示安装进度和错误，可在 `enclosure` 中添加
+`sparkle:installerArguments="/passive"`。
+[WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
+
+WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
+`onUpdaterBeforeQuitForUpdate` 保存应用状态。macOS 上的 Sparkle 还会在下载完成时
+触发 `onUpdaterUpdateDownloaded`。
