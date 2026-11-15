@@ -47,6 +47,7 @@ English | [简体中文](./README-ZH.md)
 - [Quick Start](https://leanflutter.dev/documentation/auto_updater/quick-start)
 - [API Reference](https://pub.dev/documentation/auto_updater/latest/auto_updater/)
 - [Changelog](https://pub.dev/packages/auto_updater/changelog)
+- Dart FFI bindings: [Sparkle for macOS](./packages/sparkle) and [WinSparkle for Windows](./packages/winsparkle)
 
 ## Who's using it?
 

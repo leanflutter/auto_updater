@@ -1,0 +1,21 @@
+name: sparkle
+description: Dart FFI bindings for the Sparkle update framework on macOS.
+version: 0.1.0
+repository: https://github.com/leanflutter/auto_updater/tree/main/packages/sparkle
+
+platforms:
+  macos:
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  code_assets: ^2.0.0
+  ffi: ^2.2.0
+  hooks: ^2.0.0
+  native_toolchain_c: ^0.19.6
+  objective_c: ^9.6.2
+
+dev_dependencies:
+  ffigen: 23.0.0
+  mostly_reasonable_lints: ^0.1.2

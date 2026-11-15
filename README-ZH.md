@@ -47,6 +47,7 @@
 - [快速开始](https://leanflutter.dev/zh/documentation/auto_updater/quick-start)
 - [API 参考](https://pub.dev/documentation/auto_updater/latest/auto_updater/)
 - [更新日志](https://pub.dev/packages/auto_updater/changelog)
+- Dart FFI 绑定：[macOS 的 Sparkle](./packages/sparkle)和 [Windows 的 WinSparkle](./packages/winsparkle)
 
 ## 谁在用使用它？
 
