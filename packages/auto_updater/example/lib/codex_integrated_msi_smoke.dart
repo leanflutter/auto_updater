@@ -7,6 +7,7 @@ import 'package:auto_updater/auto_updater.dart';
 // ignore: depend_on_referenced_packages
 import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart';
+// ignore: depend_on_referenced_packages
 import 'package:winsparkle/winsparkle.dart';
 
 const _token = 'token=a%2Fb%2B+c';
@@ -18,8 +19,9 @@ class _Probe with UpdaterListener {
 
   @override
   void onUpdaterError(UpdaterError? error) {
-    if (!completed.isCompleted)
-      completed.completeError(error ?? 'Native error');
+    if (!completed.isCompleted) {
+      completed.completeError(error ?? StateError('Native error'));
+    }
   }
 
   @override
@@ -85,21 +87,17 @@ Future<void> main() async {
     );
     final origin = 'http://127.0.0.1:${endpoint.port}';
     final requests = <String>[];
+    final denied = <String>[];
     endpoint.listen((request) async {
       final response = request.response;
       if (request.headers.value(HttpHeaders.authorizationHeader) != _auth) {
+        denied.add(request.uri.path);
         response.statusCode = HttpStatus.unauthorized;
         await response.close();
         return;
       }
       requests.add(request.uri.toString());
       switch (request.uri.path) {
-        case '/redirect':
-          response.statusCode = HttpStatus.found;
-          response.headers.set(
-            HttpHeaders.locationHeader,
-            '/feeds/releases/appcast.xml',
-          );
         case '/installer/update.msi':
           if (request.uri.query != _token) {
             response.statusCode = HttpStatus.badRequest;
@@ -149,26 +147,32 @@ length="${installer.lengthSync()}" type="application/x-msi" />
     final probe = _Probe();
     autoUpdater.addListener(probe);
     await autoUpdater.setHttpHeaders({'Authorization': _auth});
-    await autoUpdater.setFeedURL('$origin/redirect');
+    await autoUpdater.setFeedURL('$origin/feeds/releases/appcast.xml');
     final before = DateTime.now().toUtc().subtract(const Duration(seconds: 2));
     final finished = probe.completed.future.timeout(
       const Duration(seconds: 40),
     );
     await autoUpdater.checkForUpdatesAndInstall();
-    await finished;
+    try {
+      await finished;
+    } catch (error) {
+      throw StateError(
+        '$error. Authorized paths $requests. Rejected paths $denied.',
+      );
+    }
     final checked = await autoUpdater.getLastCheckTime();
     if (checked == null || checked.isBefore(before)) {
       throw StateError('No recent update check time. Received: $checked');
     }
     if (probe.events.join(',') != 'available,downloaded,shutdown' ||
         requests.join(',') !=
-            '/redirect,/feeds/releases/appcast.xml,/installer/update.msi?$_token') {
+            '/feeds/releases/appcast.xml,/installer/update.msi?$_token') {
       throw StateError(
         'Unexpected events ${probe.events} or requests $requests',
       );
     }
     result.writeAsStringSync(
-      'The authenticated feed redirected, WinSparkle verified its relative signed MSI, '
+      'WinSparkle fetched the authenticated feed and verified its relative signed MSI, '
       'and Flutter received ${probe.events} events. Last check: $checked.',
     );
     await endpoint.close(force: true);

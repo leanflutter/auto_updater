@@ -43,6 +43,8 @@ jobs:
           dart run tool/smoke_test.dart $dll
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dart run tool/relative_enclosure_smoke.dart $dll
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dart run tool/verify_redirect_headers.dart $dll
 
 
   flutter-msi:
