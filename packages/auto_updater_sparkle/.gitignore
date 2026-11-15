@@ -30,3 +30,4 @@ build/
 
 # Swift Package Manager
 .build/
+/macos/auto_updater_sparkle/Package.resolved
