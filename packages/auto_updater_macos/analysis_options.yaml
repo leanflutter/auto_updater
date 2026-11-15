@@ -1,5 +1,6 @@
+include: package:flutter_lints/flutter.yaml
+
 analyzer:
   exclude:
     - build/**
     - macos/**
-include: package:mostly_reasonable_lints/analysis_options.yaml

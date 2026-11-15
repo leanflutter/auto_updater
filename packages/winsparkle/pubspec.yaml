@@ -12,4 +12,4 @@ environment:
 dev_dependencies:
   ffi: ^2.2.0
   ffigen: 23.0.0
-  mostly_reasonable_lints: ^0.1.2
+  flutter_lints: ^6.0.0

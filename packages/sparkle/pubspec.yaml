@@ -18,4 +18,4 @@ dependencies:
 
 dev_dependencies:
   ffigen: 23.0.0
-  mostly_reasonable_lints: ^0.1.2
+  flutter_lints: ^6.0.0
