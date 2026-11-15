@@ -342,15 +342,58 @@ or backend. The standard update dialogs control the update flow. For a custom
 macOS dialog, a platform implementation can supply a Sparkle `SPUUserDriver`.
 [Sparkle custom user interfaces](https://sparkle-project.org/documentation/custom-user-interfaces/)
 
+### Update offered but download fails
+
+From an affected machine, download the enclosure URL and verify that the
+response contains the installer archive. Check that redirects end at a valid
+HTTPS URL with a certificate trusted by that machine. Verify that the
+appcast's signature was generated from the exact bytes being served and that
+the installed app has the matching public key.
+
 ### macOS
 
-- Make sure you have added and enabled network capabilties of your app and disabled the sandbox for release by adding the following to your entitlement files for debug and release
+Await `setFeedURL` and log any exception from it. Sparkle reports configuration
+errors during startup, including an invalid `SUPublicEDKey` or missing
+entitlements. After `setFeedURL` and any scheduled interval setting complete,
+you can call `checkForUpdates()` immediately. Use
+`UpdaterListener.onUpdaterError` for errors reported during update checks.
+When debugging a release build, verify that the exported
+`.app` contains `Contents/Frameworks/Sparkle.framework` and that the exported
+app's `Info.plist` contains the expected update configuration.
 
-```
-<key>com.apple.security.network.client</key>
-  <true/>
-<key>com.apple.security.network.server</key>
-  <true/>
-<key>com.apple.security.app-sandbox</key>
-  <false/>
-```
+For a sandboxed app, enable Sparkle's installer XPC service and add the
+entitlements required by Sparkle to the release configuration.
+[Sparkle sandboxing guide](https://sparkle-project.org/documentation/sandboxing/)
+
+If Sparkle's standard update dialog has slipped behind other windows, a
+user-initiated `checkForUpdates()` brings the existing dialog back into focus.
+[Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+To change an installed `.app` filename during an update, the installed version
+must already use Sparkle built with `SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1`
+and set `SUBundleName` to the new name. The prebuilt SwiftPM framework keeps
+the existing file path. To use normalization, build Sparkle itself with that
+setting and include that framework in the app before rolling out the rename.
+[Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+### Windows
+
+For MSI updates, publish a direct link to the signed `.msi` in the enclosure.
+Run the same installer from Explorer on a machine with the old version to
+verify that it upgrades the existing installation. To show only progress and
+errors, add `sparkle:installerArguments="/passive"` to the enclosure.
+[WinSparkle installer arguments](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
+
+WinSparkle controls downloading and running the installer.
+Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
+shutdown. Windows Installer continues running after the app exits. If the
+upgrade fails, add `/l*v` and a writable log path to
+`sparkle:installerArguments` for a test run, then inspect the Windows
+Installer log.
+[Windows Installer command-line options](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
+
+WinSparkle's update dialog reads a single release-notes URL per item. To
+localize the notes, serve one appcast per supported locale, each with a single
+`<sparkle:releaseNotesLink>` for that locale. Choose the feed in the app before
+calling `setFeedURL`.
+[WinSparkle appcast parser](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

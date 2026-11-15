@@ -9,7 +9,11 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
     final platform = AutoUpdaterSparkle();
     AutoUpdaterPlatform.instance = platform;
     // Start at registration so Sparkle can schedule checks from Info.plist.
-    autoReleasePool(platform._start);
+    try {
+      autoReleasePool(platform._start);
+    } on NSErrorException {
+      // An explicit setFeedURL call retries startup and reports the error.
+    }
   }
 
   final _events = StreamController<Map<Object?, Object?>>.broadcast();
@@ -61,11 +65,7 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
 
   void _start() {
     if (_started) return;
-    try {
-      _started = _updater.startUpdater();
-    } on NSErrorException {
-      // The host can still supply a feed later through setFeedURL.
-    }
+    _started = _updater.startUpdater();
   }
 
   @override

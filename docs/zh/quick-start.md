@@ -334,15 +334,49 @@ Sparkle 也会隐藏「稍后提醒我」。
 提供 Sparkle `SPUUserDriver`。
 [Sparkle 自定义界面文档](https://sparkle-project.org/documentation/custom-user-interfaces/)
 
+### 找到更新但无法下载
+
+在出现问题的机器上下载 `enclosure` 中的 URL，确认响应是安装包文件。
+如果 URL 有重定向，请检查最终的 HTTPS 地址和证书是否受到该机器信任。
+确认 appcast 中的签名由实际提供下载的文件生成，并检查已安装应用的公钥是否匹配。
+
 ### macOS
 
-- 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
+等待 `setFeedURL` 完成，并记录它抛出的异常。Sparkle 会报告启动时的配置错误，
+例如无效的 `SUPublicEDKey` 或缺失的授权。设置好 feed 和所需的检查间隔后，
+可以立即调用 `checkForUpdates()`。检查更新期间的错误可通过
+`UpdaterListener.onUpdaterError` 获取。排查 release 版本时，请确认导出的
+`.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
+`Info.plist` 是否包含预期的更新配置。
 
-```
-<key>com.apple.security.network.client</key>
-  <true/>
-<key>com.apple.security.network.server</key>
-  <true/>
-<key>com.apple.security.app-sandbox</key>
-  <false/>
-```
+如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
+所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
+
+如果 Sparkle 的标准更新窗口被其他窗口遮挡，用户可以再次点击「检查更新」。
+前台 `checkForUpdates()` 会将已有的更新窗口带到前台。
+[Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+如需在更新时更改已安装的 `.app` 文件名，旧版应用需提前使用启用了
+`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1` 的 Sparkle，并将
+`SUBundleName` 设为新名称。SwiftPM 提供的预编译 framework 会保留原路径。
+若需启用重命名，请使用该设置构建 Sparkle，并在发布改名版本之前将自定义 framework
+随应用发布。[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+### Windows
+
+使用 MSI 更新时，请在 `enclosure` 中填写已签名 `.msi` 文件的直接下载地址。
+先在装有旧版本的机器上从资源管理器运行同一安装包，确认能升级现有安装。
+如只需显示安装进度和错误，可在 `enclosure` 中添加
+`sparkle:installerArguments="/passive"`。
+[WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
+
+WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
+`onUpdaterBeforeQuitForUpdate` 保存应用状态。应用退出后，Windows Installer 会
+继续运行。如果升级失败，可在测试时通过 `sparkle:installerArguments` 传入
+`/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
+[Windows Installer 命令行选项](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
+
+WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
+语言提供一份 appcast，每个更新项只放一个对应语言的
+`<sparkle:releaseNotesLink>`。在应用内选好对应语言的 feed，再调用 `setFeedURL`。
+[WinSparkle appcast 解析器](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

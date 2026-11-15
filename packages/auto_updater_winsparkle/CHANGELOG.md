@@ -1,3 +1,8 @@
+## Unreleased
+
+* Send WinSparkle callback events through a Dart native port to avoid
+  platform-thread warnings from the legacy event channel.
+
 ## 1.0.0
 
 * First major release.
