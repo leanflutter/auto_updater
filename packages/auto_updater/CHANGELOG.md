@@ -6,6 +6,7 @@
 * Support the Sparkle signing tools when macOS apps use SwiftPM.
 * Add `checkForUpdatesAndInstall()` to start a Windows update without a
   separate confirmation prompt.
+* Keep Sparkle's update scheduler running after it prepares an automatic update.
 
 ## 1.0.0
 

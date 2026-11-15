@@ -73,8 +73,9 @@ void main() async {
 
 On macOS, set `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to
 `true` in `macos/Runner/Info.plist` to enable background checks and automatic
-installation by default. Sparkle may still ask for authorization to install
-an update. [Sparkle settings](https://sparkle-project.org/documentation/customization/)
+downloads by default. Sparkle installs eligible app updates when the app quits.
+It may present critical updates earlier or ask for installation authorization.
+[Sparkle settings](https://sparkle-project.org/documentation/customization/)
 
 On Windows, call `await autoUpdater.checkForUpdatesAndInstall()` after setting
 the feed. WinSparkle shows progress and starts installing an available update

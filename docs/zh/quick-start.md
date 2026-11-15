@@ -70,8 +70,9 @@ void main() async {
 ### 自动安装更新
 
 在 macOS 上，将 `macos/Runner/Info.plist` 中的 `SUEnableAutomaticChecks`
-和 `SUAutomaticallyUpdate` 设置为 `true`，即可默认启用后台检查和自动安装。
-安装更新时，Sparkle 仍可能要求系统授权。
+和 `SUAutomaticallyUpdate` 设置为 `true`，即可默认启用后台检查和自动下载。
+对于符合条件的应用更新，Sparkle 会在应用退出时安装。关键更新可能提前提示，
+安装也可能需要系统授权。
 [Sparkle 配置文档](https://sparkle-project.org/documentation/customization/)
 
 在 Windows 上，设置 feed 后调用
