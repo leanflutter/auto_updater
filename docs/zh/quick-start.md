@@ -301,11 +301,23 @@ serve -l 5002
 前台 `checkForUpdates()` 会将已有的更新窗口带到前台。
 [Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
-如需在更新时更改已安装的 `.app` 文件名，旧版应用需提前使用启用了
-`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1` 的 Sparkle，并将
-`SUBundleName` 设为新名称。SwiftPM 提供的预编译 framework 会保留原路径。
-若需启用重命名，请使用该设置构建 Sparkle，并在发布改名版本之前将自定义 framework
-随应用发布。[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+SwiftPM 提供的预编译 framework 会保留已安装应用的 `.app` 文件名。
+如需启用重命名，请检出插件 `Package.swift` 固定的 Sparkle 版本，并在 Sparkle 源码目录运行以下命令。
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
+```
+
+打包 Flutter release 应用时，将 `Contents/Frameworks/Sparkle.framework` 整个替换为
+`Sparkle.xcarchive/Products/Library/Frameworks/` 下构建出的 framework。
+使用 `ditto` 保留符号链接，再按常规流程签名应用。
+
+先发布一个保留旧文件名的版本，随包提供自定义 framework，并在该版本的
+`Info.plist` 中将 `SUBundleName` 设为新名称。之后再发布使用同一 bundle identifier 的改名版本。
+Sparkle 会从已安装的应用读取名称，并在新路径可用时使用新文件名。
+[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
 
 ### Windows
 

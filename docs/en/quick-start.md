@@ -309,11 +309,24 @@ If Sparkle's standard update dialog has slipped behind other windows, a
 user-initiated `checkForUpdates()` brings the existing dialog back into focus.
 [Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
-To change an installed `.app` filename during an update, the installed version
-must already use Sparkle built with `SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1`
-and set `SUBundleName` to the new name. The prebuilt SwiftPM framework keeps
-the existing file path. To use normalization, build Sparkle itself with that
-setting and include that framework in the app before rolling out the rename.
+The prebuilt SwiftPM framework preserves the installed `.app` filename. To
+enable renaming, check out the Sparkle version pinned in the plugin's
+`Package.swift` and run this command from that Sparkle checkout.
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
+```
+
+In the staged Flutter release app, replace `Contents/Frameworks/Sparkle.framework`
+with the entire framework from `Sparkle.xcarchive/Products/Library/Frameworks/`.
+Use `ditto` to preserve its symlinks and sign the app after staging.
+
+Ship this framework in a release that keeps the old filename and sets
+`SUBundleName` to the new name in that release's `Info.plist`. Then publish
+the renamed update with the same bundle identifier. Sparkle reads the name
+from the installed app and uses the new filename when that path is available.
 [Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
 
 ### Windows
