@@ -373,8 +373,9 @@ Sparkle 也会隐藏「稍后提醒我」。
 `.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
 `Info.plist` 是否包含预期的更新配置。
 
-如果更新窗口只显示通用的下载错误，请在「控制台」应用中查看 Sparkle 类别的日志。
-原生日志可能包含实际的 HTTP 状态码或签名校验失败原因。分享日志前，请删去 URL 中的令牌。
+如果 Sparkle 提供了 HTTP 状态码或底层原生错误码，`onUpdaterError` 会一并返回。
+若需查看更详细的签名或安装信息，请在「控制台」应用中查看 Sparkle 类别的日志。
+分享日志前，请删去 URL 中的令牌。
 
 如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
 所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
