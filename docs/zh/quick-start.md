@@ -67,6 +67,19 @@ void main() async {
 
 > 请看这个插件的示例应用，以了解完整的例子。
 
+### 自动安装更新
+
+在 macOS 上，将 `macos/Runner/Info.plist` 中的 `SUEnableAutomaticChecks`
+和 `SUAutomaticallyUpdate` 设置为 `true`，即可默认启用后台检查和自动下载。
+对于符合条件的应用更新，Sparkle 会在应用退出时安装。关键更新可能提前提示，
+安装也可能需要系统授权。
+[Sparkle 配置文档](https://sparkle-project.org/documentation/customization/)
+
+在 Windows 上，设置 feed 后调用
+`await autoUpdater.checkForUpdatesAndInstall()`。WinSparkle 会显示进度，
+并在发现新版本时直接开始安装，跳过 WinSparkle 的确认对话框。安装器界面和
+Windows 授权提示由安装器和系统控制。
+
 ## 发布你的应用
 
 ### 生成私钥

@@ -88,6 +88,14 @@ class AutoUpdater {
     return _platform.checkForUpdates(inBackground: inBackground);
   }
 
+  /// On Windows, checks for and installs an update with progress UI.
+  ///
+  /// Call [setFeedURL] first. WinSparkle skips its update confirmation prompt.
+  /// The return value indicates only that the check has been started.
+  Future<void> checkForUpdatesAndInstall() {
+    return _platform.checkForUpdatesAndInstall();
+  }
+
   /// Sets the auto update check interval, default 86400, minimum 3600, 0 to disable update
   Future<void> setScheduledCheckInterval(int interval) {
     return _platform.setScheduledCheckInterval(interval);
