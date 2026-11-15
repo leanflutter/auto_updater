@@ -32,6 +32,7 @@ try {
         Invoke-BuildCommand git @('submodule', 'update', '--init', '--recursive', '--depth', '1')
         Invoke-BuildCommand git @('apply', (Join-Path $PSScriptRoot 'resolve-relative-enclosures.patch'))
         Invoke-BuildCommand git @('apply', (Join-Path $PSScriptRoot 'notify-download-completion.patch'))
+        Invoke-BuildCommand git @('apply', (Join-Path $PSScriptRoot 'own-update-dialog.patch'))
         Invoke-BuildCommand nuget @('restore', 'WinSparkle.sln', '-NonInteractive')
         Invoke-BuildCommand msbuild @('-m', '-t:Build', '-p:Configuration=Release',
             "-p:Platform=$Architecture", 'WinSparkle.sln')
