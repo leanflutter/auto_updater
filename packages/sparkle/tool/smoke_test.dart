@@ -9,7 +9,7 @@ void main(List<String> args) {
   }
 
   final bindings = loadSparkle(path: args.single);
-  if (bindings.SUSparkleErrorDomain.toString().isEmpty) {
+  if (bindings.SUSparkleErrorDomain.toDartString().isEmpty) {
     throw StateError('The Sparkle error domain is empty.');
   }
 

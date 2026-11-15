@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
-
 import 'src/sparkle.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -15,18 +13,7 @@ Future<void> main(List<String> arguments) async {
           'generate_keys',
           binDirectory: Platform.environment['SPARKLE_BIN_DIR'],
         )
-      : p.joinAll([
-          Directory.current.path,
-          'windows',
-          'flutter',
-          'ephemeral',
-          '.plugin_symlinks',
-          'auto_updater_windows',
-          'windows',
-          'WinSparkle-0.8.1',
-          'bin',
-          'generate_keys.bat',
-        ]);
+      : findWinSparkleTool('generate_keys');
 
   Process process = await Process.start(executable, arguments);
 

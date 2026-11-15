@@ -19,14 +19,14 @@ class WinSparkle {
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
 
-  /// Checks if an update is available, showing progress UI to the user.
+  /// Checks if an update is available, showing a progress UI to the user.
   ///
   /// Normally, WinSparkle checks for updates on startup and only shows its UI
   /// when it finds an update. If the application disables this behavior, it
-  /// can hook this function to "Check for updates..." menu item.
+  /// can hook this function to a "Check for updates..." menu item.
   ///
-  /// When called, background thread is started to check for updates. A small
-  /// window is shown to let the user know the progress. If no update is found,
+  /// When called, a background thread is started to check for updates. A small
+  /// window is shown to let the user know about the progress. If no update is found,
   /// the user is told so. If there is an update, the usual "update available"
   /// window is shown.
   ///
@@ -48,15 +48,15 @@ class WinSparkle {
   late final _win_sparkle_check_update_with_ui =
       _win_sparkle_check_update_with_uiPtr.asFunction<void Function()>();
 
-  /// Checks if an update is available, showing progress UI to the user and
+  /// Checks if an update is available, showing a progress UI to the user and
   /// immediately installing the update if one is available.
   ///
   /// This is useful for the case when users should almost always use the
   /// newest version of your software. When called, WinSparkle will check for
-  /// updates showing a progress UI to the user. If an update is found the update
+  /// updates while showing a progress UI to the user. If an update is found, the update
   /// prompt will be skipped and the update will be installed immediately.
   ///
-  /// If your application expects to do something after checking for updates you
+  /// If your application expects to do something after checking for updates, you
   /// may wish to use win_sparkle_set_did_not_find_update_callback() and
   /// win_sparkle_set_update_cancelled_callback().
   ///
@@ -83,7 +83,7 @@ class WinSparkle {
   /// is *not* completely UI-less.
   ///
   /// Use with caution, it usually makes more sense to use the automatic update
-  /// checks on interval option or manual check with visible UI.
+  /// checks or a manual check with visible UI.
   ///
   /// This function returns immediately.
   ///
@@ -133,7 +133,7 @@ class WinSparkle {
   late final _win_sparkle_clear_http_headers =
       _win_sparkle_clear_http_headersPtr.asFunction<void Function()>();
 
-  /// Gets the automatic update checking state
+  /// Gets the automatic update checking state.
   ///
   /// @return  1 if updates are set to be checked automatically, 0 otherwise
   ///
@@ -152,7 +152,7 @@ class WinSparkle {
       _win_sparkle_get_automatic_check_for_updatesPtr
           .asFunction<int Function()>();
 
-  /// Gets the time for the last update check.
+  /// Gets the time of the last update check.
   ///
   /// Default value is -1, indicating that the update check has never run.
   ///
@@ -191,7 +191,7 @@ class WinSparkle {
   /// is initialized and shows its main window.
   ///
   /// @note This call doesn't block and returns almost immediately. If an
-  /// update is available, the respective UI is shown later from a separate
+  /// update is available, the corresponding UI is shown later from a separate
   /// thread.
   ///
   /// @see win_sparkle_cleanup()
@@ -207,13 +207,13 @@ class WinSparkle {
   /// Sets application build version number.
   ///
   /// This is the internal version number that is not normally shown to the user.
-  /// It can be used for finer granularity that official release versions, e.g. for
+  /// It can be used for finer granularity than official release versions, e.g. for
   /// interim builds.
   ///
   /// If this function is called, then the provided *build* number is used for comparing
   /// versions; it is compared to the "version" attribute in the appcast and corresponds
-  /// to OS X Sparkle's CFBundleVersion handling. If used, then the appcast must
-  /// also contain the "shortVersionString" attribute with human-readable display
+  /// to macOS Sparkle's CFBundleVersion handling. If used, then the appcast must
+  /// also contain the "shortVersionString" attribute with a human-readable display
   /// version string. The version passed to win_sparkle_set_app_details()
   /// corresponds to this and is used for display.
   ///
@@ -241,10 +241,10 @@ class WinSparkle {
   /// @param company_name  Company name of the vendor.
   /// @param app_name      Application name. This is both shown to the user
   /// and used in HTTP User-Agent header.
-  /// @param app_version   Version of the app, as string (e.g. "1.2" or "1.2rc1").
+  /// @param app_version   Version of the app, as a string (e.g. "1.2" or "1.2rc1").
   ///
   /// @note @a company_name and @a app_name are used to determine the location
-  /// of WinSparkle settings in registry.
+  /// of WinSparkle settings in the registry.
   /// (HKCU\Software\<company_name>\<app_name>\WinSparkle is used.)
   ///
   /// @since 0.3
@@ -322,7 +322,7 @@ class WinSparkle {
       _win_sparkle_set_automatic_check_for_updatesPtr
           .asFunction<void Function(int)>();
 
-  /// Set callback for querying the application if it can be closed.
+  /// Sets a callback for querying the application if it can be closed.
   ///
   /// This callback will be called to ask the host if it's ready to shut down,
   /// before attempting to launch the installer. The callback returns TRUE if
@@ -355,19 +355,18 @@ class WinSparkle {
   /// Override WinSparkle's configuration read, write and delete functions.
   ///
   /// By default, WinSparkle will read, write and delete configuration values by
-  /// interacting directly with Windows Registry.
-  /// If you want to manage configuration by yourself, or if you don't want let WinSparkle
+  /// interacting directly with the Windows Registry.
+  /// If you want to manage configuration yourself, or if you don't want to let WinSparkle
   /// write settings directly to the Windows Registry, you can provide your own functions
   /// to read, write and delete configuration.
   ///
-  /// These functions needs to return TRUE on success, FALSE on failure.
-  /// If you passed NULL as a configuration action (read, write or delete)'s function pointer,
+  /// If any configuration action's function pointer (read, write or delete) is NULL,
   /// WinSparkle will use the default function for that action.
   ///
   /// @param config_methods  Your own configuration read, write and delete functions.
   /// Pass NULL to let WinSparkle continue to use its default functions.
   ///
-  /// @note There's no guarantee about the thread from which these functions are called,
+  /// @note There's no guarantee about the thread from which these functions are called.
   /// Make sure your functions are thread-safe.
   ///
   /// @since 0.7
@@ -389,7 +388,7 @@ class WinSparkle {
             void Function(ffi.Pointer<win_sparkle_config_methods_t>)
           >();
 
-  /// Set callback to be called when the updater did find an update.
+  /// Sets a callback to be called when the updater finds an update.
   ///
   /// This is useful in combination with
   /// win_sparkle_check_update_with_ui_and_install() as it allows you to perform
@@ -415,7 +414,7 @@ class WinSparkle {
       _win_sparkle_set_did_find_update_callbackPtr
           .asFunction<void Function(win_sparkle_did_find_update_callback_t)>();
 
-  /// Set callback to be called when the updater did not find an update.
+  /// Sets a callback to be called when the updater does not find an update.
   ///
   /// This is useful in combination with
   /// win_sparkle_check_update_with_ui_and_install() as it allows you to perform
@@ -448,16 +447,26 @@ class WinSparkle {
   /// Only PEM format is supported.
   ///
   /// Public key will be used to verify DSA signature of the update file.
-  /// PEM data will be set only if it contains valid DSA public key.
+  /// PEM data will be set only if it contains a valid DSA public key.
   ///
   /// If this function isn't called by the app, public key is obtained from
   /// Windows resource named "DSAPub" of type "DSAPEM".
   ///
+  /// @deprecated
+  /// DSA signatures are deprecated and will be removed in a future version.
+  /// Migrate over to EdDSA (ed25519), see
+  /// https://github.com/vslavik/winsparkle/wiki/Upgrading-from-DSA-to-EdDSA-signatures
+  ///
   /// @param dsa_pub_pem  DSA public key in PEM format.
   ///
-  /// @return  1 if valid DSA public key provided, 0 otherwise.
+  /// @return  1 if a valid DSA public key is provided, 0 otherwise.
   ///
   /// @since 0.6.0
+  ///
+  /// @see win_sparkle_set_eddsa_public_key()
+  @Deprecated(
+    'deprecated: use EdDSA signatures and win_sparkle_set_eddsa_public_key() instead',
+  )
   int win_sparkle_set_dsa_pub_pem(ffi.Pointer<ffi.Char> dsa_pub_pem) {
     return _win_sparkle_set_dsa_pub_pem(dsa_pub_pem);
   }
@@ -469,7 +478,38 @@ class WinSparkle {
   late final _win_sparkle_set_dsa_pub_pem = _win_sparkle_set_dsa_pub_pemPtr
       .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Set callback to be called when the updater encounters an error.
+  /// Sets EdDSA public key.
+  ///
+  /// Only base64-encoded format is supported.
+  ///
+  /// Public key will be used to verify EdDSA signature of the update file.
+  /// It will be set only if it contains a valid EdDSA public key.
+  ///
+  /// If this function isn't called by the app, public key is obtained from
+  /// Windows resource named "EdDSAPub" of type "EDDSA".
+  ///
+  /// @note
+  /// If this function is called, DSA public key set with win_sparkle_set_dsa_pub_pem()
+  /// or present in the resources will be ignored; so will DSA signatures in the appcast.
+  ///
+  /// @param pubkey  EdDSA public key in base64 encoded format.
+  ///
+  /// @return  1 if a valid EdDSA public key is provided, 0 otherwise.
+  ///
+  /// @since 0.9.0
+  int win_sparkle_set_eddsa_public_key(ffi.Pointer<ffi.Char> pubkey) {
+    return _win_sparkle_set_eddsa_public_key(pubkey);
+  }
+
+  late final _win_sparkle_set_eddsa_public_keyPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Char>)>>(
+        'win_sparkle_set_eddsa_public_key',
+      );
+  late final _win_sparkle_set_eddsa_public_key =
+      _win_sparkle_set_eddsa_public_keyPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Sets a callback to be called when the updater encounters an error.
   ///
   /// @since 0.5
   void win_sparkle_set_error_callback(win_sparkle_error_callback_t callback) {
@@ -484,7 +524,7 @@ class WinSparkle {
       _win_sparkle_set_error_callbackPtr
           .asFunction<void Function(win_sparkle_error_callback_t)>();
 
-  /// Set custom HTTP header for appcast checks.
+  /// Sets a custom HTTP header for appcast checks and update downloads.
   ///
   /// @since 0.7
   ///
@@ -511,7 +551,7 @@ class WinSparkle {
   ///
   /// This function must be called before win_sparkle_init().
   ///
-  /// @param lang ISO 639 language code with an optional ISO 3116 country
+  /// @param lang ISO 639 language code with an optional ISO 3166 country
   /// code, e.g. "fr", "pt-PT", "pt-BR" or "pt_BR", as used
   /// e.g. by ::GetThreadPreferredUILanguages() too.
   ///
@@ -550,7 +590,7 @@ class WinSparkle {
   late final _win_sparkle_set_langid = _win_sparkle_set_langidPtr
       .asFunction<void Function(int)>();
 
-  /// Set the registry path where settings will be stored.
+  /// Sets the registry path where settings will be stored.
   ///
   /// Normally, these are stored in
   /// "HKCU\Software\<company_name>\<app_name>\WinSparkle"
@@ -577,7 +617,7 @@ class WinSparkle {
   late final _win_sparkle_set_registry_path = _win_sparkle_set_registry_pathPtr
       .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Set callback for shutting down the application.
+  /// Sets a callback for shutting down the application.
   ///
   /// This callback will be called to ask the host to shut down immediately after
   /// launching the installer. Its implementation should gracefully terminate the
@@ -609,7 +649,9 @@ class WinSparkle {
       _win_sparkle_set_shutdown_request_callbackPtr
           .asFunction<void Function(win_sparkle_shutdown_request_callback_t)>();
 
-  /// Set callback to be called when the user cancels a download.
+  /// Sets a callback to be called when the user cancels an update, e.g.
+  /// by closing the window, skipping an update or cancelling a download.
+  /// This callback is not called when there's no update to install or an error occurs.
   ///
   /// This is useful in combination with
   /// win_sparkle_check_update_with_ui_and_install() as it allows you to perform
@@ -617,7 +659,7 @@ class WinSparkle {
   ///
   /// @since 0.5
   ///
-  /// @see win_sparkle_check_update_with_ui_and_install()
+  /// @see win_sparkle_check_update_with_ui_and_install(), win_sparkle_set_update_dismissed_callback()
   void win_sparkle_set_update_cancelled_callback(
     win_sparkle_update_cancelled_callback_t callback,
   ) {
@@ -652,15 +694,17 @@ class WinSparkle {
       _win_sparkle_set_update_check_intervalPtr
           .asFunction<void Function(int)>();
 
-  /// Set callback to be called when the user dismisses
-  /// (closes) update dialog.
+  /// Sets a callback to be called when the user dismisses
+  /// (closes) the update dialog, including when there were no updates or an error occurred.
+  /// See win_sparkle_set_update_cancelled_callback() for a subtly different callback
+  /// that may be more appropriate.
   ///
   /// This is useful in combination with
-  /// win_sparkle_check_update_with_ui() or similar as it
+  /// win_sparkle_check_update_with_ui() or similar functions, as it
   /// allows you to perform some action when the update
   /// dialog is closed.
   ///
-  /// @see win_sparkle_check_update_with_ui()
+  /// @see win_sparkle_check_update_with_ui(), win_sparkle_set_update_cancelled_callback()
   ///
   /// @since 0.8
   void win_sparkle_set_update_dismissed_callback(
@@ -679,11 +723,11 @@ class WinSparkle {
       _win_sparkle_set_update_dismissed_callbackPtr
           .asFunction<void Function(win_sparkle_update_dismissed_callback_t)>();
 
-  /// Set callback to be called when the user postpones an update
-  /// ( presses 'remind me later' button).
+  /// Sets a callback to be called when the user postpones an update
+  /// (by pressing the 'remind me later' button).
   ///
   /// This is useful in combination with
-  /// win_sparkle_check_update_with_ui() or similar as it
+  /// win_sparkle_check_update_with_ui() or similar functions, as it
   /// allows you to perform some action when the download
   /// is postponed.
   ///
@@ -706,10 +750,10 @@ class WinSparkle {
       _win_sparkle_set_update_postponed_callbackPtr
           .asFunction<void Function(win_sparkle_update_postponed_callback_t)>();
 
-  /// Set callback to be called when the user skips an update.
+  /// Sets a callback to be called when the user skips an update.
   ///
   /// This is useful in combination with
-  /// win_sparkle_check_update_with_ui() or similar as it
+  /// win_sparkle_check_update_with_ui() or similar functions, as it
   /// allows you to perform some action when the update
   /// is skipped.
   ///
@@ -732,13 +776,13 @@ class WinSparkle {
       _win_sparkle_set_update_skipped_callbackPtr
           .asFunction<void Function(win_sparkle_update_skipped_callback_t)>();
 
-  /// Set callback to be called when the update payload is
-  /// downloaded and read to be executed.or handled in some
+  /// Sets a callback to be called when the update payload is
+  /// downloaded and ready to be executed or handled in some
   /// other manner.
   ///
   /// The callback returns:
   /// - 1 if the file was handled by the callback
-  /// - 0 if it was not, in which case WinSparkle default handling will take place
+  /// - 0 if it was not, in which case WinSparkle's default handling will take place
   /// - WINSPARKLE_RETURN_ERROR in case of an error
   ///
   /// @since 0.8
@@ -765,11 +809,11 @@ const int WINSPARKLE_RETURN_ERROR = -1;
 
 const int WIN_SPARKLE_VERSION_MAJOR = 0;
 
-const int WIN_SPARKLE_VERSION_MICRO = 1;
+const int WIN_SPARKLE_VERSION_MICRO = 4;
 
-const int WIN_SPARKLE_VERSION_MINOR = 8;
+const int WIN_SPARKLE_VERSION_MINOR = 9;
 
-const String WIN_SPARKLE_VERSION_STRING = '0.8.1';
+const String WIN_SPARKLE_VERSION_STRING = '0.9.4';
 
 /// Callback type for win_sparkle_can_shutdown_callback()
 typedef win_sparkle_can_shutdown_callback_t =
@@ -780,9 +824,9 @@ typedef win_sparkle_can_shutdown_callback_tFunction = ffi.Int Function();
 typedef Dartwin_sparkle_can_shutdown_callback_tFunction = int Function();
 typedef win_sparkle_config_methods_t = win_sparkle_config_methods_tag;
 
-/// Type used to override WinSparkle configuration's read, write and delete functions
+/// Type used to override WinSparkle's configuration read, write and delete functions
 final class win_sparkle_config_methods_tag extends ffi.Struct {
-  /// Copy config value named @a name to the buffer pointed by @a buf, returns TRUE on success, FALSE on failure
+  /// Copies the config value named @a name to the buffer pointed to by @a buf; returns TRUE on success, FALSE on failure
   external ffi.Pointer<
     ffi.NativeFunction<
       ffi.Int Function(
@@ -795,7 +839,7 @@ final class win_sparkle_config_methods_tag extends ffi.Struct {
   >
   config_read;
 
-  /// Write @a value as config value @a name 's new value
+  /// Writes @a value as the new value of the config value named @a name
   external ffi.Pointer<
     ffi.NativeFunction<
       ffi.Void Function(
@@ -807,7 +851,7 @@ final class win_sparkle_config_methods_tag extends ffi.Struct {
   >
   config_write;
 
-  /// Delete config value named @a name
+  /// Deletes the config value named @a name
   external ffi.Pointer<
     ffi.NativeFunction<
       ffi.Void Function(
@@ -818,7 +862,7 @@ final class win_sparkle_config_methods_tag extends ffi.Struct {
   >
   config_delete;
 
-  /// Arbitrary data which will be passed to the above functions, WinSparkle will not read or alter it.
+  /// Arbitrary data that will be passed to the above functions; WinSparkle will not read or alter it.
   external ffi.Pointer<ffi.Void> user_data;
 
   static ffi.Pointer<win_sparkle_config_methods_tag> $allocate(

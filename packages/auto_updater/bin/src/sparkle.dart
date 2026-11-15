@@ -2,6 +2,19 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+String findWinSparkleTool(String name) => p.joinAll([
+  Directory.current.path,
+  'windows',
+  'flutter',
+  'ephemeral',
+  '.plugin_symlinks',
+  'auto_updater_windows',
+  'windows',
+  'WinSparkle-0.9.4',
+  'bin',
+  'legacy_$name.bat',
+]);
+
 String findSparkleTool(
   String name, {
   String? projectDirectory,

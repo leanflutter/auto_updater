@@ -1,6 +1,6 @@
 name: winsparkle
 description: Dart FFI bindings for the WinSparkle update library on Windows.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/leanflutter/auto_updater/tree/main/packages/winsparkle
 
 platforms:

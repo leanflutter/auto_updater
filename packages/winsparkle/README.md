@@ -1,11 +1,11 @@
 # winsparkle
 
 Dart FFI bindings for the [WinSparkle](https://winsparkle.org/) C API on
-Windows, generated from WinSparkle 0.8.1. The package exposes the native
+Windows, generated from WinSparkle 0.9.4. The package exposes the native
 functions, callback types, constants, and configuration struct.
 
 Ship the matching architecture of `WinSparkle.dll` from the
-[0.8.1 release](https://github.com/vslavik/winsparkle/releases/tag/v0.8.1)
+[0.9.4 release](https://github.com/vslavik/winsparkle/releases/tag/v0.9.4)
 beside the host application's executable. To load it from another location,
 pass its path explicitly.
 

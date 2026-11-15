@@ -17,18 +17,7 @@ SignUpdateResult signUpdate(List<String> args) {
           'sign_update',
           binDirectory: Platform.environment['SPARKLE_BIN_DIR'],
         )
-      : p.joinAll([
-          Directory.current.path,
-          'windows',
-          'flutter',
-          'ephemeral',
-          '.plugin_symlinks',
-          'auto_updater_windows',
-          'windows',
-          'WinSparkle-0.8.1',
-          'bin',
-          'sign_update.bat',
-        ]);
+      : findWinSparkleTool('sign_update');
   List<String> arguments = List<String>.from(args);
   if (Platform.isWindows) {
     if (arguments.length == 1) {

@@ -31,7 +31,7 @@ dependency_overrides:
 
 ### macOS 要求
 
-开发版本要求 Flutter 3.50、Dart 3.14 和 macOS 12 或更高版本。构建 macOS 应用时，Flutter 会通过 SwiftPM 解析 Sparkle。使用 CocoaPods 的项目也可以通过插件的 podspec 集成。
+开发版本要求 Flutter 3.50、Dart 3.14 和 macOS 12 或更高版本。请在 Flutter 中启用 Swift Package Manager，以便在构建 macOS 应用时打包 Sparkle 2.10.1。
 
 如果项目原先通过 CocoaPods 嵌入 Sparkle，切换到 SwiftPM 时请移除原有的 Sparkle 集成，避免 Xcode 重复打包同一个 framework。[Flutter 迁移指南](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 

@@ -8,9 +8,11 @@ environment:
   flutter: ">=3.50.0"
 
 dependencies:
+  auto_updater_platform_interface: ^1.0.0
+  ffi: ^2.2.0
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.0
+  winsparkle: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -22,4 +24,5 @@ flutter:
     implements: auto_updater
     platforms:
       windows:
-        pluginClass: AutoUpdaterWindowsPluginCApi
+        dartPluginClass: AutoUpdaterWindows
+        ffiPlugin: true

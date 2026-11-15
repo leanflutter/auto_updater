@@ -1,4 +1,3 @@
-import 'package:auto_updater_platform_interface/src/auto_updater_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 abstract class AutoUpdaterPlatform extends PlatformInterface {
@@ -7,11 +6,11 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static AutoUpdaterPlatform _instance = MethodChannelAutoUpdater();
+  static AutoUpdaterPlatform _instance = _UnsupportedAutoUpdater();
 
   /// The default instance of [AutoUpdaterPlatform] to use.
   ///
-  /// Defaults to [MethodChannelAutoUpdater].
+  /// Set by the registered platform implementation.
   static AutoUpdaterPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
@@ -42,4 +41,9 @@ abstract class AutoUpdaterPlatform extends PlatformInterface {
       'setScheduledCheckInterval() has not been implemented.',
     );
   }
+}
+
+class _UnsupportedAutoUpdater extends AutoUpdaterPlatform {
+  @override
+  Stream<Map<Object?, Object?>> get sparkleEvents => const Stream.empty();
 }

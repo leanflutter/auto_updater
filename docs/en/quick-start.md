@@ -31,7 +31,7 @@ dependency_overrides:
 
 ### macOS requirements
 
-The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. Flutter resolves Sparkle through SwiftPM when building the macOS app. For a project that uses CocoaPods, the plugin also provides a podspec.
+The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. Enable Swift Package Manager in Flutter to bundle Sparkle 2.10.1 when building the macOS app.
 
 If an existing project embeds Sparkle through CocoaPods, remove that CocoaPods integration as part of switching to SwiftPM so Xcode embeds a single copy. [Flutter’s migration guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 

@@ -8,9 +8,11 @@ environment:
   flutter: ">=3.50.0"
 
 dependencies:
+  auto_updater_platform_interface: ^1.0.0
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.0
+  objective_c: ^9.6.2
+  sparkle: ^0.1.0
 
 dev_dependencies:
   flutter_test:
@@ -22,5 +24,6 @@ flutter:
     implements: auto_updater
     platforms:
       macos:
-        pluginClass: AutoUpdaterMacosPlugin
+        dartPluginClass: AutoUpdaterMacos
+        ffiPlugin: true
 

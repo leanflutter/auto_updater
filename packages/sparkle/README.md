@@ -10,11 +10,12 @@ build hook compiles the Objective-C helpers for callbacks and protocols; the
 package does not ship the Sparkle framework itself.
 
 ```dart
+import 'package:objective_c/objective_c.dart';
 import 'package:sparkle/sparkle.dart';
 
 void main() {
   final bindings = loadSparkle();
-  print(bindings.SUSparkleErrorDomain);
+  print(bindings.SUSparkleErrorDomain.toDartString());
 }
 ```
 
