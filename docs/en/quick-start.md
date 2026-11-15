@@ -427,10 +427,29 @@ verify that it upgrades the existing installation. To show only progress and
 errors, add `sparkle:installerArguments="/passive"` to the enclosure.
 [WinSparkle installer arguments](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
-WinSparkle controls downloading and running the installer.
-Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
-shutdown. Windows Installer continues running after the app exits. If the
-upgrade fails, add `/l*v` and a writable log path to
+WinSparkle starts the installer and requests that the app quit. Register a
+listener before initializing the updater. Save any app state and exit from
+`onUpdaterBeforeQuitForUpdate` on Windows. On macOS, the callback signals a
+prepared update for the next regular quit.
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// In your UpdaterListener implementation.
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // Save any pending app state here.
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
+```
+
+Windows Installer continues running after the app exits. If the upgrade
+fails, add `/l*v` and a writable log path to
 `sparkle:installerArguments` for a test run, then inspect the Windows
 Installer log.
 [Windows Installer command-line options](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)

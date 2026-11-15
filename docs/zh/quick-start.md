@@ -410,9 +410,28 @@ Sparkle 会从已安装的应用读取名称，并在新路径可用时使用新
 `sparkle:installerArguments="/passive"`。
 [WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
-WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
-`onUpdaterBeforeQuitForUpdate` 保存应用状态。应用退出后，Windows Installer 会
-继续运行。如果升级失败，可在测试时通过 `sparkle:installerArguments` 传入
+WinSparkle 会启动安装器并请求退出应用。请在初始化更新器之前注册监听器。
+在 Windows 上，通过 `onUpdaterBeforeQuitForUpdate` 保存应用状态并退出。
+在 macOS 上，此回调表示自动更新已就绪，将在应用下次正常退出时安装。
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// 在 UpdaterListener 的实现中。
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // 在此保存待处理的应用状态。
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
+```
+
+应用退出后，Windows Installer 会继续运行。如果升级失败，可在测试时通过
+`sparkle:installerArguments` 传入
 `/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
 [Windows Installer 命令行选项](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
 
