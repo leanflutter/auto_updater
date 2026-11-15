@@ -1,0 +1,107 @@
+name: Verify WinSparkle error details
+
+on:
+  push:
+    branches: [codex/verify-winsparkle-error-details]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, ARM64]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[17.0,18.0)'
+      - name: Build WinSparkle
+        shell: pwsh
+        run: |
+          ./packages/auto_updater_winsparkle/tool/build_winsparkle.ps1 `
+            -Architecture ${{ matrix.architecture }} -OutputDirectory "$env:RUNNER_TEMP/winsparkle"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/winsparkle/${{ matrix.architecture }}/Release/WinSparkle.dll
+          if-no-files-found: error
+
+  flutter:
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            architecture: x64
+          - runner: windows-11-arm
+            architecture: ARM64
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          architecture: x64
+      - name: Select native Windows Arm64 Flutter artifacts
+        if: runner.arch == 'ARM64'
+        env:
+          FLUTTER_HOST_ARCH: arm64
+        shell: pwsh
+        run: |
+          $flutterBin = Split-Path (Get-Command flutter).Source
+          Remove-Item "$flutterBin/cache/engine-dart-sdk.stamp" -Force
+          Remove-Item "$flutterBin/cache/windows-sdk.stamp" -Force -ErrorAction SilentlyContinue
+          flutter --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((dart --version 2>&1 | Out-String) -notmatch 'windows_arm64') {
+            throw 'Expected a native Dart VM.'
+          }
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/patched-winsparkle
+      - name: Build the Windows release fixture
+        shell: pwsh
+        run: |
+          $bundled = "packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/${{ matrix.architecture }}/Release/WinSparkle.dll"
+          Copy-Item $bundled "$env:RUNNER_TEMP/previous-WinSparkle.dll"
+          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" $bundled
+          dart run melos bootstrap
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Location packages/auto_updater/example
+          flutter build windows --release -t lib/codex_windows_error_smoke.dart
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $target = '${{ matrix.architecture }}'.ToLowerInvariant()
+          "UPDATER_SMOKE_RELEASE=$((Resolve-Path "build/windows/$target/runner/Release").Path)" >> $env:GITHUB_ENV
+      - name: Verify request, TLS, signature and legacy callbacks
+        shell: pwsh
+        run: |
+          Set-Location $env:UPDATER_SMOKE_RELEASE
+          $openssl = (Get-Command openssl -ErrorAction SilentlyContinue).Source
+          if (!$openssl) {
+            $gitRoot = Split-Path (Split-Path (Get-Command git).Source)
+            $openssl = Join-Path $gitRoot 'usr/bin/openssl.exe'
+          }
+          & $openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj '/CN=127.0.0.1' `
+            -addext 'subjectAltName=IP:127.0.0.1' -keyout test-key.pem -out test-cert.pem
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($case in @('appcast404', 'installer403', 'tampered', 'untrustedTls', 'legacy')) {
+            if ($case -eq 'legacy') {
+              Copy-Item "$env:RUNNER_TEMP/previous-WinSparkle.dll" WinSparkle.dll -Force
+            }
+            $env:UPDATER_SMOKE_CASE = $case
+            Remove-Item updater-error.result -ErrorAction SilentlyContinue
+            $app = Start-Process -WorkingDirectory $PWD -PassThru "$PWD/auto_updater_example.exe"
+            if (!$app.WaitForExit(40000)) {
+              $app.Kill()
+              throw "The fixture timed out: $case"
+            }
+            Get-Content updater-error.result
+            if ($app.ExitCode -ne 0) { exit $app.ExitCode }
+          }
