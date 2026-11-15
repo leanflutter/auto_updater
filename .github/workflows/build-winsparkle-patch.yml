@@ -65,6 +65,7 @@ jobs:
             throw "Expected the stock DLL to reject a relative URL: $failure"
           }
           Write-Host 'The stock DLL failed before requesting the relative enclosure.'
+          exit 0
       - name: Verify bundled ABI and enclosure resolution
         working-directory: packages/winsparkle
         shell: pwsh
@@ -73,3 +74,38 @@ jobs:
           dart run tool/smoke_test.dart $dll
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dart run tool/relative_enclosure_smoke.dart $dll
+
+  flutter-smoke:
+    needs: build
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          architecture: x64
+      - uses: actions/download-artifact@v8
+        with:
+          name: winsparkle-x64
+          path: ${{ runner.temp }}/patched-winsparkle
+      - shell: pwsh
+        run: |
+          Copy-Item "$env:RUNNER_TEMP/patched-winsparkle/WinSparkle.dll" `
+            packages/auto_updater_winsparkle/windows/WinSparkle-0.9.4/x64/Release
+          dart run melos bootstrap
+      - name: Verify the Flutter UpdaterListener event
+        working-directory: packages/auto_updater/example
+        shell: pwsh
+        run: |
+          flutter build windows --release -t lib/codex_download_event_smoke.dart
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $release = Resolve-Path 'build/windows/x64/runner/Release'
+          $app = Start-Process -WorkingDirectory $release -PassThru `
+            (Join-Path $release 'auto_updater_example.exe')
+          if (!$app.WaitForExit(45000)) {
+            $app.Kill()
+            throw 'Flutter native event smoke test timed out.'
+          }
+          Get-Content (Join-Path $release 'download-event.result')
+          exit $app.ExitCode

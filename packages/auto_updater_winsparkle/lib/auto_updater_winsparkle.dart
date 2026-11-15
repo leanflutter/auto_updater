@@ -10,6 +10,7 @@ import 'package:winsparkle/winsparkle.dart';
 
 typedef _PostCObject =
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>;
+typedef _NativeCallback = Pointer<NativeFunction<Void Function()>>;
 
 class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   static void registerWith() {
@@ -17,17 +18,17 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   }
 
   final _events = StreamController<Map<Object?, Object?>>.broadcast();
-  late final _updater = loadWinSparkle();
-  late final _eventBridge = DynamicLibrary.open(
-    File(Platform.resolvedExecutable).parent.uri
-        .resolve('auto_updater_winsparkle_plugin.dll')
-        .toFilePath(),
-  );
+  late final _appDirectory = File(Platform.resolvedExecutable).parent.uri;
+  late final _winSparkle = _openLibrary('WinSparkle.dll');
+  late final _updater = WinSparkle(_winSparkle);
+  late final _eventBridge = _openLibrary('auto_updater_winsparkle_plugin.dll');
   late final _setEventPort = _eventBridge
       .lookupFunction<
         Void Function(Int64, _PostCObject),
         void Function(int, _PostCObject)
       >('auto_updater_set_event_port');
+  static const _downloadedCallbackSymbol =
+      'auto_updater_winsparkle_set_downloaded_callback';
 
   RawReceivePort? _eventPort;
   AppLifecycleListener? _lifecycle;
@@ -88,9 +89,21 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
     _updater.win_sparkle_set_update_cancelled_callback(
       _callback('update_cancelled'),
     );
+    if (_winSparkle.providesSymbol(_downloadedCallbackSymbol)) {
+      final setDownloadedCallback = _winSparkle
+          .lookupFunction<
+            Void Function(_NativeCallback),
+            void Function(_NativeCallback)
+          >(_downloadedCallbackSymbol);
+      setDownloadedCallback(_callback('update_downloaded'));
+    }
   }
 
-  Pointer<NativeFunction<Void Function()>> _callback(String name) {
+  DynamicLibrary _openLibrary(String name) {
+    return DynamicLibrary.open(_appDirectory.resolve(name).toFilePath());
+  }
+
+  _NativeCallback _callback(String name) {
     return _eventBridge.lookup('auto_updater_on_$name');
   }
 

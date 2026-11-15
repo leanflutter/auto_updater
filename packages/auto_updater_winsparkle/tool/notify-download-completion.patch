@@ -1,0 +1,44 @@
+diff --git a/src/updatedownloader.cpp b/src/updatedownloader.cpp
+index 2af057d..3f85d57 100644
+--- a/src/updatedownloader.cpp
++++ b/src/updatedownloader.cpp
+@@ -33,6 +33,7 @@
+ 
+ #include <wx/string.h>
+ 
++#include <atomic>
+ #include <sstream>
+ #include <rpc.h>
+ #include <time.h>
+@@ -47,6 +48,9 @@ namespace winsparkle
+ namespace
+ {
+ 
++using DownloadedCallback = void (__cdecl *)();
++std::atomic<DownloadedCallback> downloadedCallback{nullptr};
++
+ std::wstring GetUniqueTempDirectoryPrefix()
+ {
+     wchar_t tmpdir[MAX_PATH + 1];
+@@ -150,6 +154,10 @@ struct UpdateDownloadSink : public IDownloadSink
+ 
+ } // anonymous namespace
+ 
++extern "C" WIN_SPARKLE_API void __cdecl auto_updater_winsparkle_set_downloaded_callback(DownloadedCallback callback)
++{
++    downloadedCallback.store(callback);
++}
+ 
+ /*--------------------------------------------------------------------------*
+                             updater initialization
+@@ -195,6 +203,10 @@ void UpdateDownloader::Run()
+           LogError("Using unsigned updates!");
+       }
+ 
++      // Report the completed download before the UI can launch the installer.
++      if (const auto callback = downloadedCallback.load())
++          callback();
++
+       UI::NotifyUpdateDownloaded(sink.GetFilePath(), m_appcast);
+     }
+     catch (BadSignatureException&)
