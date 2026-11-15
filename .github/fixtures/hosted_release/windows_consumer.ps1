@@ -132,7 +132,10 @@ dependencies:
         throw 'The hosted application did not complete its native update callbacks.'
     }
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
-        if ((Get-Content $installed) -eq '2.0.0') {
+        # A major upgrade removes the old marker before installing the new one.
+        $installedVersion = Get-Content -LiteralPath $installed -ErrorAction SilentlyContinue
+        if ($installedVersion -eq '2.0.0' -and
+            (Select-String -LiteralPath $env:TEST_MSI_LOG -Pattern 'Installation success or error status: 0' -Quiet -ErrorAction SilentlyContinue)) {
             Write-Host "Windows Installer upgraded the DSA-signed hosted consumer fixture to 2.0.0 ($Architecture)."
             exit 0
         }
