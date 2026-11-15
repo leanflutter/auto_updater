@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:auto_updater/auto_updater.dart';
@@ -13,6 +14,75 @@ import 'main.dart' as example;
 
 const _token = 'token=a%2Fb%2B+c';
 const _auth = 'Bearer msi-integration-token';
+
+final _user32 = DynamicLibrary.open('user32.dll');
+final _findDialog = _user32
+    .lookupFunction<
+      IntPtr Function(Pointer<Utf16>, Pointer<Utf16>),
+      int Function(Pointer<Utf16>, Pointer<Utf16>)
+    >('FindWindowW');
+final _findButton = _user32
+    .lookupFunction<
+      IntPtr Function(IntPtr, IntPtr, Pointer<Utf16>, Pointer<Utf16>),
+      int Function(int, int, Pointer<Utf16>, Pointer<Utf16>)
+    >('FindWindowExW');
+final _isVisible = _user32
+    .lookupFunction<Int32 Function(IntPtr), int Function(int)>(
+      'IsWindowVisible',
+    );
+final _isEnabled = _user32
+    .lookupFunction<Int32 Function(IntPtr), int Function(int)>(
+      'IsWindowEnabled',
+    );
+final _controlId = _user32
+    .lookupFunction<Int32 Function(IntPtr), int Function(int)>('GetDlgCtrlID');
+final _postMessage = _user32
+    .lookupFunction<
+      Int32 Function(IntPtr, Uint32, UintPtr, IntPtr),
+      int Function(int, int, int, int)
+    >('PostMessageW');
+
+Future<int> _waitForInstallButton({int previousButton = 0}) async {
+  final wait = Stopwatch()..start();
+  while (wait.elapsed < const Duration(seconds: 15)) {
+    final button = using((arena) {
+      final dialog = _findDialog(
+        nullptr,
+        'Software Update'.toNativeUtf16(allocator: arena),
+      );
+      if (dialog == 0 || _isVisible(dialog) == 0) return 0;
+      final caption = 'Install update'.toNativeUtf16(allocator: arena);
+      for (
+        var child = _findButton(dialog, 0, nullptr, caption);
+        child != 0;
+        child = _findButton(dialog, child, nullptr, caption)
+      ) {
+        if (child != previousButton &&
+            _isVisible(child) != 0 &&
+            _isEnabled(child) != 0) {
+          // WM_COMMAND with BN_CLICKED is the notification sent to the parent.
+          const wmCommand = 0x0111;
+          if (_postMessage(
+                dialog,
+                wmCommand,
+                _controlId(child) & 0xFFFF,
+                child,
+              ) ==
+              0) {
+            throw StateError('Failed to activate the Install update button.');
+          }
+          return child;
+        }
+      }
+      return 0;
+    });
+    if (button != 0) return button;
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+  }
+  throw StateError(
+    'WinSparkle did not show its expected Install update button.',
+  );
+}
 
 class _Probe with UpdaterListener {
   _Probe(this.verifyShutdown);
@@ -112,6 +182,7 @@ length="${installer.lengthSync()}" type="application/x-msi" />
 
     final native = loadWinSparkle();
     using((arena) {
+      native.win_sparkle_set_lang('en'.toNativeUtf8(allocator: arena).cast());
       native.win_sparkle_set_registry_path(
         'Software\\LeanFlutter\\IntegratedMsiUpdateTest-$pid'
             .toNativeUtf8(allocator: arena)
@@ -149,9 +220,19 @@ length="${installer.lengthSync()}" type="application/x-msi" />
     final finished = probe.completed.future.timeout(
       const Duration(seconds: 40),
     );
-    await autoUpdater.checkForUpdatesAndInstall();
     try {
-      await finished;
+      await Future.wait([
+        finished,
+        if (env['CODEX_INSTALL_MODE'] == 'dialog')
+          () async {
+            await autoUpdater.checkForUpdates();
+            final downloadButton = await _waitForInstallButton();
+            await _waitForInstallButton(previousButton: downloadButton);
+            stdout.writeln('Activated the two native Install update buttons.');
+          }()
+        else
+          autoUpdater.checkForUpdatesAndInstall(),
+      ], eagerError: true);
     } catch (error) {
       throw StateError(
         '$error. Authorized paths $requests. Rejected paths $denied.',

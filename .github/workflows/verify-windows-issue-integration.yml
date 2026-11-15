@@ -86,8 +86,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Set-Location packages/auto_updater/example
           flutter build windows --release -t lib/codex_integrated_msi_smoke.dart
-      - name: Verify example shutdown and signed MSI upgrade
+      - name: Verify shutdown and signed MSI upgrade from the native dialog
         shell: pwsh
+        env:
+          CODEX_INSTALL_MODE: dialog
         run: |
           $arch = '${{ matrix.architecture }}'
           $release = (Resolve-Path "packages/auto_updater/example/build/windows/$arch/runner/Release").Path
