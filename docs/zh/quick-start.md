@@ -317,6 +317,22 @@ serve -l 5002
 
 ## 故障排除
 
+### 更新提示
+
+调用 `checkForUpdates(inBackground: true)` 可以在检查期间隐藏进度窗口。
+找到新版本时，原生更新器仍可显示更新提示。
+
+在 appcast 的 `<item>` 中直接添加 `<sparkle:criticalUpdate />`，即可将该版本标为
+关键更新。WinSparkle 会对关键更新隐藏「跳过此版本」和「稍后提醒我」。
+对于不属于主要升级的关键更新，Sparkle 也会隐藏这两个按钮。关闭自动检查时，
+Sparkle 也会隐藏「稍后提醒我」。
+[Sparkle 关键更新文档](https://sparkle-project.org/documentation/publishing/#critical-updates)
+
+如需限制旧版本继续使用，请在应用或后端检查最低支持版本。
+标准更新对话框负责呈现更新流程。要自定义 macOS 对话框，可以在平台实现中
+提供 Sparkle `SPUUserDriver`。
+[Sparkle 自定义界面文档](https://sparkle-project.org/documentation/custom-user-interfaces/)
+
 ### macOS
 
 - 通过将以下内容添加到您的授权文件以进行调试和发布，确保您已添加并启用应用程序的网络功能并禁用沙箱以进行发布
