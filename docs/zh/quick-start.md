@@ -315,10 +315,21 @@ xcodebuild archive -scheme Sparkle -configuration Release \
 `Sparkle.xcarchive/Products/Library/Frameworks/` 下构建出的 framework。
 使用 `ditto` 保留符号链接，再按常规流程签名应用。
 
-先发布一个保留旧文件名的版本，随包提供自定义 framework，并在该版本的
-`Info.plist` 中将 `SUBundleName` 设为新名称。之后再发布使用同一 bundle identifier 的改名版本。
-Sparkle 会从已安装的应用读取名称，并在新路径可用时使用新文件名。
+先发布一个保留旧文件名的过渡版本，随包提供自定义 framework，并将
+`SUBundleName` 设为新名称，无需加上 `.app` 后缀。Sparkle 会从已安装的
+过渡版本读取名称，并在目标路径可用时使用新文件名。改名版本保留原有的
+bundle identifier，并更新 `CFBundleDisplayName` 和 `CFBundleName` 及其本地化值。
 [Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+保留过渡版本，确保旧版应用会先收到它。如果已安装的版本都使用 Sparkle 2.9
+或更高版本，可将两个版本放在同一份 appcast 中，并在改名更新项中将
+`sparkle:minimumUpdateVersion` 设为过渡版本的 `CFBundleVersion`。如果仍有
+应用使用更早的 Sparkle，请将过渡版本保留为原 appcast 的最新项，并让过渡版本
+使用单独的 appcast 获取改名更新，同时更新传给 `setFeedURL` 的地址。
+[Sparkle appcast 迁移指南](https://sparkle-project.org/documentation/publishing/#upgrading-to-newer-features)
+
+如果固定在程序坞上的图标仍显示旧应用，可移除该图标，再从访达添加改名后的应用。
+[Apple 程序坞指南](https://support.apple.com/en-au/guide/mac-help/-mh35859/mac)
 
 ### Windows
 

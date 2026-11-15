@@ -324,11 +324,26 @@ In the staged Flutter release app, replace `Contents/Frameworks/Sparkle.framewor
 with the entire framework from `Sparkle.xcarchive/Products/Library/Frameworks/`.
 Use `ditto` to preserve its symlinks and sign the app after staging.
 
-Ship this framework in a release that keeps the old filename and sets
-`SUBundleName` to the new name in that release's `Info.plist`. Then publish
-the renamed update with the same bundle identifier. Sparkle reads the name
-from the installed app and uses the new filename when that path is available.
+Ship this framework in a transitional release that keeps the old filename and
+sets `SUBundleName` to the new name without the `.app` extension. Sparkle
+reads that name from the installed release and uses the new filename when
+the destination is available. Keep the same bundle identifier in the renamed
+update and update its `CFBundleDisplayName` and `CFBundleName`, including
+any localized values.
 [Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
+Keep the transitional release available so existing installations receive it
+first. If every installed version uses Sparkle 2.9 or later, keep both releases
+in the same appcast and set `sparkle:minimumUpdateVersion` on the renamed
+updates to the transitional release's `CFBundleVersion`. If older Sparkle
+versions are still in use, leave the transitional release as the latest entry
+in the original appcast. Configure the transitional release to use a separate
+appcast for renamed updates, including the URL passed to `setFeedURL`.
+[Sparkle appcast migration guide](https://sparkle-project.org/documentation/publishing/#upgrading-to-newer-features)
+
+If a pinned Dock item still shows the old app, remove that item and add the
+renamed app from Finder.
+[Apple's Dock guide](https://support.apple.com/en-au/guide/mac-help/-mh35859/mac)
 
 ### Windows
 
