@@ -276,6 +276,12 @@ serve -l 5002
 
 ## 故障排除
 
+### 找到更新但无法下载
+
+在出现问题的机器上下载 `enclosure` 中的 URL，确认响应是安装包文件。
+如果 URL 有重定向，请检查最终的 HTTPS 地址和证书是否受到该机器信任。
+确认 appcast 中的签名由实际提供下载的文件生成，并检查已安装应用的公钥是否匹配。
+
 ### macOS
 
 等待 `setFeedURL` 完成，并记录它抛出的异常。Sparkle 会报告启动时的配置错误，
@@ -286,6 +292,16 @@ serve -l 5002
 
 如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
 所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
+
+如果 Sparkle 的标准更新窗口被其他窗口遮挡，用户可以再次点击「检查更新」。
+前台 `checkForUpdates()` 会将已有的更新窗口带到前台。
+[Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+如需在更新时更改已安装的 `.app` 文件名，旧版应用需提前使用启用了
+`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1` 的 Sparkle，并将
+`SUBundleName` 设为新名称。SwiftPM 提供的预编译 framework 会保留原路径。
+若需启用重命名，请使用该设置构建 Sparkle，并在发布改名版本之前将自定义 framework
+随应用发布。[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
 
 ### Windows
 
@@ -298,3 +314,8 @@ serve -l 5002
 WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
 `onUpdaterBeforeQuitForUpdate` 保存应用状态。macOS 上的 Sparkle 还会在下载完成时
 触发 `onUpdaterUpdateDownloaded`。
+
+WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
+语言提供一份 appcast，每个更新项只放一个对应语言的
+`<sparkle:releaseNotesLink>`。在应用内选好对应语言的 feed，再调用 `setFeedURL`。
+[WinSparkle appcast 解析器](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

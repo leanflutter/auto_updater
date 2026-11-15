@@ -278,6 +278,14 @@ serve -l 5002
 
 ## Troubleshooting
 
+### Update offered but download fails
+
+From an affected machine, download the enclosure URL and verify that the
+response contains the installer archive. Check that redirects end at a valid
+HTTPS URL with a certificate trusted by that machine. Verify that the
+appcast's signature was generated from the exact bytes being served and that
+the installed app has the matching public key.
+
 ### macOS
 
 Await `setFeedURL` and log any exception from it. Sparkle reports configuration
@@ -291,6 +299,17 @@ For a sandboxed app, enable Sparkle's installer XPC service and add the
 entitlements required by Sparkle to the release configuration.
 [Sparkle sandboxing guide](https://sparkle-project.org/documentation/sandboxing/)
 
+If Sparkle's standard update dialog has slipped behind other windows, a
+user-initiated `checkForUpdates()` brings the existing dialog back into focus.
+[Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
+
+To change an installed `.app` filename during an update, the installed version
+must already use Sparkle built with `SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1`
+and set `SUBundleName` to the new name. The prebuilt SwiftPM framework keeps
+the existing file path. To use normalization, build Sparkle itself with that
+setting and include that framework in the app before rolling out the rename.
+[Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+
 ### Windows
 
 For MSI updates, publish a direct link to the signed `.msi` in the enclosure.
@@ -303,3 +322,9 @@ WinSparkle controls downloading and running the installer.
 Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
 shutdown. Sparkle on macOS also provides `onUpdaterUpdateDownloaded` when the
 download completes.
+
+WinSparkle's update dialog reads a single release-notes URL per item. To
+localize the notes, serve one appcast per supported locale, each with a single
+`<sparkle:releaseNotesLink>` for that locale. Choose the feed in the app before
+calling `setFeedURL`.
+[WinSparkle appcast parser](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)
