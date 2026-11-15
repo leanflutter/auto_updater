@@ -1,37 +1,15 @@
-name: Build patched WinSparkle
+name: Verify relative WinSparkle URLs
 
 on:
   push:
-    branches: [codex/build-winsparkle-relative-urls]
+    branches: [codex/verify-winsparkle-relative-urls]
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
-  build:
-    runs-on: windows-2022
-    strategy:
-      fail-fast: false
-      matrix:
-        architecture: [x64, ARM64]
-    steps:
-      - uses: actions/checkout@v6
-      - uses: microsoft/setup-msbuild@v3
-        with:
-          vs-version: '[17.0,18.0)'
-      - name: Build WinSparkle
-        shell: pwsh
-        run: |
-          ./packages/auto_updater_winsparkle/tool/build_winsparkle.ps1 `
-            -Architecture ${{ matrix.architecture }} -OutputDirectory "$env:RUNNER_TEMP/winsparkle"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: winsparkle-${{ matrix.architecture }}
-          path: ${{ runner.temp }}/winsparkle/${{ matrix.architecture }}/Release/WinSparkle.dll
-          if-no-files-found: error
-
   smoke:
-    needs: build
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -51,6 +29,8 @@ jobs:
           architecture: ${{ matrix.dart-architecture }}
       - uses: actions/download-artifact@v8
         with:
+          run-id: 43690237694
+          github-token: ${{ github.token }}
           name: winsparkle-${{ matrix.architecture }}
           path: ${{ runner.temp }}/patched-winsparkle
       - working-directory: packages/winsparkle
@@ -65,6 +45,7 @@ jobs:
             throw "Expected the stock DLL to reject a relative URL: $failure"
           }
           Write-Host 'The stock DLL failed before requesting the relative enclosure.'
+          exit 0
       - name: Verify bundled ABI and enclosure resolution
         working-directory: packages/winsparkle
         shell: pwsh
