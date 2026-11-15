@@ -35,6 +35,13 @@ Future<void> main(List<String> arguments) async {
             .toNativeUtf8(allocator: arena)
             .cast(),
       );
+      updater.win_sparkle_set_app_details(
+        'LeanFlutter'.toNativeUtf16(allocator: arena).cast(),
+        'WinSparkle Redirect Header Test'
+            .toNativeUtf16(allocator: arena)
+            .cast(),
+        '1.0.0'.toNativeUtf16(allocator: arena).cast(),
+      );
       updater.win_sparkle_set_appcast_url(
         'http://127.0.0.1:${endpoint.port}/redirect'
             .toNativeUtf8(allocator: arena)
