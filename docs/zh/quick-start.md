@@ -261,7 +261,7 @@ sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOm
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
-            <enclosure url="http://localhost:5002/1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
+            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
@@ -274,11 +274,9 @@ sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOm
 
 > 本示例中 `macOS` 和 `Windows` 使用同一个 `appcast.xml` 文件，你需根据配置 `sparkle:os` 属性的值。
 
-WinSparkle 要求 Windows 的 `enclosure` 使用绝对 HTTP 或 HTTPS URL，即使
-安装包和 appcast 位于同一主机。发布时，请将本地示例 URL 替换为公开的
-HTTPS URL。如果发布服务器的主机名或端口可配置，请根据服务器配置的
-公开基址生成安装包 URL。
-[WinSparkle appcast 文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds)
+安装包和 appcast 一起托管时，`enclosure` 可以使用相对路径。在 Windows 上，
+更新器以重定向后的最终 appcast URL 为基准解析该路径。如果安装包在另一台
+服务器上，请使用绝对 HTTPS URL。
 
 启动测试更新服务器：
 

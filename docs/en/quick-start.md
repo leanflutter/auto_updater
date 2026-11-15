@@ -265,7 +265,7 @@ Add `appcast.xml` to your project `dist/` directory.
                 https://your_domain/your_path/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 16 Feb 2022 12:00:00 +0800</pubDate>
-            <enclosure url="http://localhost:5002/1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
+            <enclosure url="1.1.0+2/auto_updater_example-1.1.0+2-windows-setup.exe"
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
@@ -278,12 +278,10 @@ Add `appcast.xml` to your project `dist/` directory.
 
 > This example uses the same `appcast.xml` file for `macOS` and `Windows`, and you need to configure the value of the `sparkle:os` property accordingly.
 
-WinSparkle requires an absolute HTTP or HTTPS URL in the Windows enclosure,
-including when the installer is served from the same host as the appcast.
-Replace the local example URL with the public HTTPS URL when publishing.
-If your release server has a configurable host or port, generate the enclosure
-URL from the server's configured public base URL.
-[WinSparkle appcast guide](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds)
+An enclosure can use a relative path when the installer is hosted alongside
+the appcast. On Windows, the updater resolves the path against the final
+appcast URL after redirects. Use an absolute HTTPS URL to point to an
+installer on another server.
 
 Start the test update server:
 
