@@ -1,6 +1,5 @@
+import 'dart:convert';
 import 'dart:io';
-
-import 'package:path/path.dart' as p;
 
 import 'src/sparkle.dart';
 
@@ -12,44 +11,52 @@ class SignUpdateResult {
 }
 
 SignUpdateResult signUpdate(List<String> args) {
-  String executable = Platform.isMacOS
+  final executable = Platform.isMacOS
       ? findSparkleTool(
           'sign_update',
           binDirectory: Platform.environment['SPARKLE_BIN_DIR'],
         )
       : findWinSparkleTool('sign_update');
-  List<String> arguments = List<String>.from(args);
+  final arguments = List<String>.of(args);
+  if (Platform.isWindows && arguments.length == 1) {
+    arguments.add('dsa_priv.pem');
+  }
+
+  final processResult = Process.runSync(
+    executable,
+    arguments,
+    stderrEncoding: null,
+  );
+  stderr.add(processResult.stderr as List<int>);
+  if (processResult.exitCode != 0) {
+    throw ProcessException(
+      executable,
+      arguments,
+      'Failed to sign update',
+      processResult.exitCode,
+    );
+  }
+
+  final signUpdateOutput = processResult.stdout as String;
   if (Platform.isWindows) {
-    if (arguments.length == 1) {
-      arguments.add(p.join('dsa_priv.pem'));
+    final signature = signUpdateOutput.replaceAll(RegExp(r'\s+'), '');
+    if (base64.decode(signature).isEmpty) {
+      throw const FormatException('The signing tool returned no signature.');
     }
+    final length = File(arguments.first).lengthSync();
+    stdout.write('sparkle:dsaSignature="$signature" length="$length"');
+    return SignUpdateResult(signature: signature, length: length);
   }
 
-  ProcessResult processResult = Process.runSync(executable, arguments);
-
-  int exitCode = processResult.exitCode;
-
-  String? signUpdateOutput;
-  if (exitCode == 0) {
-    signUpdateOutput = processResult.stdout.toString();
-    if (Platform.isWindows) {
-      signUpdateOutput = signUpdateOutput.replaceFirst('\r\n', '').trim();
-      signUpdateOutput = 'sparkle:dsaSignature="$signUpdateOutput" length="0"';
-    }
-    stdout.write(signUpdateOutput);
-  } else {
-    stderr.write(processResult.stderr);
-  }
-
-  RegExp regex = RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
-  RegExpMatch? match = regex.firstMatch(signUpdateOutput!);
-
+  stdout.write(signUpdateOutput);
+  final regex = RegExp(r'sparkle:(dsa|ed)Signature="([^"]+)" length="(\d+)"');
+  final match = regex.firstMatch(signUpdateOutput);
   if (match == null) {
-    throw Exception('Failed to sign update');
+    throw const FormatException('The signing tool returned no signature.');
   }
   return SignUpdateResult(
     signature: match.group(2)!,
-    length: int.tryParse(match.group(3)!)!,
+    length: int.parse(match.group(3)!),
   );
 }
 
@@ -57,5 +64,13 @@ Future<void> main(List<String> args) async {
   if (!(Platform.isMacOS || Platform.isWindows)) {
     throw UnsupportedError('auto_updater:sign_update');
   }
-  signUpdate(args);
+  try {
+    signUpdate(args);
+  } on ProcessException catch (error) {
+    stderr.writeln(error.message);
+    exitCode = error.errorCode == 0 ? 1 : error.errorCode;
+  } on FormatException catch (error) {
+    stderr.writeln(error.message);
+    exitCode = 1;
+  }
 }

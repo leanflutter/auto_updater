@@ -222,7 +222,8 @@ Output:
 sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk=" length="13400992"
 ```
 
-Update the obtained new signature to the value of the `sparkle:dsaSignature` attribute of the `enclosure` node of the `appcast.xml` file.
+Copy the `sparkle:dsaSignature` and `length` values to the Windows
+`enclosure` in `appcast.xml`. The length is the installer size in bytes.
 
 ### Distributing
 
@@ -260,7 +261,7 @@ Add `appcast.xml` to your project `dist/` directory.
                        sparkle:dsaSignature="MEUCIQCVbVzVID7H3aUzAY5znpi+ySZKznkukV8whlMFzKh66AIgREUGOmvavlcg6hwAwkb2o4IqVE/D56ipIBshIqCH8rk="
                        sparkle:version="1.1.0+2"
                        sparkle:os="windows"
-                       length="0"
+                       length="13400992"
                        type="application/octet-stream" />
         </item>
     </channel>
