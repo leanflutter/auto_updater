@@ -168,6 +168,11 @@ Future<void> _checkDownload(String dllPath, _DownloadCase testCase) async {
             void Function(_NativeCallback)
           >('auto_updater_winsparkle_set_downloaded_callback');
       setDownloadedCallback(downloaded.nativeFunction);
+      // Consume the signed fixture instead of asking the shell to run a
+      // one-byte executable. DeleteFileW has the installer callback's ABI.
+      winSparkle.win_sparkle_set_user_run_installer_callback(
+        DynamicLibrary.open('kernel32.dll').lookup('DeleteFileW'),
+      );
     }
     winSparkle.win_sparkle_set_automatic_check_for_updates(0);
     winSparkle.win_sparkle_set_error_callback(errorCallback.nativeFunction);
