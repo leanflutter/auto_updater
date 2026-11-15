@@ -4,9 +4,9 @@ import 'package:auto_updater_platform_interface/auto_updater_platform_interface.
 import 'package:objective_c/objective_c.dart';
 import 'package:sparkle/sparkle.dart';
 
-class AutoUpdaterMacos extends AutoUpdaterPlatform {
+class AutoUpdaterSparkle extends AutoUpdaterPlatform {
   static void registerWith() {
-    final platform = AutoUpdaterMacos();
+    final platform = AutoUpdaterSparkle();
     AutoUpdaterPlatform.instance = platform;
     // Start at registration so Sparkle can schedule checks from Info.plist.
     autoReleasePool(platform._start);

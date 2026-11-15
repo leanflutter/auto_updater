@@ -11,16 +11,16 @@ import 'package:winsparkle/winsparkle.dart';
 typedef _PostCObject =
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>;
 
-class AutoUpdaterWindows extends AutoUpdaterPlatform {
+class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   static void registerWith() {
-    AutoUpdaterPlatform.instance = AutoUpdaterWindows();
+    AutoUpdaterPlatform.instance = AutoUpdaterWinSparkle();
   }
 
   final _events = StreamController<Map<Object?, Object?>>.broadcast();
   late final _updater = loadWinSparkle();
   late final _eventBridge = DynamicLibrary.open(
     File(Platform.resolvedExecutable).parent.uri
-        .resolve('auto_updater_windows_plugin.dll')
+        .resolve('auto_updater_winsparkle_plugin.dll')
         .toFilePath(),
   );
   late final _setEventPort = _eventBridge

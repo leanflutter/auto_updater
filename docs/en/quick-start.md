@@ -4,34 +4,36 @@ Follow the steps below to quickly get started with the `auto_updater` plugin:
 
 ## Installation
 
-Add this to your package's pubspec.yaml file:
+Add `auto_updater` and one implementation for each platform your app targets.
+Use `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
+Flutter registers the selected implementation automatically.
 
-```yaml
-dependencies:
-  auto_updater: ^1.0.0
-```
-
-Or
+To use the development version from a local checkout, replace
+`/path/to/auto_updater` with the checkout path in your app's `pubspec.yaml`.
+For an app targeting one platform, omit the other implementation and its
+binding override.
 
 ```yaml
 dependencies:
   auto_updater:
-    git:
-      path: packages/auto_updater
-      url: https://github.com/leanflutter/auto_updater.git
-      ref: main
+    path: /path/to/auto_updater/packages/auto_updater
+  auto_updater_sparkle:
+    path: /path/to/auto_updater/packages/auto_updater_sparkle
+  auto_updater_winsparkle:
+    path: /path/to/auto_updater/packages/auto_updater_winsparkle
 
 dependency_overrides:
-  auto_updater_macos:
-    git:
-      path: packages/auto_updater_macos
-      url: https://github.com/leanflutter/auto_updater.git
-      ref: main
+  auto_updater_platform_interface:
+    path: /path/to/auto_updater/packages/auto_updater_platform_interface
+  sparkle:
+    path: /path/to/auto_updater/packages/sparkle
+  winsparkle:
+    path: /path/to/auto_updater/packages/winsparkle
 ```
 
 ### macOS requirements
 
-The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. Enable Swift Package Manager in Flutter to bundle Sparkle 2.10.1 when building the macOS app.
+The development version targets Flutter 3.50, Dart 3.14, and macOS 12 or later. When using `auto_updater_sparkle`, enable Swift Package Manager in Flutter to bundle Sparkle 2.10.1.
 
 If an existing project embeds Sparkle through CocoaPods, remove that CocoaPods integration as part of switching to SwiftPM so Xcode embeds a single copy. [Flutter’s migration guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 

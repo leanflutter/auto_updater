@@ -1,5 +1,7 @@
 ## Unreleased
 
+* Apps now select their updater implementation in `pubspec.yaml`. Use
+  `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
 * Require Flutter 3.50 and Dart 3.14 or later.
 * Support the Sparkle signing tools when macOS apps use SwiftPM.
 

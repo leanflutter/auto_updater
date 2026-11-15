@@ -8,7 +8,7 @@ String findWinSparkleTool(String name) => p.joinAll([
   'flutter',
   'ephemeral',
   '.plugin_symlinks',
-  'auto_updater_windows',
+  'auto_updater_winsparkle',
   'windows',
   'WinSparkle-0.9.4',
   'bin',

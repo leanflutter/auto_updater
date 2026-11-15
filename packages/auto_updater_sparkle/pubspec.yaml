@@ -1,7 +1,7 @@
-name: auto_updater_macos
-description: macOS implementation of the auto_updater plugin.
+name: auto_updater_sparkle
+description: Sparkle implementation of the auto_updater plugin for macOS.
 version: 1.0.0
-repository: https://github.com/leanflutter/auto_updater/tree/main/packages/auto_updater_macos
+repository: https://github.com/leanflutter/auto_updater/tree/main/packages/auto_updater_sparkle
 
 environment:
   sdk: ^3.14.0
@@ -24,6 +24,6 @@ flutter:
     implements: auto_updater
     platforms:
       macos:
-        dartPluginClass: AutoUpdaterMacos
+        dartPluginClass: AutoUpdaterSparkle
         ffiPlugin: true
 

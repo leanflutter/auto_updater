@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
-project(auto_updater_windows LANGUAGES CXX)
+project(auto_updater_winsparkle LANGUAGES CXX)
 
 # The event bridge uses the Dart SDK's native port ABI.
 include("${CMAKE_SOURCE_DIR}/flutter/ephemeral/generated_config.cmake")
-set(PLUGIN_NAME "auto_updater_windows_plugin")
+set(PLUGIN_NAME "auto_updater_winsparkle_plugin")
 add_library(${PLUGIN_NAME} SHARED event_bridge.cpp)
 apply_standard_settings(${PLUGIN_NAME})
 target_include_directories(${PLUGIN_NAME} PRIVATE
@@ -17,7 +17,7 @@ else()
   set(WINSPARKLE_ARCH "x64")
 endif()
 
-set(auto_updater_windows_bundled_libraries
+set(auto_updater_winsparkle_bundled_libraries
   "$<TARGET_FILE:${PLUGIN_NAME}>"
   "${WINSPARKLE_DIRECTORY}/${WINSPARKLE_ARCH}/Release/WinSparkle.dll"
   PARENT_SCOPE
