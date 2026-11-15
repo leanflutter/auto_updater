@@ -8,7 +8,7 @@ environment:
   flutter: ">=3.50.0"
 
 dependencies:
-  auto_updater_platform_interface: ^1.0.0
+  auto_updater_platform_interface: ^2.0.0
   ffi: ^2.2.0
   flutter:
     sdk: flutter
