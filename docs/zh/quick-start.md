@@ -417,5 +417,16 @@ WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应�
 
 WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
 语言提供一份 appcast，每个更新项只放一个对应语言的
-`<sparkle:releaseNotesLink>`。在应用内选好对应语言的 feed，再调用 `setFeedURL`。
+`<sparkle:releaseNotesLink>`，直接指向该语言的 HTML 页面。同一版本的各语言 feed
+使用相同的安装包和签名。在应用内按语言选好 feed，再调用 `setFeedURL`。
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+页面加载后的 JavaScript 重定向可能会在系统浏览器中打开。
 [WinSparkle appcast 解析器](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

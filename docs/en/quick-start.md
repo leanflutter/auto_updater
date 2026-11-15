@@ -436,6 +436,18 @@ Installer log.
 
 WinSparkle's update dialog reads a single release-notes URL per item. To
 localize the notes, serve one appcast per supported locale, each with a single
-`<sparkle:releaseNotesLink>` for that locale. Choose the feed in the app before
-calling `setFeedURL`.
+`<sparkle:releaseNotesLink>` pointing directly to that locale's HTML page. Keep
+the installer and its signature the same for each copy of the release. Select
+the feed using the app's language before calling `setFeedURL`.
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+WinSparkle can open a JavaScript redirect in the external browser after the
+first page has loaded.
 [WinSparkle appcast parser](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)
