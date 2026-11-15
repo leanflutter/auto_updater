@@ -69,6 +69,19 @@ void main() async {
 
 > Please see the example app of this plugin for a full example.
 
+### Using an authenticated feed
+
+Set the request headers before the feed URL:
+
+```dart
+await autoUpdater.setHttpHeaders({'Authorization': 'Bearer $accessToken'});
+await autoUpdater.setFeedURL('https://example.com/updates/appcast.xml');
+```
+
+Sparkle and WinSparkle also send the headers on update downloads, so use trusted
+HTTPS URLs for the feed and its downloads. Calling `setHttpHeaders` again
+replaces the previous headers. An empty map clears them.
+
 ## Publish your app
 
 ### Generate private key

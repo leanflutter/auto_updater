@@ -52,6 +52,19 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
   }
 
   @override
+  Future<void> setHttpHeaders(Map<String, String> headers) async {
+    using((arena) {
+      _updater.win_sparkle_clear_http_headers();
+      for (final MapEntry(:key, :value) in headers.entries) {
+        _updater.win_sparkle_set_http_header(
+          key.toNativeUtf8(allocator: arena).cast(),
+          value.toNativeUtf8(allocator: arena).cast(),
+        );
+      }
+    });
+  }
+
+  @override
   Future<void> checkForUpdates({bool? inBackground}) async {
     _listenForNativeEvents();
     if (inBackground ?? false) {
