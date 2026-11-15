@@ -16,6 +16,9 @@ abstract mixin class UpdaterListener {
   /// The Windows callback does not include the appcast item.
   void onUpdaterUpdateDownloaded(AppcastItem? appcastItem);
 
-  /// Called when the native updater prepares to install an update on quit.
+  /// Called when an update is ready to be installed on app exit.
+  ///
+  /// On Windows, the installer has started. Save any pending state, then quit
+  /// the app. On macOS, an automatic update is ready for the next regular quit.
   void onUpdaterBeforeQuitForUpdate(AppcastItem? appcastItem);
 }

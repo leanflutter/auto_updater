@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.0
 
 * Apps now select their updater implementation in `pubspec.yaml`. Use
   `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
@@ -12,6 +12,7 @@
 * Report the Windows installer's size in `sign_update` output.
 * Add `checkForUpdatesAndInstall()` to start a Windows update without a
   separate confirmation prompt.
+* Keep Sparkle's update scheduler running after it prepares an automatic update.
 * Add `setAllowedChannels()` to opt into additional macOS update channels.
 
 ## 1.0.0

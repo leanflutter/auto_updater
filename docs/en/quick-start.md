@@ -91,12 +91,17 @@ Sparkle and WinSparkle also send the headers on update downloads, so use trusted
 HTTPS URLs for the feed and its downloads. Calling `setHttpHeaders` again
 replaces the previous headers. An empty map clears them.
 
+On Windows, use the final URL for any feed or download that requires
+`Authorization`. WinINet can drop this header when it follows a redirect,
+including a 302 to the same origin.
+
 ### Installing updates automatically
 
 On macOS, set `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to
 `true` in `macos/Runner/Info.plist` to enable background checks and automatic
-installation by default. Sparkle may still ask for authorization to install
-an update. [Sparkle settings](https://sparkle-project.org/documentation/customization/)
+downloads by default. Sparkle installs eligible app updates when the app quits.
+It may present critical updates earlier or ask for installation authorization.
+[Sparkle settings](https://sparkle-project.org/documentation/customization/)
 
 On Windows, call `await autoUpdater.checkForUpdatesAndInstall()` after setting
 the feed. WinSparkle shows progress and starts installing an available update
@@ -381,6 +386,11 @@ When debugging a release build, verify that the exported
 `.app` contains `Contents/Frameworks/Sparkle.framework` and that the exported
 app's `Info.plist` contains the expected update configuration.
 
+`onUpdaterError` includes the HTTP status or underlying native error codes when
+Sparkle provides them. For additional signing or installation details, look for
+the Sparkle log category in Console. Redact tokens in logged URLs before
+sharing them.
+
 For a sandboxed app, enable Sparkle's installer XPC service and add the
 entitlements required by Sparkle to the release configuration.
 [Sparkle sandboxing guide](https://sparkle-project.org/documentation/sandboxing/)
@@ -389,11 +399,24 @@ If Sparkle's standard update dialog has slipped behind other windows, a
 user-initiated `checkForUpdates()` brings the existing dialog back into focus.
 [Sparkle update checks](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
-To change an installed `.app` filename during an update, the installed version
-must already use Sparkle built with `SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1`
-and set `SUBundleName` to the new name. The prebuilt SwiftPM framework keeps
-the existing file path. To use normalization, build Sparkle itself with that
-setting and include that framework in the app before rolling out the rename.
+The prebuilt SwiftPM framework preserves the installed `.app` filename. To
+enable renaming, check out the Sparkle version pinned in the plugin's
+`Package.swift` and run this command from that Sparkle checkout.
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
+```
+
+In the staged Flutter release app, replace `Contents/Frameworks/Sparkle.framework`
+with the entire framework from `Sparkle.xcarchive/Products/Library/Frameworks/`.
+Use `ditto` to preserve its symlinks and sign the app after staging.
+
+Ship this framework in a release that keeps the old filename and sets
+`SUBundleName` to the new name in that release's `Info.plist`. Then publish
+the renamed update with the same bundle identifier. Sparkle reads the name
+from the installed app and uses the new filename when that path is available.
 [Sparkle build settings](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
 
 ### Windows
@@ -404,16 +427,47 @@ verify that it upgrades the existing installation. To show only progress and
 errors, add `sparkle:installerArguments="/passive"` to the enclosure.
 [WinSparkle installer arguments](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
-WinSparkle controls downloading and running the installer.
-Use `onUpdaterBeforeQuitForUpdate` to save app state when WinSparkle requests
-shutdown. Windows Installer continues running after the app exits. If the
-upgrade fails, add `/l*v` and a writable log path to
+WinSparkle starts the installer and requests that the app quit. Register a
+listener before initializing the updater. Save any app state and exit from
+`onUpdaterBeforeQuitForUpdate` on Windows. On macOS, the callback signals a
+prepared update for the next regular quit.
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// In your UpdaterListener implementation.
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // Save any pending app state here.
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
+```
+
+Windows Installer continues running after the app exits. If the upgrade
+fails, add `/l*v` and a writable log path to
 `sparkle:installerArguments` for a test run, then inspect the Windows
 Installer log.
 [Windows Installer command-line options](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
 
 WinSparkle's update dialog reads a single release-notes URL per item. To
 localize the notes, serve one appcast per supported locale, each with a single
-`<sparkle:releaseNotesLink>` for that locale. Choose the feed in the app before
-calling `setFeedURL`.
+`<sparkle:releaseNotesLink>` pointing directly to that locale's HTML page. Keep
+the installer and its signature the same for each copy of the release. Select
+the feed using the app's language before calling `setFeedURL`.
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+WinSparkle can open a JavaScript redirect in the external browser after the
+first page has loaded.
 [WinSparkle appcast parser](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

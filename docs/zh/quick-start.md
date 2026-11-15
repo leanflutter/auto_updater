@@ -87,11 +87,15 @@ Sparkle 和 WinSparkle 下载更新时也会发送这些请求头，请为 feed 
 可信的 HTTPS 地址。再次调用 `setHttpHeaders` 会替换已有的请求头，传入空
 Map 可清除这些请求头。
 
+在 Windows 上，需通过 `Authorization` 认证的 feed 和安装包应使用最终 URL。
+WinINet 跟随重定向时可能丢弃此请求头，同源的 302 重定向也会出现这种情况。
+
 ### 自动安装更新
 
 在 macOS 上，将 `macos/Runner/Info.plist` 中的 `SUEnableAutomaticChecks`
-和 `SUAutomaticallyUpdate` 设置为 `true`，即可默认启用后台检查和自动安装。
-安装更新时，Sparkle 仍可能要求系统授权。
+和 `SUAutomaticallyUpdate` 设置为 `true`，即可默认启用后台检查和自动下载。
+对于符合条件的应用更新，Sparkle 会在应用退出时安装。关键更新可能提前提示，
+安装也可能需要系统授权。
 [Sparkle 配置文档](https://sparkle-project.org/documentation/customization/)
 
 在 Windows 上，设置 feed 后调用
@@ -369,6 +373,10 @@ Sparkle 也会隐藏「稍后提醒我」。
 `.app` 包含 `Contents/Frameworks/Sparkle.framework`，并检查导出包的
 `Info.plist` 是否包含预期的更新配置。
 
+如果 Sparkle 提供了 HTTP 状态码或底层原生错误码，`onUpdaterError` 会一并返回。
+若需查看更详细的签名或安装信息，请在「控制台」应用中查看 Sparkle 类别的日志。
+分享日志前，请删去 URL 中的令牌。
+
 如应用启用了沙盒，请启用 Sparkle 的安装器 XPC 服务，并在 release 配置中添加
 所需的授权。[Sparkle 沙盒配置文档](https://sparkle-project.org/documentation/sandboxing/)
 
@@ -376,11 +384,23 @@ Sparkle 也会隐藏「稍后提醒我」。
 前台 `checkForUpdates()` 会将已有的更新窗口带到前台。
 [Sparkle 检查更新文档](https://sparkle-project.org/documentation/api-reference/Classes/SPUUpdater.html)
 
-如需在更新时更改已安装的 `.app` 文件名，旧版应用需提前使用启用了
-`SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1` 的 Sparkle，并将
-`SUBundleName` 设为新名称。SwiftPM 提供的预编译 framework 会保留原路径。
-若需启用重命名，请使用该设置构建 Sparkle，并在发布改名版本之前将自定义 framework
-随应用发布。[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
+SwiftPM 提供的预编译 framework 会保留已安装应用的 `.app` 文件名。
+如需启用重命名，请检出插件 `Package.swift` 固定的 Sparkle 版本，并在 Sparkle 源码目录运行以下命令。
+
+```bash
+xcodebuild archive -scheme Sparkle -configuration Release \
+  -archivePath "$PWD/Sparkle.xcarchive" BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+  SKIP_INSTALL=NO SPARKLE_NORMALIZE_INSTALLED_APPLICATION_NAME=1
+```
+
+打包 Flutter release 应用时，将 `Contents/Frameworks/Sparkle.framework` 整个替换为
+`Sparkle.xcarchive/Products/Library/Frameworks/` 下构建出的 framework。
+使用 `ditto` 保留符号链接，再按常规流程签名应用。
+
+先发布一个保留旧文件名的版本，随包提供自定义 framework，并在该版本的
+`Info.plist` 中将 `SUBundleName` 设为新名称。之后再发布使用同一 bundle identifier 的改名版本。
+Sparkle 会从已安装的应用读取名称，并在新路径可用时使用新文件名。
+[Sparkle 构建设置](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Configurations/ConfigCommon.xcconfig)
 
 ### Windows
 
@@ -390,13 +410,43 @@ Sparkle 也会隐藏「稍后提醒我」。
 `sparkle:installerArguments="/passive"`。
 [WinSparkle 安装参数文档](https://github.com/vslavik/winsparkle/wiki/Appcast-Feeds#installer-arguments)
 
-WinSparkle 负责下载安装包并运行安装器。WinSparkle 请求退出应用时，可以通过
-`onUpdaterBeforeQuitForUpdate` 保存应用状态。应用退出后，Windows Installer 会
-继续运行。如果升级失败，可在测试时通过 `sparkle:installerArguments` 传入
+WinSparkle 会启动安装器并请求退出应用。请在初始化更新器之前注册监听器。
+在 Windows 上，通过 `onUpdaterBeforeQuitForUpdate` 保存应用状态并退出。
+在 macOS 上，此回调表示自动更新已就绪，将在应用下次正常退出时安装。
+
+```dart
+import 'dart:io';
+import 'dart:ui' show AppExitType;
+
+import 'package:flutter/services.dart';
+
+// 在 UpdaterListener 的实现中。
+@override
+Future<void> onUpdaterBeforeQuitForUpdate(AppcastItem? item) async {
+  if (Platform.isWindows) {
+    // 在此保存待处理的应用状态。
+    await ServicesBinding.instance.exitApplication(AppExitType.required);
+  }
+}
+```
+
+应用退出后，Windows Installer 会继续运行。如果升级失败，可在测试时通过
+`sparkle:installerArguments` 传入
 `/l*v` 和一个可写的日志路径，再查看 Windows Installer 的日志。
 [Windows Installer 命令行选项](https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options)
 
 WinSparkle 对每个更新项读取一个发行说明 URL。如需本地化发行说明，可以为每种
 语言提供一份 appcast，每个更新项只放一个对应语言的
-`<sparkle:releaseNotesLink>`。在应用内选好对应语言的 feed，再调用 `setFeedURL`。
+`<sparkle:releaseNotesLink>`，直接指向该语言的 HTML 页面。同一版本的各语言 feed
+使用相同的安装包和签名。在应用内按语言选好 feed，再调用 `setFeedURL`。
+
+```dart
+final language = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+final feedLocale = language == 'zh' ? 'zh-Hans' : 'en';
+await autoUpdater.setFeedURL(
+  'https://updates.example.com/windows/$feedLocale/appcast.xml',
+);
+```
+
+页面加载后的 JavaScript 重定向可能会在系统浏览器中打开。
 [WinSparkle appcast 解析器](https://github.com/vslavik/winsparkle/blob/v0.9.4/src/appcast.cpp)

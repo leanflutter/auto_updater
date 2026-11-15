@@ -2,7 +2,10 @@ name: Publish to pub.dev
 
 # On pub.dev, set the tag pattern to v{{version}} for auto_updater and
 # <package>-v{{version}} for each other package.
-# Publish sparkle and winsparkle before their corresponding platform plugins.
+# Publish the first version of each new package with pub publish, then enable
+# automated publishing in its pub.dev settings.
+# Publish the platform interface, sparkle, and winsparkle before the platform
+# plugins, then publish auto_updater.
 on:
   push:
     tags:

@@ -1,6 +1,6 @@
 name: auto_updater
 description: Flutter desktop app updates with a platform implementation chosen by the app.
-version: 1.0.0
+version: 2.0.0
 homepage: https://github.com/leanflutter/auto_updater
 
 platforms:
@@ -15,7 +15,7 @@ environment:
   flutter: ">=3.50.0"
 
 dependencies:
-  auto_updater_platform_interface: ^1.0.0
+  auto_updater_platform_interface: ^2.0.0
   flutter:
     sdk: flutter
   json_annotation: ^4.8.0
