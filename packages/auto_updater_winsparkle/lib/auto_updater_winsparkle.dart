@@ -67,6 +67,17 @@ class AutoUpdaterWinSparkle extends AutoUpdaterPlatform {
     _updater.win_sparkle_set_update_check_interval(interval);
   }
 
+  @override
+  Future<DateTime?> getLastCheckTime() async {
+    final seconds = _updater.win_sparkle_get_last_check_time();
+    if (seconds == -1) return null;
+
+    return DateTime.fromMillisecondsSinceEpoch(
+      seconds * Duration.millisecondsPerSecond,
+      isUtc: true,
+    );
+  }
+
   void _listenForNativeEvents() {
     if (_eventPort != null) return;
 

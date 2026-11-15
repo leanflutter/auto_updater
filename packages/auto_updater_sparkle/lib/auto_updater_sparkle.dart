@@ -95,6 +95,13 @@ class AutoUpdaterSparkle extends AutoUpdaterPlatform {
     autoReleasePool(() => _updater.updateCheckInterval = interval.toDouble());
   }
 
+  @override
+  Future<DateTime?> getLastCheckTime() async {
+    return autoReleasePool(
+      () => _updater.lastUpdateCheckDate?.toDateTime().toUtc(),
+    );
+  }
+
   void _emit(String type, Map<String, Object?> data) {
     _events.add({'type': type, 'data': data});
   }
