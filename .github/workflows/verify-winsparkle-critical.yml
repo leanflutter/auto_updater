@@ -1,4 +1,4 @@
-name: Verify WinSparkle critical update controls
+name: Verify WinSparkle dialogs and localized release notes
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
           github-token: ${{ github.token }}
       - working-directory: packages/winsparkle
         run: dart pub get
-      - name: Verify background checks and critical update controls
+      - name: Verify update controls and localized release notes
         working-directory: packages/winsparkle
         shell: pwsh
         run: |

@@ -43,11 +43,17 @@ bool _visibleButton(int window, String label) => using((arena) {
 
 Future<void> main(List<String> args) async {
   final critical = args.last == 'critical';
+  final language = critical ? 'zh-Hans' : 'en';
+  final feedPath = '/appcast-$language.xml';
+  final notesPath = '/release-notes-$language.html';
+  final assetPath = '/notes-visible-$language.png';
   final native = loadWinSparkle(path: args.first);
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
   final origin = 'http://127.0.0.1:${server.port}';
   final requested = Completer<void>();
   final sendFeed = Completer<void>();
+  final notesAssetRequested = Completer<void>();
+  final notesRequests = <String>[];
   final outcome = Completer<bool>();
   final found = NativeCallable<Void Function()>.listener(() {
     if (!outcome.isCompleted) outcome.complete(true);
@@ -56,7 +62,7 @@ Future<void> main(List<String> args) async {
     if (!outcome.isCompleted) outcome.complete(false);
   });
   server.listen((request) async {
-    if (request.uri.path == '/appcast.xml') {
+    if (request.uri.path == feedPath) {
       if (!requested.isCompleted) requested.complete();
       await sendFeed.future;
       final criticalElement = critical ? '<sparkle:criticalUpdate />' : '';
@@ -66,8 +72,19 @@ Future<void> main(List<String> args) async {
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
 <channel><title>Fixture</title><item><title>Updated fixture</title>
 $criticalElement
+<sparkle:releaseNotesLink>$origin$notesPath</sparkle:releaseNotesLink>
 <enclosure url="$origin/update.exe" sparkle:version="2.0.0" sparkle:os="windows"
 type="application/octet-stream" /></item></channel></rss>''');
+    } else if (request.uri.path == notesPath) {
+      notesRequests.add(request.uri.path);
+      request.response.headers.contentType = ContentType.html;
+      final description = language == 'en' ? 'Release notes' : '发行说明';
+      request.response.write(
+        '<!doctype html><p>$description</p><img src="$assetPath">',
+      );
+    } else if (request.uri.path == assetPath) {
+      if (!notesAssetRequested.isCompleted) notesAssetRequested.complete();
+      request.response.statusCode = HttpStatus.noContent;
     } else {
       request.response.statusCode = HttpStatus.notFound;
     }
@@ -87,7 +104,7 @@ type="application/octet-stream" /></item></channel></rss>''');
       );
       native.win_sparkle_set_lang('en'.toNativeUtf8(allocator: arena).cast());
       native.win_sparkle_set_appcast_url(
-        '$origin/appcast.xml'.toNativeUtf8(allocator: arena).cast(),
+        '$origin$feedPath'.toNativeUtf8(allocator: arena).cast(),
       );
     });
     native.win_sparkle_set_automatic_check_for_updates(0);
@@ -124,6 +141,13 @@ type="application/octet-stream" /></item></channel></rss>''');
       }
       await Future<void>.delayed(const Duration(milliseconds: 100));
     }
+    await notesAssetRequested.future.timeout(const Duration(seconds: 25));
+    if (notesRequests.join(',') != notesPath) {
+      throw StateError('Unexpected release note requests: $notesRequests');
+    }
+    stdout.writeln(
+      'The native update dialog loaded and parsed $notesPath using $feedPath.',
+    );
   } finally {
     if (!sendFeed.isCompleted) sendFeed.complete();
     native.win_sparkle_cleanup();
