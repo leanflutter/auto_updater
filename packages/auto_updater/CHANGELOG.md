@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.0
 
 * Apps now select their updater implementation in `pubspec.yaml`. Use
   `auto_updater_sparkle` on macOS and `auto_updater_winsparkle` on Windows.
